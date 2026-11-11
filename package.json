@@ -1,0 +1,23 @@
+{
+  "name": "careercatch",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "client/apps/*",
+    "server",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:website": "npm run dev -w @careercatch/website",
+    "dev:admin": "npm run dev -w @careercatch/admin",
+    "dev:server": "npm run dev -w @careercatch/server",
+    "build": "npm run build --workspaces --if-present",
+    "build:website": "npm run build -w @careercatch/website",
+    "build:admin": "npm run build -w @careercatch/admin",
+    "build:server": "npm run build -w @careercatch/server",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3"
+  }
+}

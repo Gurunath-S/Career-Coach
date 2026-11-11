@@ -1,0 +1,31 @@
+/.agents
+/HOME_PAGE_UI_PLAN.md
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs & caches
+dist/
+build/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+
+# Vite & bundlers
+.vite/
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
+
+# Next.js
+next-env.d.ts
