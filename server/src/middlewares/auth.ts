@@ -19,12 +19,25 @@ export interface AuthRequest<
 }
 
 export function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
-  const authHeader = req.headers.authorization
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  let token: string | undefined
+
+  // 1. Check HttpOnly cookie (website client)
+  if (req.cookies && req.cookies.careercatch_student_session) {
+    token = req.cookies.careercatch_student_session
+  }
+
+  // 2. Fallback to Authorization: Bearer header (admin SPA / API clients)
+  if (!token) {
+    const authHeader = req.headers.authorization
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1]
+    }
+  }
+
+  if (!token) {
     return next(ApiError.unauthorized('Authentication token is required'))
   }
 
-  const token = authHeader.split(' ')[1]
   try {
     const decoded = jwt.verify(token, config.jwtSecret) as {
       id: string

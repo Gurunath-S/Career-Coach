@@ -64,32 +64,26 @@ export async function adminLogin(req: Request, res: Response, next: NextFunction
   }
 }
 
+function setStudentSessionCookie(res: Response, token: string) {
+  res.cookie('careercatch_student_session', token, {
+    httpOnly: true,
+    secure: config.nodeEnv === 'production',
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    path: '/',
+  })
+}
+
 export async function studentLogin(req: Request, res: Response, next: NextFunction) {
   try {
     const { email, password } = req.body
 
-    let user = null
-    try {
-      user = await prisma.user.findUnique({
-        where: { email },
-        include: { studentProfile: true },
-      })
-    } catch {
-      // DB offline fallback
-    }
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: { studentProfile: true },
+    })
 
-    if (!user) {
-      // Demo student fallback
-      if (email && password) {
-        const demoUser = {
-          id: 'student_demo_1',
-          name: email.split('@')[0],
-          email,
-          role: 'STUDENT' as const,
-        }
-        const token = jwt.sign(demoUser, config.jwtSecret, { expiresIn: '7d' })
-        return successResponse(res, { token, user: demoUser }, 'Student logged in successfully')
-      }
+    if (!user || user.role !== 'STUDENT') {
       throw ApiError.unauthorized('Invalid student credentials')
     }
 
@@ -103,6 +97,8 @@ export async function studentLogin(req: Request, res: Response, next: NextFuncti
       config.jwtSecret,
       { expiresIn: '7d' }
     )
+
+    setStudentSessionCookie(res, token)
 
     return successResponse(
       res,
@@ -121,41 +117,37 @@ export async function studentRegister(req: Request, res: Response, next: NextFun
   try {
     const { name, email, password, phone, college, education } = req.body
 
+    const existingUser = await prisma.user.findUnique({ where: { email } })
+    if (existingUser) {
+      throw ApiError.conflict('An account with this email address already exists')
+    }
+
     const passwordHash = await bcrypt.hash(password, 10)
 
-    let createdUser = null
-    try {
-      createdUser = await prisma.user.create({
-        data: {
-          name,
-          email,
-          passwordHash,
-          role: 'STUDENT',
-          studentProfile: {
-            create: {
-              phone,
-              college,
-              education,
-              skills: [],
-            },
-          },
-        },
-      })
-    } catch {
-      // In offline mode, simulate student creation
-      createdUser = {
-        id: `student_${Date.now()}`,
+    const createdUser = await prisma.user.create({
+      data: {
         name,
         email,
-        role: 'STUDENT' as const,
-      }
-    }
+        passwordHash,
+        role: 'STUDENT',
+        studentProfile: {
+          create: {
+            phone,
+            college,
+            education,
+            skills: [],
+          },
+        },
+      },
+    })
 
     const token = jwt.sign(
       { id: createdUser.id, email: createdUser.email, name: createdUser.name, role: 'STUDENT' },
       config.jwtSecret,
       { expiresIn: '7d' }
     )
+
+    setStudentSessionCookie(res, token)
 
     return successResponse(
       res,
@@ -169,6 +161,16 @@ export async function studentRegister(req: Request, res: Response, next: NextFun
   } catch (error) {
     next(error)
   }
+}
+
+export async function studentLogout(req: Request, res: Response) {
+  res.clearCookie('careercatch_student_session', {
+    httpOnly: true,
+    secure: config.nodeEnv === 'production',
+    sameSite: 'lax',
+    path: '/',
+  })
+  return successResponse(res, null, 'Logged out successfully')
 }
 
 export async function getMe(req: AuthRequest, res: Response, next: NextFunction) {
