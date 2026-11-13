@@ -12,6 +12,7 @@
     "@careercatch/shared-types": "*",
     "@phosphor-icons/react": "^2.1.7",
     "gsap": "^3.12.5",
+    "jose": "^6.2.17",
     "motion": "^12.0.0",
     "next": "^15.3.3",
     "react": "^19.1.0",

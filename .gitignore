@@ -1,4 +1,8 @@
 /.agents
+.agents/
+.skills/
+skills/
+skills-lock.json
 /HOME_PAGE_UI_PLAN.md
 
 # Dependencies
