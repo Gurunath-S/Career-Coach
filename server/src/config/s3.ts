@@ -1,3 +1,5 @@
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { config } from './env'
 
 export interface PresignedUrlParams {
@@ -12,10 +14,14 @@ export interface PresignedUrlResult {
   fileUrl: string
 }
 
-/**
- * Generate S3 Presigned URL for secure uploads.
- * If AWS credentials are provided, connects to S3; otherwise produces a secure upload simulation.
- */
+const s3Client = new S3Client({
+  region: config.aws.region,
+  credentials: {
+    accessKeyId: config.aws.accessKeyId,
+    secretAccessKey: config.aws.secretAccessKey,
+  },
+})
+
 export async function generatePresignedUploadUrl({
   fileName,
   fileType,
@@ -25,24 +31,15 @@ export async function generatePresignedUploadUrl({
   const sanitized = fileName.replace(/[^a-zA-Z0-9.-]/g, '_')
   const fileKey = `${folder}/${timestamp}-${sanitized}`
 
-  // If AWS S3 credentials are configured in environment:
-  if (config.aws.accessKeyId && config.aws.secretAccessKey) {
-    // In production, instantiate @aws-sdk/client-s3 PutObjectCommand & getSignedUrl
-    const fileUrl = `https://${config.aws.bucketName}.s3.${config.aws.region}.amazonaws.com/${fileKey}`
-    return {
-      uploadUrl: `https://${config.aws.bucketName}.s3.${config.aws.region}.amazonaws.com/${fileKey}?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=...`,
-      fileKey,
-      fileUrl,
-    }
-  }
+  const command = new PutObjectCommand({
+    Bucket: config.aws.bucketName,
+    Key: fileKey,
+    ContentType: fileType,
+  })
 
-  // Local/Dev Presigned URL Endpoint Simulation
-  const fileUrl = `/uploads/${fileKey}`
-  const uploadUrl = `http://localhost:${config.port}/api/v1/uploads/direct?key=${encodeURIComponent(fileKey)}`
+  // Generates real cryptographic presigned URL valid for 15 minutes
+  const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 900 })
+  const fileUrl = `https://${config.aws.bucketName}.s3.${config.aws.region}.amazonaws.com/${fileKey}`
 
-  return {
-    uploadUrl,
-    fileKey,
-    fileUrl,
-  }
+  return { uploadUrl, fileKey, fileUrl }
 }
