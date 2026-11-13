@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { adminApi } from '../../services/adminApi'
 import { Lock, EnvelopeSimple, WarningCircle, ArrowRight } from '@phosphor-icons/react'
 
@@ -6,13 +6,13 @@ interface AdminLoginProps {
   onLoginSuccess: (user: { name: string; email: string; role: string }) => void
 }
 
-export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
+export function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
   const [email, setEmail] = useState('admin@careercatch.in')
   const [password, setPassword] = useState('Admin@2026')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect, type ChangeEvent, type FormEvent } from 'react'
 import { adminApi } from '../../services/adminApi'
 import { Event } from '@careercatch/shared-types'
 import { X, UploadSimple, WarningCircle, CheckCircle, Sparkle } from '@phosphor-icons/react'
@@ -10,12 +10,12 @@ interface EventFormModalProps {
   initialEvent?: Event | null
 }
 
-export const EventFormModal: React.FC<EventFormModalProps> = ({
+export function EventFormModal({
   isOpen,
   onClose,
   onSuccess,
   initialEvent,
-}) => {
+}: EventFormModalProps) {
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -81,7 +81,7 @@ export const EventFormModal: React.FC<EventFormModalProps> = ({
   if (!isOpen) return null
 
   // Handle auto-slug creation
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
     setFormData((prev) => ({
       ...prev,
@@ -91,7 +91,7 @@ export const EventFormModal: React.FC<EventFormModalProps> = ({
   }
 
   // Handle S3 Presigned Image Upload
-  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -115,7 +115,7 @@ export const EventFormModal: React.FC<EventFormModalProps> = ({
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')

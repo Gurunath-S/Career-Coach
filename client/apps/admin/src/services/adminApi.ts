@@ -1,6 +1,6 @@
 import { Event, Enquiry, PresignedUploadResponse } from '@careercatch/shared-types'
 
-const API_BASE = 'http://localhost:5000/api/v1'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'
 
 function getAuthHeader(): Record<string, string> {
   const token = localStorage.getItem('careercatch_admin_token')

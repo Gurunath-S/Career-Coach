@@ -1,4 +1,4 @@
-import React from 'react'
+import type { ReactNode } from 'react'
 import {
   CalendarBlank,
   ChartPieSlice,
@@ -13,16 +13,16 @@ interface AdminLayoutProps {
   setCurrentTab: (tab: 'dashboard' | 'events' | 'enquiries') => void
   user: { name: string; email: string; role: string } | null
   onLogout: () => void
-  children: React.ReactNode
+  children: ReactNode
 }
 
-export const AdminLayout: React.FC<AdminLayoutProps> = ({
+export function AdminLayout({
   currentTab,
   setCurrentTab,
   user,
   onLogout,
   children,
-}) => {
+}: AdminLayoutProps) {
   return (
     <div className="min-h-screen flex bg-[#F0F6FF]">
       {/* Sidebar */}

@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { adminApi } from '../../services/adminApi'
 import { Event, Enquiry } from '@careercatch/shared-types'
 import {
   CalendarBlank,
   Users,
   EnvelopeSimple,
-  Sparkle,
   Plus,
   ArrowRight,
   Clock,
@@ -17,10 +16,10 @@ interface DashboardOverviewProps {
   onCreateEvent: () => void
 }
 
-export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
+export function DashboardOverview({
   onNavigateTab,
   onCreateEvent,
-}) => {
+}: DashboardOverviewProps) {
   const [events, setEvents] = useState<Event[]>([])
   const [enquiries, setEnquiries] = useState<Enquiry[]>([])
   const [loading, setLoading] = useState(true)

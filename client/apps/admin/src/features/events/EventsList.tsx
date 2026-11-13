@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { adminApi } from '../../services/adminApi'
 import { Event } from '@careercatch/shared-types'
 import { EventFormModal } from './EventFormModal'
@@ -14,7 +14,7 @@ import {
   MagnifyingGlass,
 } from '@phosphor-icons/react'
 
-export const EventsList: React.FC = () => {
+export function EventsList() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')

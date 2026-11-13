@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { adminApi } from '../../services/adminApi'
 import { Enquiry, EnquiryStatus } from '@careercatch/shared-types'
 import { EnvelopeSimple, Phone, CalendarBlank, Check, MagnifyingGlass } from '@phosphor-icons/react'
 
-export const EnquiriesList: React.FC = () => {
+export function EnquiriesList() {
   const [enquiries, setEnquiries] = useState<Enquiry[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
