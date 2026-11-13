@@ -1,7 +1,9 @@
+import type { Course, Mentor, Testimonial, FAQItem, Project } from '@careercatch/shared-types'
+
 // CareerCatch Site Constants
 // All sample/mock data. Replace with real API data in production.
 
-export const COURSES = [
+export const COURSES: Course[] = [
   {
     id: 1,
     title: "Full Stack Web Development",
@@ -117,7 +119,7 @@ export const TECHNOLOGIES = [
   { name: "GraphQL", slug: "graphql" },
 ];
 
-export const MENTORS = [
+export const MENTORS: Mentor[] = [
   {
     id: 1,
     name: "Ravi Kumar",
@@ -156,7 +158,7 @@ export const MENTORS = [
   },
 ];
 
-export const TESTIMONIALS = [
+export const TESTIMONIALS: Testimonial[] = [
   {
     id: 1,
     quote: "CareerCatch didn't just teach me to code; it helped me build real projects and land my first SDE role in 4 months.",
@@ -219,7 +221,7 @@ export const TESTIMONIALS = [
   },
 ];
 
-export const FAQS = [
+export const FAQS: FAQItem[] = [
   { q: "What courses does CareerCatch offer?", a: "We offer industry-aligned tech courses across Web Development, Data Science, UI/UX Design, Cloud Computing, Mobile Development, Cybersecurity, and AI/ML - all taught by active industry professionals." },
   { q: "Do I need prior coding experience?", a: "No. Most of our courses are designed for beginners. We start from fundamentals and progressively build toward job-ready skills. We also offer advanced courses for experienced learners." },
   { q: "How are the live classes conducted?", a: "All live classes run on Zoom with interactive Q&A, screen sharing, and real-time code reviews. Recordings are available for 90 days after each session." },
@@ -232,7 +234,7 @@ export const FAQS = [
   { q: "Is there an EMI or payment plan available?", a: "Yes. We offer EMI options starting at 0% interest through partner finance platforms. You can split payments into 3, 6, or 12 monthly installments." },
 ];
 
-export const PROJECTS = [
+export const PROJECTS: Project[] = [
   { name: "E-Commerce Platform", tags: ["React", "Node.js", "MongoDB"], img: "/images/projects/ecommerce-platform.jpg" },
   { name: "Data Analytics Dashboard", tags: ["Python", "Pandas", "Plotly"], img: "/images/projects/data-analytics.jpg" },
   { name: "Mobile Banking App", tags: ["Flutter", "Firebase"], img: "/images/projects/mobile-banking.jpg" },
