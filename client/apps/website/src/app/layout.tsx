@@ -55,6 +55,8 @@ export const metadata: Metadata = {
   },
 }
 
+import { StudentAuthProvider } from '@/context/StudentAuthContext'
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -66,7 +68,7 @@ export default function RootLayout({
         className="min-h-screen bg-white text-[#101B3C] font-inter selection:bg-[#155EEF]/15 selection:text-[#101B3C]"
         suppressHydrationWarning
       >
-        {children}
+        <StudentAuthProvider>{children}</StudentAuthProvider>
       </body>
     </html>
   )
