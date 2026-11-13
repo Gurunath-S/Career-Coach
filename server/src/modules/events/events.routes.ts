@@ -6,6 +6,7 @@ import {
   updateEvent,
   deleteEvent,
   togglePublish,
+  registerForEvent,
 } from './events.controller'
 import { authenticate, requireRole } from '../../middlewares/auth'
 import { validateRequest } from '../../middlewares/validate'
@@ -16,6 +17,9 @@ export const eventsRouter = Router()
 // Public routes
 eventsRouter.get('/', listEvents)
 eventsRouter.get('/:id', getEvent)
+
+// Authenticated Student route
+eventsRouter.post('/:id/register', authenticate, registerForEvent)
 
 // Protected Admin routes
 eventsRouter.post('/', authenticate, requireRole('SUPER_ADMIN', 'ADMIN', 'EDITOR'), validateRequest(eventSchema), createEvent)

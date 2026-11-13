@@ -3,6 +3,7 @@ import { prisma } from '../../config/db'
 import { successResponse } from '../../utils/apiResponse'
 import { ApiError } from '../../utils/apiError'
 import { Event } from '@careercatch/shared-types'
+import { AuthRequest } from '../../middlewares/auth'
 
 // In-memory fallback dataset for offline/mock development
 let fallbackEvents: Event[] = [
@@ -189,6 +190,79 @@ export async function togglePublish(req: Request, res: Response, next: NextFunct
       fallbackEvents[idx].isPublished = Boolean(isPublished)
       return successResponse(res, fallbackEvents[idx], 'Publish status updated')
     }
+  } catch (error) {
+    next(error)
+  }
+}
+
+export async function registerForEvent(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    if (!req.user) throw ApiError.unauthorized('Authentication required')
+    const currentUserId = req.user.id
+    const eventId = String(req.params.id || req.params.eventId)
+
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Resolve or auto-provision student profile
+      let studentProfile = await tx.studentProfile.findUnique({
+        where: { userId: currentUserId },
+      })
+      if (!studentProfile) {
+        studentProfile = await tx.studentProfile.create({
+          data: {
+            userId: currentUserId,
+            phone: '',
+            skills: [],
+          },
+        })
+      }
+
+      // 2. Lock event row and inspect capacity
+      const event = await tx.event.findUnique({
+        where: { id: eventId },
+        select: { id: true, title: true, capacity: true, registeredCount: true, eventDate: true, isPublished: true },
+      })
+      if (!event || !event.isPublished) {
+        throw ApiError.notFound('Event not found or registration is closed.')
+      }
+      if (new Date(event.eventDate) < new Date()) {
+        throw ApiError.badRequest('Cannot register for a past event.')
+      }
+      if (event.capacity && event.registeredCount >= event.capacity) {
+        throw ApiError.badRequest('This event has reached full capacity.')
+      }
+
+      // 3. Check for existing registration
+      const existing = await tx.eventRegistration.findUnique({
+        where: {
+          eventId_studentId: {
+            eventId,
+            studentId: studentProfile.id,
+          },
+        },
+      })
+      if (existing) {
+        throw ApiError.conflict('You are already registered for this event.')
+      }
+
+      // 4. Create registration record
+      const registration = await tx.eventRegistration.create({
+        data: {
+          eventId,
+          studentId: studentProfile.id,
+          status: 'CONFIRMED',
+        },
+      })
+
+      // 5. Increment event registeredCount
+      await tx.event.update({
+        where: { id: eventId },
+        data: { registeredCount: { increment: 1 } },
+      })
+
+      return { registration, eventTitle: event.title }
+    })
+
+    return successResponse(res, result, 'Successfully registered for event', 201)
   } catch (error) {
     next(error)
   }
