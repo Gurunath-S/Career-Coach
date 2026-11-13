@@ -42,6 +42,7 @@ export interface Course {
   slug?: string
   description?: string
   isPublished?: boolean
+  syllabus?: any
 }
 
 export interface Mentor {
@@ -62,8 +63,10 @@ export interface Testimonial {
   role: string
   company: string
   avatar: string
-  text: string
+  text?: string
+  quote?: string
   rating: number
+  featured?: boolean
   hike?: string
 }
 
@@ -76,12 +79,14 @@ export interface FAQItem {
 
 export interface Project {
   id?: number
-  title: string
-  description: string
+  title?: string
+  name?: string
+  description?: string
   tags: string[]
   metrics?: string
   difficulty?: 'Beginner' | 'Intermediate' | 'Production Grade'
   image?: string
+  img?: string
   githubUrl?: string
   liveUrl?: string
 }
@@ -132,6 +137,8 @@ export interface Enquiry {
   email: string
   phone: string
   course?: string | null
+  college?: string | null
+  currentYear?: string | null
   message?: string | null
   source?: string | null
   status: EnquiryStatus
@@ -146,4 +153,48 @@ export interface PresignedUploadResponse {
   uploadUrl: string
   fileKey: string
   fileUrl: string
+}
+
+export type DemoRequestStatus = 'PENDING' | 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW'
+
+export interface DemoRequest {
+  id: number
+  fullName: string
+  email: string
+  phone: string
+  college?: string | null
+  courseInterest?: string | null
+  preferredDate?: Date | string | null
+  preferredTime?: string | null
+  message?: string | null
+  status: DemoRequestStatus
+  notes?: string | null
+  assignedTo?: string | null
+  createdAt: Date | string
+  updatedAt?: Date | string
+}
+
+export interface LearningPathCourse {
+  id: number
+  learningPathId: number
+  courseId: number
+  sortOrder: number
+  isMandatory: boolean
+  notes?: string | null
+  course?: Course
+}
+
+export interface LearningPath {
+  id: number
+  title: string
+  slug: string
+  description: string
+  icon?: string | null
+  outcome?: string | null
+  duration: string
+  sortOrder: number
+  isPublished: boolean
+  courses?: LearningPathCourse[]
+  createdAt: Date | string
+  updatedAt?: Date | string
 }

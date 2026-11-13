@@ -80,6 +80,8 @@ export const enquirySchema = z.object({
   fullName: z.string().min(2, 'Name is required'),
   email: z.string().email('Valid email is required'),
   phone: z.string().min(10, 'Valid phone number is required').max(15),
+  college: z.string().optional(),
+  currentYear: z.string().optional(),
   course: z.string().optional(),
   message: z.string().optional(),
   source: z.string().optional(),
@@ -90,6 +92,42 @@ export const enquiryUpdateSchema = z.object({
   notes: z.string().optional(),
   assignedTo: z.string().optional(),
   followUpDate: z.string().optional().nullable(),
+})
+
+// ─── Demo Request Schemas ───────────────────────────────────────────
+export const demoRequestSchema = z.object({
+  fullName: z.string().min(2, 'Name is required'),
+  email: z.string().email('Valid email is required'),
+  phone: z.string().min(10, 'Valid phone number is required').max(15),
+  college: z.string().optional(),
+  courseInterest: z.string().optional(),
+  preferredDate: z.string().optional(),
+  preferredTime: z.string().optional(),
+  message: z.string().optional(),
+})
+
+export const demoRequestStatusUpdateSchema = z.object({
+  status: z.enum(['PENDING', 'SCHEDULED', 'COMPLETED', 'CANCELLED', 'NO_SHOW']),
+  notes: z.string().optional(),
+  assignedTo: z.string().optional(),
+})
+
+// ─── Learning Path Schema ───────────────────────────────────────────
+export const learningPathSchema = z.object({
+  title: z.string().min(3, 'Title must be at least 3 characters'),
+  slug: z.string().min(3).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with hyphens'),
+  description: z.string().min(10),
+  icon: z.string().optional(),
+  outcome: z.string().optional(),
+  duration: z.string().min(1),
+  sortOrder: z.number().int().default(0),
+  isPublished: z.boolean().default(true),
+  courses: z.array(z.object({
+    courseId: z.number().int(),
+    sortOrder: z.number().int().default(0),
+    isMandatory: z.boolean().default(true),
+    notes: z.string().optional(),
+  })).default([]),
 })
 
 // ─── Presigned S3 Upload Request Schema ──────────────────────────────
