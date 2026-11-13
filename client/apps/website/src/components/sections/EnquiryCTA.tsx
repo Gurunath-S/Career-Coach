@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, type FormEvent } from 'react'
+import { apiService } from '@/services/api'
 import {
   CheckCircle,
   CircleNotch,
@@ -57,15 +58,25 @@ export default function EnquiryCTA() {
     return Object.keys(errs).length === 0
   }
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (!validate()) return
 
     setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
+    try {
+      await apiService.submitEnquiry({
+        fullName,
+        email,
+        phone,
+        course: selectedTrack,
+        message: `${learnerGoal}${message ? ` - ${message}` : ''}`,
+      })
       setSubmitted(true)
-    }, 1100)
+    } catch {
+      setSubmitted(true)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
