@@ -73,7 +73,7 @@ export async function listEnquiries(req: Request, res: Response, next: NextFunct
       ])
 
       if (total > 0) {
-        return paginatedResponse(res, data as unknown as Enquiry[], pageNum, limitNum, total)
+        return paginatedResponse(res, data as Enquiry[], pageNum, limitNum, total)
       }
     } catch {
       // DB offline fallback
