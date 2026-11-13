@@ -1,13 +1,15 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Logo from '@/components/common/Logo'
 import { User, Lock, EnvelopeSimple, Phone, GraduationCap, ArrowRight, WarningCircle } from '@phosphor-icons/react'
+import { useStudentAuth } from '@/context/StudentAuthContext'
 
 export default function StudentRegisterPage() {
   const router = useRouter()
+  const { register } = useStudentAuth()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -19,39 +21,17 @@ export default function StudentRegisterPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
     try {
-      const res = await fetch('http://localhost:5000/api/v1/auth/student/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Registration failed')
-      }
-
-      localStorage.setItem('careercatch_student_token', data.token)
-      localStorage.setItem('careercatch_student_user', JSON.stringify(data.user))
+      await register(formData)
       router.push('/student/dashboard')
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : 'Registration failed'
-      // Demo fallback if backend is offline
-      if (formData.email && formData.password) {
-        localStorage.setItem(
-          'careercatch_student_user',
-          JSON.stringify({ name: formData.name, email: formData.email, role: 'STUDENT' })
-        )
-        router.push('/student/dashboard')
-      } else {
-        setError(errorMsg)
-      }
+      setError(errorMsg)
     } finally {
       setLoading(false)
     }

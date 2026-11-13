@@ -16,26 +16,40 @@ import {
   CheckCircle,
 } from '@phosphor-icons/react'
 
+import { useStudentAuth } from '@/context/StudentAuthContext'
+import { apiService, RegisteredEvent } from '@/services/api'
+
 export default function StudentDashboardPage() {
   const router = useRouter()
-  const [student, setStudent] = useState<{ name: string; email: string } | null>(null)
+  const { user, logout, loading: authLoading } = useStudentAuth()
+  const [registeredEvents, setRegisteredEvents] = useState<RegisteredEvent[]>([])
+  const [loadingEvents, setLoadingEvents] = useState(true)
 
   useEffect(() => {
-    const raw = localStorage.getItem('careercatch_student_user')
-    if (raw) {
+    let isMounted = true
+    const fetchDashboardData = async () => {
       try {
-        setStudent(JSON.parse(raw))
-      } catch {
-        setStudent({ name: 'Alex Hunter', email: 'alex@example.com' })
+        const eventsRes = await apiService.getStudentEvents()
+        if (isMounted) {
+          const eventsList = Array.isArray(eventsRes)
+            ? eventsRes
+            : (eventsRes as any)?.data || []
+          setRegisteredEvents(eventsList)
+        }
+      } catch (err) {
+        console.error('Failed to load registered events:', err)
+      } finally {
+        if (isMounted) setLoadingEvents(false)
       }
-    } else {
-      setStudent({ name: 'Alex Hunter', email: 'alex@example.com' })
+    }
+    fetchDashboardData()
+    return () => {
+      isMounted = false
     }
   }, [])
 
-  const handleLogout = () => {
-    localStorage.removeItem('careercatch_student_token')
-    localStorage.removeItem('careercatch_student_user')
+  const handleLogout = async () => {
+    await logout()
     router.push('/')
   }
 
@@ -65,7 +79,7 @@ export default function StudentDashboardPage() {
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs sm:text-sm font-medium text-[#101B3C] transition-all"
             >
               <User size={16} weight="bold" />
-              <span className="hidden sm:inline">{student?.name || 'Profile'}</span>
+              <span className="hidden sm:inline">{user?.name || 'Profile'}</span>
             </Link>
             <button
               onClick={handleLogout}
@@ -92,7 +106,7 @@ export default function StudentDashboardPage() {
               <span>Career Acceleration Cohort 2026</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-extrabold font-display leading-tight">
-              Welcome back, {student?.name?.split(' ')[0] || 'Learner'}!
+              Welcome back, {user?.name?.split(' ')[0] || 'Learner'}!
             </h1>
             <p className="mt-2 text-sm sm:text-base text-blue-100 leading-relaxed">
               Track your upcoming tech events, enrolled programs, and 1:1 code mentorship sessions all in one place.
@@ -140,55 +154,65 @@ export default function StudentDashboardPage() {
               </div>
 
               <div className="space-y-4">
-                <div className="p-4 rounded-xl border border-slate-200 hover:border-[#155EEF]/40 transition-colors bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        CONFIRMED
-                      </span>
-                      <span className="text-xs text-slate-500">Live Online</span>
-                    </div>
-                    <h3 className="text-sm font-bold text-[#101B3C]">
-                      System Design at Scale: Microservices with AWS
-                    </h3>
-                    <div className="flex items-center gap-4 text-xs text-slate-500">
-                      <span className="flex items-center gap-1">
-                        <Clock size={14} /> Tomorrow, 6:00 PM IST
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MapPin size={14} /> Zoom Room
-                      </span>
-                    </div>
+                {loadingEvents ? (
+                  <div className="py-8 text-center text-xs text-slate-500">
+                    Loading your registered workshops...
                   </div>
-                  <button className="px-3.5 py-1.5 rounded-lg bg-[#155EEF] text-white text-xs font-semibold hover:bg-[#124BBF] transition-all shrink-0">
-                    Join Session
-                  </button>
-                </div>
-
-                <div className="p-4 rounded-xl border border-slate-200 hover:border-[#155EEF]/40 transition-colors bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                        UPCOMING
-                      </span>
-                      <span className="text-xs text-slate-500">Masterclass</span>
-                    </div>
-                    <h3 className="text-sm font-bold text-[#101B3C]">
-                      Cracking Modern Full-Stack Interviews in 2026
-                    </h3>
-                    <div className="flex items-center gap-4 text-xs text-slate-500">
-                      <span className="flex items-center gap-1">
-                        <Clock size={14} /> Sunday, 11:00 AM IST
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MapPin size={14} /> Live Stream
-                      </span>
-                    </div>
+                ) : registeredEvents.length === 0 ? (
+                  <div className="p-6 rounded-xl border border-dashed border-slate-300 text-center bg-slate-50/50">
+                    <p className="text-xs text-slate-600 font-medium">
+                      You have not registered for any upcoming workshops yet.
+                    </p>
+                    <Link
+                      href="/student/events"
+                      className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#155EEF] text-white text-xs font-semibold hover:bg-[#124BBF] transition-all"
+                    >
+                      <CalendarBlank size={14} />
+                      <span>Browse Upcoming Events</span>
+                    </Link>
                   </div>
-                  <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1 shrink-0">
-                    <CheckCircle size={16} weight="fill" /> Registered
-                  </span>
-                </div>
+                ) : (
+                  registeredEvents.map((item) => (
+                    <div
+                      key={item.id}
+                      className="p-4 rounded-xl border border-slate-200 hover:border-[#155EEF]/40 transition-colors bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            {item.status}
+                          </span>
+                          <span className="text-xs text-slate-500">
+                            {item.event.category || item.event.categoryName || 'Workshop'}
+                          </span>
+                        </div>
+                        <h3 className="text-sm font-bold text-[#101B3C]">
+                          {item.event.title}
+                        </h3>
+                        <div className="flex items-center gap-4 text-xs text-slate-500">
+                          <span className="flex items-center gap-1">
+                            <Clock size={14} />{' '}
+                            {new Date(item.event.date || item.event.eventDate || Date.now()).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}{' '}
+                            {item.event.time || item.event.duration ? `• ${item.event.time || item.event.duration}` : ''}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <MapPin size={14} /> {item.event.location}
+                          </span>
+                        </div>
+                      </div>
+                      <Link
+                        href={`/events/${item.event.slug}`}
+                        className="px-3.5 py-1.5 rounded-lg bg-[#155EEF] text-white text-xs font-semibold hover:bg-[#124BBF] transition-all shrink-0 text-center"
+                      >
+                        View Details
+                      </Link>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
@@ -230,11 +254,11 @@ export default function StudentDashboardPage() {
               </h3>
               <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
                 <div className="w-12 h-12 rounded-full bg-blue-100 text-[#155EEF] font-bold text-lg flex items-center justify-center font-display">
-                  {student?.name?.charAt(0) || 'S'}
+                  {user?.name?.charAt(0) || 'S'}
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-[#101B3C]">{student?.name || 'Student'}</h4>
-                  <p className="text-xs text-slate-500">{student?.email || 'student@careercatch.in'}</p>
+                  <h4 className="text-sm font-bold text-[#101B3C]">{user?.name || 'Student'}</h4>
+                  <p className="text-xs text-slate-500">{user?.email || 'student@careercatch.in'}</p>
                 </div>
               </div>
 
@@ -244,8 +268,8 @@ export default function StudentDashboardPage() {
                   <span className="font-semibold text-emerald-600">Active Member</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Events Attended</span>
-                  <span className="font-semibold text-slate-700">2</span>
+                  <span className="text-slate-400">Events Registered</span>
+                  <span className="font-semibold text-slate-700">{registeredEvents.length}</span>
                 </div>
               </div>
 

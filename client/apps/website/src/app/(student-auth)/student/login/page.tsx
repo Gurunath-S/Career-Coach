@@ -1,52 +1,34 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState, type FormEvent, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Logo from '@/components/common/Logo'
 import { Lock, EnvelopeSimple, ArrowRight, WarningCircle } from '@phosphor-icons/react'
+import { useStudentAuth } from '@/context/StudentAuthContext'
 
-export default function StudentLoginPage() {
+function StudentLoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectPath = searchParams.get('redirect') || '/student/dashboard'
+  const { login } = useStudentAuth()
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
     try {
-      const res = await fetch('http://localhost:5000/api/v1/auth/student/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Invalid email or password')
-      }
-
-      // Store student session
-      localStorage.setItem('careercatch_student_token', data.token)
-      localStorage.setItem('careercatch_student_user', JSON.stringify(data.user))
-      router.push('/student/dashboard')
+      await login(email, password)
+      router.push(redirectPath)
     } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : 'Login failed'
-      // Demo fallback if backend is offline
-      if (email && password) {
-        localStorage.setItem(
-          'careercatch_student_user',
-          JSON.stringify({ name: email.split('@')[0], email, role: 'STUDENT' })
-        )
-        router.push('/student/dashboard')
-      } else {
-        setError(errorMsg)
-      }
+      const errorMsg = err instanceof Error ? err.message : 'Invalid email or password'
+      setError(errorMsg)
     } finally {
       setLoading(false)
     }
@@ -152,5 +134,13 @@ export default function StudentLoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function StudentLoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F0F6FF]" />}>
+      <StudentLoginForm />
+    </Suspense>
   )
 }
