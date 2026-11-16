@@ -26,6 +26,18 @@ async function fetchWithFallback<T>(endpoint: string, fallbackData: T): Promise<
     return fallbackData
   }
 }
+function getAuthHeaders(): HeadersInit {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('careercatch_student_token')
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+  }
+  return headers
+}
 
 export const apiService = {
   // ─── Public Content ───────────────────────────────────────────────
@@ -134,7 +146,7 @@ export const apiService = {
   },
 
   // ─── Authenticated Student Endpoints ──────────────────────────────
-  async registerForEvent(eventId: string): Promise<{ success: boolean; message: string; data: any }> {
+  async registerForEvent(eventId: string): Promise<{ success: boolean; message: string; data: unknown }> {
     const res = await fetch(`${API_BASE_URL}/events/${eventId}/register`, {
       method: 'POST',
       credentials: 'include',
@@ -176,13 +188,84 @@ export const apiService = {
   async getStudentEvents(): Promise<RegisteredEvent[]> {
     const res = await fetch(`${API_BASE_URL}/students/me/events`, {
       credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
     })
     const json = await res.json()
     if (!res.ok) {
       throw new Error(json.message || 'Failed to fetch registered events')
     }
     return json.data || []
+  },
+
+  async getStudentCourses(): Promise<{
+    all: Record<string, unknown>[]
+    ongoing: Record<string, unknown>[]
+    completed: Record<string, unknown>[]
+    certificates: Record<string, unknown>[]
+    demoBookings: Record<string, unknown>[]
+  }> {
+    const res = await fetch(`${API_BASE_URL}/students/me/courses`, {
+      credentials: 'include',
+      headers: getAuthHeaders(),
+    })
+    const json = await res.json()
+    if (!res.ok) {
+      throw new Error(json.message || 'Failed to fetch student courses')
+    }
+    return json.data || { all: [], ongoing: [], completed: [], certificates: [], demoBookings: [] }
+  },
+
+  async enrollInCourse(courseId: number): Promise<unknown> {
+    const res = await fetch(`${API_BASE_URL}/students/me/enroll/${courseId}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: getAuthHeaders(),
+    })
+    const json = await res.json()
+    if (!res.ok) {
+      throw new Error(json.message || 'Failed to enroll in course')
+    }
+    return json.data
+  },
+
+  async completeCourse(enrollmentId: number): Promise<unknown> {
+    const res = await fetch(`${API_BASE_URL}/students/me/courses/${enrollmentId}/complete`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: getAuthHeaders(),
+    })
+    const json = await res.json()
+    if (!res.ok) {
+      throw new Error(json.message || 'Failed to complete course')
+    }
+    return json.data
+  },
+
+  async checkEmail(email: string): Promise<{ exists: boolean; name?: string | null }> {
+    const res = await fetch(`${API_BASE_URL}/auth/student/check-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    })
+    const json = await res.json()
+    if (!res.ok) {
+      throw new Error(json.message || 'Failed to check email')
+    }
+    return json.data
+  },
+
+  async googleSso(email: string, name?: string): Promise<unknown> {
+    const res = await fetch(`${API_BASE_URL}/auth/student/google-sso`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, name }),
+    })
+    const json = await res.json()
+    if (!res.ok) {
+      throw new Error(json.message || 'Google SSO failed')
+    }
+    return json.data
   },
 }
 
@@ -203,7 +286,7 @@ export interface RegisteredEvent {
     time?: string
     duration?: string
     location: string
-    [key: string]: any
+    [key: string]: unknown
   }
 }
 
