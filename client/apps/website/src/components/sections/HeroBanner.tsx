@@ -1,5 +1,6 @@
-"use client"
+'use client'
 
+import Link from 'next/link'
 import {
   GraduationCap,
   Laptop,
@@ -26,7 +27,7 @@ const POPULAR_TRACKS = [
     accent: '#155EEF',
     iconBg: '#EFF6FF',
     badge: 'High Demand',
-    href: '#courses',
+    href: '/courses?category=Full+Stack',
   },
   {
     role: 'Data Science & AI',
@@ -35,7 +36,7 @@ const POPULAR_TRACKS = [
     accent: '#7C3AED',
     iconBg: '#F5F3FF',
     badge: 'Trending',
-    href: '#courses',
+    href: '/courses?category=Data+Science',
   },
   {
     role: 'Cloud & DevOps',
@@ -44,7 +45,7 @@ const POPULAR_TRACKS = [
     accent: '#059669',
     iconBg: '#ECFDF5',
     badge: 'Enterprise',
-    href: '#courses',
+    href: '/courses?category=Cloud',
   },
   {
     role: 'UI/UX Design',
@@ -53,7 +54,7 @@ const POPULAR_TRACKS = [
     accent: '#DB2777',
     iconBg: '#FDF2F8',
     badge: 'Creative',
-    href: '#courses',
+    href: '/courses?category=UI%2FUX+Design',
   },
   {
     role: 'Mobile App Dev',
@@ -62,7 +63,7 @@ const POPULAR_TRACKS = [
     accent: '#EA580C',
     iconBg: '#FFF7ED',
     badge: 'Fast Track',
-    href: '#courses',
+    href: '/courses?category=Mobile',
   },
   {
     role: '1-on-1 Mentorship',
@@ -71,7 +72,7 @@ const POPULAR_TRACKS = [
     accent: '#0284C7',
     iconBg: '#F0F9FF',
     badge: 'Personalized',
-    href: '#mentors',
+    href: '/courses',
   },
 ]
 
@@ -166,20 +167,20 @@ export default function HeroBanner() {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-3.5">
-                <a
-                  href="#courses"
+                <Link
+                  href="/courses"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#155EEF] hover:bg-[#124BBF] text-white font-semibold text-sm sm:text-base transition-all shadow-sm active:scale-[0.98]"
                 >
                   <span>Explore Programs</span>
                   <ArrowRight size={16} weight="bold" />
-                </a>
+                </Link>
 
-                <a
-                  href="#courses"
+                <Link
+                  href="/courses"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-semibold text-sm sm:text-base transition-all shadow-2xs"
                 >
                   <span>View Curriculum</span>
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -198,6 +199,7 @@ export default function HeroBanner() {
                   alt="Students coding together on laptop in modern campus"
                   className="w-full h-full object-cover"
                   loading="eager"
+                  fetchPriority="high"
                 />
 
                 {/* Top-Left Floating Rating Badge */}
@@ -257,13 +259,13 @@ export default function HeroBanner() {
                 </span>
               </div>
 
-              <a
-                href="#courses"
+              <Link
+                href="/courses"
                 className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-[#155EEF] hover:text-[#124BBF] group shrink-0"
               >
                 <span>View all programs</span>
                 <ArrowRight size={14} weight="bold" className="transition-transform group-hover:translate-x-1" />
-              </a>
+              </Link>
             </div>
 
             {/* 6 High-Trust Career Cards */}
@@ -271,7 +273,7 @@ export default function HeroBanner() {
               {POPULAR_TRACKS.map((item) => {
                 const Icon = item.icon
                 return (
-                  <a
+                  <Link
                     key={item.role}
                     href={item.href}
                     className="group relative flex flex-col justify-between p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white hover:bg-[#F0F6FF]/40 border border-slate-200/80 hover:border-[#155EEF]/40 shadow-2xs hover:shadow-md hover:shadow-blue-500/8 transition-all duration-200 hover:-translate-y-1 text-decoration-none min-h-[135px] sm:min-h-[142px]"
@@ -299,7 +301,7 @@ export default function HeroBanner() {
                         {item.highlight}
                       </p>
                     </div>
-                  </a>
+                  </Link>
                 )
               })}
             </div>
