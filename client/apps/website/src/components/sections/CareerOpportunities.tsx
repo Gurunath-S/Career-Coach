@@ -46,6 +46,7 @@ export default function CareerOpportunities() {
                       alt={slug}
                       className="h-6 w-auto max-w-20 object-contain opacity-85 hover:opacity-100 transition-opacity"
                       loading="lazy"
+                      decoding="async"
                     />
                     <span className="text-[10px] text-slate-600 font-medium capitalize mt-2">
                       {slug}

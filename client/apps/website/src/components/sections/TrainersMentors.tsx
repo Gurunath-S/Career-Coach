@@ -1,5 +1,6 @@
 "use client"
 
+import Link from 'next/link'
 import { motion, useReducedMotion } from 'motion/react'
 import { LinkedinLogo, Briefcase, Sparkle } from '@phosphor-icons/react'
 import { MENTORS } from '@/lib/constants'
@@ -92,12 +93,12 @@ export default function TrainersMentors() {
         </div>
 
         <div className="text-center">
-          <a
-            href="#mentors"
+          <Link
+            href="/about"
             className="inline-flex items-center justify-center px-6 py-3 rounded-lg border border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50 text-slate-800 text-sm font-semibold transition-all shadow-xs"
           >
             Meet All 50+ Mentors
-          </a>
+          </Link>
         </div>
       </div>
     </section>
