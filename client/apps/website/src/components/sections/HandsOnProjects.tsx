@@ -1,5 +1,6 @@
 "use client"
 
+import Link from 'next/link'
 import { motion, useReducedMotion } from 'motion/react'
 import { ArrowUpRight, GithubLogo, Sparkle } from '@phosphor-icons/react'
 import { PROJECTS } from '@/lib/constants'
@@ -75,17 +76,19 @@ export default function HandsOnProjects() {
                 {/* Footer links */}
                 <div className="px-6 pb-6 pt-3 flex items-center justify-between border-t border-slate-100">
                   <a
-                    href="#projects"
+                    href="https://github.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-900 font-medium transition-colors"
                   >
                     <GithubLogo size={16} /> Source Code
                   </a>
-                  <a
-                    href="#projects"
+                  <Link
+                    href="/courses"
                     className="inline-flex items-center gap-1 text-xs font-semibold text-blue-700 hover:text-blue-800 transition-colors"
                   >
-                    View Demo <ArrowUpRight size={14} />
-                  </a>
+                    View Curriculum <ArrowUpRight size={14} />
+                  </Link>
                 </div>
               </motion.div>
             )

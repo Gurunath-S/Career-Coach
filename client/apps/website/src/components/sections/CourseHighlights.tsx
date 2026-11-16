@@ -1,5 +1,6 @@
 "use client"
 
+import Link from 'next/link'
 import { motion, useReducedMotion } from 'motion/react'
 import {
   VideoCamera,
@@ -198,12 +199,12 @@ export default function CourseHighlights() {
                 </p>
               </div>
             </div>
-            <a
-              href="#enquiry"
+            <Link
+              href="/courses"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-medium text-sm transition-all shadow-md shadow-blue-700/20 whitespace-nowrap"
             >
-              Enroll Now <ArrowRight size={16} />
-            </a>
+              Explore Programs <ArrowRight size={16} />
+            </Link>
           </motion.div>
         </div>
       </div>
