@@ -9,7 +9,6 @@ import {
   Sparkle,
   CheckCircle,
   GraduationCap,
-  Clock,
   Phone,
   EnvelopeSimple,
   User,
