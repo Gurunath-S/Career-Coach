@@ -14,7 +14,7 @@ export default function StudentDashboardLayout({
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/student/login?redirect=' + encodeURIComponent(window.location.pathname))
+      router.push('/?auth=login')
     }
   }, [user, loading, router])
 
