@@ -43,6 +43,10 @@ export interface Course {
   description?: string
   isPublished?: boolean
   syllabus?: any
+  partner?: string
+  partnerLogo?: string
+  certificateType?: string
+  skills?: string[]
 }
 
 export interface Mentor {
