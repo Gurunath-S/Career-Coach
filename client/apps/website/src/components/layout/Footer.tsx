@@ -1,125 +1,108 @@
 "use client"
 
+import Link from 'next/link'
 import { LinkedinLogo, TwitterLogo, InstagramLogo, YoutubeLogo } from '@phosphor-icons/react'
 import Logo from '../common/Logo'
 
 const FOOTER_COLS = [
   {
-    title: 'Courses',
-    links: ['Web Development', 'Data Science', 'UI/UX Design', 'Cloud Computing', 'Mobile Dev', 'AI / ML'],
+    title: 'Programs',
+    links: [
+      { label: 'Full Stack Development', href: '/courses?category=Full+Stack' },
+      { label: 'Data Science & AI', href: '/courses?category=Data+Science' },
+      { label: 'UI/UX Design', href: '/courses?category=UI%2FUX+Design' },
+      { label: 'Cloud Computing & AWS', href: '/courses?category=Cloud' },
+      { label: 'Mobile Development', href: '/courses?category=Mobile' },
+      { label: 'Explore All Programs', href: '/courses' },
+    ],
   },
   {
     title: 'Company',
-    links: ['About Us', 'Blog', 'Careers', 'Press', 'Privacy Policy', 'Terms of Service'],
+    links: [
+      { label: 'About CareerCatch', href: '/about' },
+      { label: 'Hands-on Projects', href: '/projects' },
+      { label: 'Workshops & Events', href: '/events' },
+      { label: 'Contact Advisors', href: '/contact' },
+    ],
   },
   {
     title: 'Contact',
-    links: ['hello@careercatch.in', '+91 98765 43210', 'Bengaluru, India'],
+    links: [
+      { label: 'hello@careercatch.in', href: 'mailto:hello@careercatch.in' },
+      { label: '+91 98765 43210', href: 'tel:+919876543210' },
+      { label: 'Bengaluru, India', href: '/contact' },
+    ],
   },
 ]
 
 export default function Footer() {
   return (
-    <footer style={{ background: '#F1F5F9', borderTop: '1px solid var(--border)', padding: '4.5rem 0 2.5rem' }}>
-      <div className="container">
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: '2.5rem',
-          marginBottom: '3rem',
-        }}>
+    <footer className="bg-slate-50 border-t border-slate-200 py-16 font-['Inter']">
+      <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
           {/* Brand col */}
-          <div style={{ gridColumn: 'span 1' }}>
-            <div style={{ marginBottom: '0.75rem' }}>
+          <div className="lg:col-span-2">
+            <div className="mb-3">
               <Logo iconSize={32} />
             </div>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: '1.25rem', maxWidth: 220 }}>
-              Careers Crafted. Skills Proven.
+            <p className="text-slate-500 text-sm leading-relaxed mb-5 max-w-sm">
+              Careers Crafted. Skills Proven. Industry-led tech programs with live weekend classes, capstone codebases, and direct senior engineer mentorship.
             </p>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              {[LinkedinLogo, TwitterLogo, InstagramLogo, YoutubeLogo].map((Icon, i) => (
-                <a key={i} href="#" style={{
-                  width: 36, height: 36, borderRadius: 8,
-                  border: '1px solid var(--border)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: 'var(--text-muted)', transition: 'color 0.2s, border-color 0.2s',
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent-primary)'; e.currentTarget.style.borderColor = 'var(--border-accent)' }}
-                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border)' }}>
+            <div className="flex gap-2.5">
+              {[
+                { Icon: LinkedinLogo, href: 'https://linkedin.com' },
+                { Icon: TwitterLogo, href: 'https://twitter.com' },
+                { Icon: InstagramLogo, href: 'https://instagram.com' },
+                { Icon: YoutubeLogo, href: 'https://youtube.com' },
+              ].map(({ Icon, href }, i) => (
+                <a
+                  key={i}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-lg border border-slate-300 bg-white flex items-center justify-center text-slate-500 hover:text-[#0056D2] hover:border-blue-300 transition-colors"
+                >
                   <Icon size={18} />
                 </a>
               ))}
             </div>
           </div>
 
-
-
-          {FOOTER_COLS.map(col => (
+          {FOOTER_COLS.map((col) => (
             <div key={col.title}>
-              <h4 className="font-display" style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1rem', letterSpacing: '0.04em' }}>
+              <h4 className="font-['Plus_Jakarta_Sans'] text-xs font-bold uppercase tracking-wider text-slate-900 mb-4">
                 {col.title}
               </h4>
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                {col.links.map(link => (
-                  <li key={link}>
-                    <a href="#" style={{
-                      color: 'var(--text-muted)', fontSize: '0.875rem',
-                      textDecoration: 'none', transition: 'color 0.2s',
-                    }}
-                      onMouseEnter={e => e.currentTarget.style.color = 'var(--text-secondary)'}
-                      onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}>
-                      {link}
-                    </a>
+              <ul className="space-y-2.5 text-xs sm:text-sm">
+                {col.links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="text-slate-600 hover:text-[#0056D2] transition-colors leading-snug block"
+                    >
+                      {link.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
             </div>
           ))}
-
-          {/* Newsletter */}
-          <div>
-            <h4 className="font-display" style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1rem' }}>
-              Newsletter
-            </h4>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', marginBottom: '0.875rem' }}>
-              Get course updates & career tips weekly.
-            </p>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <input type="email" placeholder="Your email"
-                style={{
-                  flex: 1, padding: '0.6rem 0.875rem',
-                  background: 'var(--bg-surface)', border: '1px solid var(--border)',
-                  borderRadius: 8, color: 'var(--text-primary)', fontSize: '0.875rem',
-                  outline: 'none', minWidth: 0,
-                }}
-                onFocus={e => e.currentTarget.style.borderColor = 'var(--accent-primary)'}
-                onBlur={e => e.currentTarget.style.borderColor = 'var(--border)'}
-              />
-              <button style={{
-                padding: '0.6rem 1rem',
-                background: 'var(--accent-primary)', color: '#fff',
-                border: 'none', borderRadius: 8, cursor: 'pointer',
-                fontSize: '0.875rem', fontWeight: 600, whiteSpace: 'nowrap',
-              }}>
-                Subscribe
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Bottom bar */}
-        <div style={{
-          borderTop: '1px solid var(--border)',
-          paddingTop: '1.5rem',
-          display: 'flex', flexWrap: 'wrap', gap: '1rem',
-          justifyContent: 'space-between', alignItems: 'center',
-        }}>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem' }}>
-            © 2026 CareerCatch. All rights reserved.
-          </p>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem' }}>
-            Made with ❤️ in India 🇮🇳
-          </p>
+        <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <p>© {new Date().getFullYear()} CareerCatch Inc. All rights reserved.</p>
+          <div className="flex items-center gap-6">
+            <Link href="/about" className="hover:text-slate-900 transition-colors">
+              About
+            </Link>
+            <Link href="/courses" className="hover:text-slate-900 transition-colors">
+              Programs
+            </Link>
+            <Link href="/contact" className="hover:text-slate-900 transition-colors">
+              Contact
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
