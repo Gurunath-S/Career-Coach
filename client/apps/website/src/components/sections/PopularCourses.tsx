@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { motion, useReducedMotion } from 'motion/react'
+import Link from 'next/link'
 import {
   Star,
   Clock,
@@ -10,9 +10,9 @@ import {
   Sparkle,
   Code,
   Laptop,
-  CheckCircle,
 } from '@phosphor-icons/react'
 import { COURSES } from '@/lib/constants'
+import { DemoBookingModal } from '@/components/modals/DemoBookingModal'
 
 const TRACK_FILTERS = [
   { label: 'All Programs', key: 'all' },
@@ -24,7 +24,7 @@ const TRACK_FILTERS = [
 
 export default function PopularCourses() {
   const [activeFilter, setActiveFilter] = useState('all')
-  const prefersReduced = useReducedMotion()
+  const [demoModalOpen, setDemoModalOpen] = useState(false)
 
   const filteredCourses =
     activeFilter === 'all'
@@ -54,9 +54,10 @@ export default function PopularCourses() {
             </p>
           </div>
 
-          <div className="md:col-span-4 md:justify-self-end">
-            <a
-              href="#enquiry"
+          <div className="md:col-span-4 md:justify-self-end flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setDemoModalOpen(true)}
               className="grid grid-flow-col items-center gap-2 px-4 py-2.5 rounded-xl border border-blue-200 bg-blue-50/70 hover:bg-blue-100/70 text-blue-700 text-xs sm:text-sm font-bold transition-all shadow-2xs group cursor-pointer"
             >
               <span>Talk to an Academic Advisor</span>
@@ -65,7 +66,13 @@ export default function PopularCourses() {
                 weight="bold"
                 className="transition-transform group-hover:translate-x-1"
               />
-            </a>
+            </button>
+            <Link
+              href="/courses"
+              className="hidden sm:inline-block text-xs font-bold text-[#0056D2] hover:underline"
+            >
+              View All →
+            </Link>
           </div>
         </div>
 
@@ -90,23 +97,19 @@ export default function PopularCourses() {
           })}
         </div>
 
-        {/* Course Cards Grid: 3-Column Balanced Layout */}
+        {/* Course Cards Grid: Pure CSS, Zero JS Scroll Jank */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {filteredCourses.map((course, idx) => (
-            <motion.div
+          {filteredCourses.map((course) => (
+            <div
               key={course.id}
-              initial={prefersReduced ? false : { opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.15 }}
-              transition={{ duration: 0.45, delay: idx * 0.06 }}
-              className="grid grid-rows-[auto_1fr] rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-xl hover:border-blue-300 transition-all duration-300 group"
+              className="grid grid-rows-[auto_1fr] rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-2xs hover:shadow-xl hover:border-blue-300 transition-all duration-200 group"
             >
               {/* Thumbnail Container */}
-              <div className="relative aspect-16/10 overflow-hidden bg-slate-100">
+              <Link href={`/courses/${course.slug || course.id}`} className="relative aspect-16/10 overflow-hidden bg-slate-100 block">
                 <img
                   src={course.thumbnail}
                   alt={course.title}
-                  className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-300"
                   loading="lazy"
                 />
 
@@ -122,15 +125,17 @@ export default function PopularCourses() {
                   <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
                   <span>Live Cohort</span>
                 </div>
-              </div>
+              </Link>
 
               {/* Card Content: Pure CSS Grid Rows */}
               <div className="grid grid-rows-[auto_auto_auto_1fr_auto] p-5 gap-3.5">
                 {/* Title */}
                 <div>
-                  <h3 className="font-['Plus_Jakarta_Sans'] font-extrabold text-base sm:text-lg text-slate-900 group-hover:text-blue-700 transition-colors tracking-tight line-clamp-1">
-                    {course.title}
-                  </h3>
+                  <Link href={`/courses/${course.slug || course.id}`}>
+                    <h3 className="font-['Plus_Jakarta_Sans'] font-extrabold text-base sm:text-lg text-slate-900 group-hover:text-blue-700 transition-colors tracking-tight line-clamp-1">
+                      {course.title}
+                    </h3>
+                  </Link>
                 </div>
 
                 {/* Instructor Row: Pure 2-Column Grid */}
@@ -175,23 +180,28 @@ export default function PopularCourses() {
                       <GraduationCap size={13} className="text-indigo-600" />
                       {course.level}
                     </span>
-                    <span className="text-[10px] text-slate-500">Experience</span>
+                    <span className="text-[10px] text-slate-500">Level</span>
                   </div>
                 </div>
 
-                {/* Perks Preview: Grid of check points */}
-                <div className="grid grid-cols-2 gap-1.5 text-[11px] text-slate-600 pt-1">
-                  <span className="grid grid-flow-col items-center justify-start gap-1">
-                    <CheckCircle size={13} weight="fill" className="text-emerald-600" />
-                    <span>Real-world capstones</span>
-                  </span>
-                  <span className="grid grid-flow-col items-center justify-start gap-1">
-                    <CheckCircle size={13} weight="fill" className="text-blue-600" />
-                    <span>1:1 Code reviews</span>
-                  </span>
+                {/* Curriculum Bullet Points */}
+                <div className="grid gap-1.5 py-1">
+                  {[
+                    'Live weekend mentor-led sessions',
+                    'Production capstone code portfolio',
+                    'Direct hiring partner referrals',
+                  ].map((feat, i) => (
+                    <div
+                      key={i}
+                      className="grid grid-cols-[auto_1fr] items-center gap-2 text-xs text-slate-600"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                      <span className="truncate">{feat}</span>
+                    </div>
+                  ))}
                 </div>
 
-                {/* Price & Action: Pure Grid */}
+                {/* Price & Action Row: Pure 2-Column Grid */}
                 <div className="grid grid-cols-[1fr_auto] items-center gap-3 pt-3.5 border-t border-slate-100">
                   <div className="grid">
                     <div className="grid grid-flow-col items-baseline justify-start gap-1.5">
@@ -207,16 +217,16 @@ export default function PopularCourses() {
                     </span>
                   </div>
 
-                  <a
-                    href="#enquiry"
+                  <Link
+                    href={`/courses/${course.slug || course.id}`}
                     className="grid grid-flow-col items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 active:scale-[0.98] text-white text-xs font-bold shadow-md shadow-blue-700/20 transition-all cursor-pointer"
                   >
                     <span>Enroll Now</span>
                     <ArrowRight size={13} weight="bold" />
-                  </a>
+                  </Link>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
@@ -263,6 +273,11 @@ export default function PopularCourses() {
           </div>
         </div>
       </div>
+
+      <DemoBookingModal
+        isOpen={demoModalOpen}
+        onClose={() => setDemoModalOpen(false)}
+      />
     </section>
   )
 }
