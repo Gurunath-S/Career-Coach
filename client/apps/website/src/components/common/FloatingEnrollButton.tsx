@@ -11,7 +11,10 @@ import {
   CheckCircle,
 } from '@phosphor-icons/react'
 
+import { useRouter } from 'next/navigation'
+
 export default function FloatingEnrollButton() {
+  const router = useRouter()
   const [isVisible, setIsVisible] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
 
@@ -47,6 +50,8 @@ export default function FloatingEnrollButton() {
           formCard.classList.remove('ring-4', 'ring-blue-500/40', 'scale-[1.01]')
         }, 1800)
       }
+    } else {
+      router.push('/courses')
     }
   }
 
