@@ -14,8 +14,6 @@ import {
   CheckCircle,
   CircleNotch,
   Sparkle,
-  ArrowRight,
-  ShieldCheck,
   WarningCircle,
 } from '@phosphor-icons/react'
 
@@ -40,7 +38,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ slug: st
       if (data && user) {
         try {
           const userEvents = await apiService.getStudentEvents()
-          const isReg = userEvents.some((reg: any) => reg.eventId === data.id)
+          const isReg = userEvents.some((reg: { eventId?: string }) => reg.eventId === data.id)
           if (isReg) setRegistered(true)
         } catch {
           // ignore
