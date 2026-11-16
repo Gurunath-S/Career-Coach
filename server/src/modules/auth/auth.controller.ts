@@ -181,3 +181,75 @@ export async function getMe(req: AuthRequest, res: Response, next: NextFunction)
     next(error)
   }
 }
+
+export async function checkEmail(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { email } = req.body
+    if (!email || typeof email !== 'string') {
+      throw ApiError.badRequest('Valid email is required')
+    }
+    const cleanEmail = email.toLowerCase().trim()
+    const user = await prisma.user.findUnique({
+      where: { email: cleanEmail },
+      select: { id: true, name: true, email: true },
+    })
+    return successResponse(res, { exists: !!user, name: user?.name || null })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export async function googleSso(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { email, name, avatar } = req.body
+    if (!email || typeof email !== 'string') {
+      throw ApiError.badRequest('Email is required for Google SSO')
+    }
+    const cleanEmail = email.toLowerCase().trim()
+    let user = await prisma.user.findUnique({
+      where: { email: cleanEmail },
+      include: { studentProfile: true },
+    })
+
+    if (!user) {
+      const generatedName = name || cleanEmail.split('@')[0]
+      const randomPassword = await bcrypt.hash(Math.random().toString(36), 10)
+      user = await prisma.user.create({
+        data: {
+          name: generatedName,
+          email: cleanEmail,
+          passwordHash: randomPassword,
+          role: 'STUDENT',
+          avatar: avatar || null,
+          studentProfile: {
+            create: {
+              phone: '',
+              skills: [],
+            },
+          },
+        },
+        include: { studentProfile: true },
+      })
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, name: user.name, role: user.role },
+      config.jwtSecret,
+      { expiresIn: '7d' }
+    )
+
+    setStudentSessionCookie(res, token)
+
+    return successResponse(
+      res,
+      {
+        token,
+        user: { id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar },
+      },
+      'Logged in successfully via Google SSO'
+    )
+  } catch (error) {
+    next(error)
+  }
+}
+
