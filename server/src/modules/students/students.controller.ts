@@ -116,6 +116,122 @@ export async function getRegisteredEvents(req: AuthRequest, res: Response, next:
 // Backward-compatible alias routing to canonical register handler
 export const registerForEvent = canonicalRegisterForEvent
 
+export async function getStudentCourses(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    if (!req.user) throw ApiError.unauthorized('Authentication required')
+
+    const enrollments = await prisma.enrollment.findMany({
+      where: { email: req.user.email },
+      include: { course: true },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    const demoBookings = await prisma.demoRequest.findMany({
+      where: { email: req.user.email },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    const ongoing = enrollments.filter((e) => e.status !== 'COMPLETED')
+    const completed = enrollments.filter((e) => e.status === 'COMPLETED')
+    const certificates = completed.map((e) => ({
+      id: `CC-CERT-${e.id}-${new Date(e.updatedAt).getFullYear()}`,
+      courseTitle: e.course.title,
+      courseSlug: e.course.slug,
+      studentName: e.studentName || req.user?.name || 'Student',
+      completedDate: e.updatedAt,
+      grade: 'A+ Distinguished',
+      duration: e.course.duration,
+      skills: ['Production Architecture', 'State Management', 'Full Stack Deployment'],
+    }))
+
+    return successResponse(res, {
+      all: enrollments,
+      ongoing,
+      completed,
+      certificates,
+      demoBookings,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export async function enrollInCourse(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    if (!req.user) throw ApiError.unauthorized('Authentication required')
+    const courseIdParam = req.params.courseId || req.body.courseId
+    const courseId = parseInt(String(courseIdParam), 10)
+
+    if (isNaN(courseId)) {
+      throw ApiError.badRequest('Valid course ID is required')
+    }
+
+    const course = await prisma.course.findUnique({ where: { id: courseId } })
+    if (!course) {
+      throw ApiError.notFound('Course not found')
+    }
+
+    const existing = await prisma.enrollment.findFirst({
+      where: {
+        email: req.user.email,
+        courseId,
+      },
+      include: { course: true },
+    })
+
+    if (existing) {
+      return successResponse(res, existing, 'Already enrolled in this course')
+    }
+
+    const studentProfile = await prisma.studentProfile.findUnique({
+      where: { userId: req.user.id },
+    })
+
+    const enrollment = await prisma.enrollment.create({
+      data: {
+        studentName: req.user.name,
+        email: req.user.email,
+        phone: studentProfile?.phone || req.body.phone || '9876543210',
+        courseId,
+        status: 'CONFIRMED',
+        amount: course.price,
+        paymentId: 'HOLD_PAYMENT_PENDING',
+      },
+      include: { course: true },
+    })
+
+    return successResponse(res, enrollment, 'Successfully enrolled in course', 201)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export async function completeCourse(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    if (!req.user) throw ApiError.unauthorized('Authentication required')
+    const enrollmentId = parseInt(String(req.params.enrollmentId), 10)
+
+    const enrollment = await prisma.enrollment.findFirst({
+      where: { id: enrollmentId, email: req.user.email },
+      include: { course: true },
+    })
+
+    if (!enrollment) {
+      throw ApiError.notFound('Enrollment not found')
+    }
+
+    const updated = await prisma.enrollment.update({
+      where: { id: enrollmentId },
+      data: { status: 'COMPLETED' },
+      include: { course: true },
+    })
+
+    return successResponse(res, updated, 'Course marked as completed')
+  } catch (error) {
+    next(error)
+  }
+}
+
 // ─── ADMIN STUDENT MANAGEMENT ─────────────────────────────────────────
 
 export async function listStudents(req: Request, res: Response, next: NextFunction) {
