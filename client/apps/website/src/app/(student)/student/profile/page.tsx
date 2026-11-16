@@ -13,7 +13,6 @@ import {
   GraduationCap,
   Check,
   CircleNotch,
-  Sparkle,
   Briefcase,
 } from '@phosphor-icons/react'
 
