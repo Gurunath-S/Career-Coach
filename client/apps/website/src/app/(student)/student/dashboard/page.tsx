@@ -23,7 +23,7 @@ import {
 } from '@phosphor-icons/react'
 
 import { useStudentAuth } from '@/context/StudentAuthContext'
-import { apiService, RegisteredEvent } from '@/services/api'
+import { apiService } from '@/services/api'
 
 interface CourseEnrollment {
   id: number
@@ -79,7 +79,7 @@ function StudentDashboardContent() {
   const { user, logout } = useStudentAuth()
 
   // State
-  const [activeTab, setActiveTab] = useState<'ongoing' | 'completed' | 'certificates' | 'demos' | 'events'>('ongoing')
+  const [activeTab, setActiveTab] = useState<'ongoing' | 'completed' | 'certificates' | 'demos'>('ongoing')
   const [coursesData, setCoursesData] = useState<{
     all: CourseEnrollment[]
     ongoing: CourseEnrollment[]
@@ -93,7 +93,6 @@ function StudentDashboardContent() {
     certificates: [],
     demoBookings: [],
   })
-  const [registeredEvents, setRegisteredEvents] = useState<RegisteredEvent[]>([])
   const [loadingData, setLoadingData] = useState(true)
   const [actionMsg, setActionMsg] = useState('')
   const [selectedCertificate, setSelectedCertificate] = useState<StudentCertificate | null>(null)
@@ -103,7 +102,7 @@ function StudentDashboardContent() {
     let isMounted = true
     async function loadData() {
       try {
-        const [cData, eData] = await Promise.all([
+        const [cData] = await Promise.all([
           apiService.getStudentCourses().catch(() => ({
             all: [],
             ongoing: [],
@@ -111,13 +110,10 @@ function StudentDashboardContent() {
             certificates: [],
             demoBookings: [],
           })),
-          apiService.getStudentEvents().catch(() => []),
         ])
 
         if (isMounted) {
           setCoursesData(cData as unknown as typeof coursesData)
-          const eventsList = Array.isArray(eData) ? eData : (eData as { data?: RegisteredEvent[] })?.data || []
-          setRegisteredEvents(eventsList)
         }
       } catch (err) {
         console.error('Failed to load student dashboard:', err)
@@ -130,6 +126,13 @@ function StudentDashboardContent() {
       isMounted = false
     }
   }, [user])
+
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    if (tabParam && ['ongoing', 'completed', 'certificates', 'demos'].includes(tabParam)) {
+      setActiveTab(tabParam as typeof activeTab)
+    }
+  }, [searchParams])
 
   // Handle Mark Course Completed (to simulate completion & certificate generation)
   const handleCompleteCourse = async (enrollmentId: number) => {
@@ -197,7 +200,7 @@ function StudentDashboardContent() {
             <div className="flex items-center gap-3">
               <CheckCircle size={22} weight="fill" className="text-emerald-600 shrink-0" />
               <div>
-                <p className="font-bold">🎉 Enrollment Confirmed (Payment on Hold)</p>
+                <p className="font-bold">🎉 Enrollment Confirmed</p>
                 <p className="text-xs text-emerald-700 mt-0.5 font-normal">
                   Welcome to the program! Your course materials and live batch schedule have been unlocked below.
                 </p>
@@ -273,8 +276,7 @@ function StudentDashboardContent() {
             { key: 'ongoing', label: 'Ongoing Courses', count: coursesData.ongoing.length, icon: BookOpen },
             { key: 'completed', label: 'Completed Courses', count: coursesData.completed.length, icon: CheckCircle },
             { key: 'certificates', label: 'Certificates', count: coursesData.certificates.length, icon: Certificate },
-            { key: 'demos', label: '1:1 Live Demos', count: coursesData.demoBookings.length, icon: VideoCamera },
-            { key: 'events', label: 'Workshops & Events', count: registeredEvents.length, icon: CalendarBlank },
+            { key: 'demos', label: 'Live Demos', count: coursesData.demoBookings.length, icon: VideoCamera },
           ].map((tab) => {
             const isActive = activeTab === tab.key
             return (
@@ -507,7 +509,7 @@ function StudentDashboardContent() {
           </div>
         )}
 
-        {/* ─── TAB 4: 1:1 LIVE DEMOS ─────────────────────────────────── */}
+        {/* ─── TAB 4: LIVE DEMOS ─────────────────────────────────── */}
         {activeTab === 'demos' && (
           <div className="space-y-6">
             {coursesData.demoBookings.length === 0 ? (
@@ -515,16 +517,16 @@ function StudentDashboardContent() {
                 <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
                   <VideoCamera size={28} />
                 </div>
-                <h3 className="text-base font-bold text-slate-900">No 1:1 live demos scheduled</h3>
+                <h3 className="text-base font-bold text-slate-900">No live demos scheduled</h3>
                 <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
-                  Need personalized roadmap guidance? Book a free 1:1 interactive session with a senior mentor.
+                  Need personalized roadmap guidance? Book a free interactive session with a senior mentor.
                 </p>
                 <Link
                   href="/#courses"
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors"
                 >
                   <Sparkle size={15} weight="fill" />
-                  <span>Book Free 1:1 Live Demo</span>
+                  <span>Book Free Live Demo</span>
                 </Link>
               </div>
             ) : (
@@ -538,7 +540,7 @@ function StudentDashboardContent() {
                       <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
                         {demo.status || 'SCHEDULED'}
                       </span>
-                      <span className="text-xs text-slate-500 font-medium">1:1 Mentorship</span>
+                      <span className="text-xs text-slate-500 font-medium">Mentor Session</span>
                     </div>
 
                     <h4 className="text-sm font-bold text-slate-900">
@@ -567,51 +569,6 @@ function StudentDashboardContent() {
           </div>
         )}
 
-        {/* ─── TAB 5: WORKSHOPS & EVENTS ──────────────────────────────── */}
-        {activeTab === 'events' && (
-          <div className="space-y-4">
-            {registeredEvents.length === 0 ? (
-              <div className="p-8 sm:p-12 rounded-3xl bg-white border border-dashed border-slate-300 text-center space-y-3">
-                <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto">
-                  <CalendarBlank size={28} />
-                </div>
-                <h3 className="text-base font-bold text-slate-900">No registered events yet</h3>
-                <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
-                  Browse our upcoming masterclasses, workshops, and tech hackathons.
-                </p>
-                <Link
-                  href="/student/events"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors"
-                >
-                  <span>Browse Upcoming Events</span>
-                </Link>
-              </div>
-            ) : (
-              registeredEvents.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-white rounded-2xl p-5 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs"
-                >
-                  <div className="space-y-1">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      {item.status}
-                    </span>
-                    <h4 className="text-sm font-bold text-slate-900">{item.event.title}</h4>
-                    <p className="text-xs text-slate-500">
-                      Location: {item.event.location} • {item.event.duration || '2 Hours'}
-                    </p>
-                  </div>
-                  <Link
-                    href={`/events/${item.event.slug}`}
-                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors shrink-0 text-center"
-                  >
-                    View Workshop
-                  </Link>
-                </div>
-              ))
-            )}
-          </div>
-        )}
       </main>
 
       {/* ─── CERTIFICATE MODAL ────────────────────────────────────────── */}
