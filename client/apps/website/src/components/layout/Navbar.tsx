@@ -78,11 +78,13 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [exploreOpen, setExploreOpen] = useState(false)
+  const [navExploreOpen, setNavExploreOpen] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchFocused, setSearchFocused] = useState(false)
 
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const navExploreRef = useRef<HTMLDivElement>(null)
   const searchContainerRef = useRef<HTMLDivElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
@@ -110,6 +112,9 @@ export default function Navbar() {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setExploreOpen(false)
+      }
+      if (navExploreRef.current && !navExploreRef.current.contains(e.target as Node)) {
+        setNavExploreOpen(false)
       }
       if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
         setSearchFocused(false)
@@ -173,13 +178,14 @@ export default function Navbar() {
           <div className="flex items-center gap-3 sm:gap-4 shrink-0">
             <Logo className="shrink-0 flex items-center" />
 
-            {/* Explore Dropdown */}
-            <div
-              ref={dropdownRef}
-              className="relative hidden sm:block"
-              onMouseEnter={() => setExploreOpen(true)}
-              onMouseLeave={() => setExploreOpen(false)}
-            >
+            {/* Explore Dropdown: shown for public visitors; for logged-in students, Explore is in main nav menu */}
+            {!user && (
+              <div
+                ref={dropdownRef}
+                className="relative hidden sm:block"
+                onMouseEnter={() => setExploreOpen(true)}
+                onMouseLeave={() => setExploreOpen(false)}
+              >
               <button
                 type="button"
                 onClick={() => setExploreOpen(!exploreOpen)}
@@ -255,7 +261,8 @@ export default function Navbar() {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
+              </div>
+            )}
           </div>
 
           {/* ─── Center: Live Filter Search with Instant Dropdown ──────── */}
@@ -369,31 +376,131 @@ export default function Navbar() {
           {/* ─── Right: Navigation Links with Enquiry at the End & Auth ── */}
           <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             {/* Desktop Navigation Links */}
-            <nav className="hidden xl:flex items-center gap-4 text-xs sm:text-sm font-semibold text-slate-700">
-              <Link href="/courses" className="hover:text-[#0056D2] transition-colors">
-                Courses
-              </Link>
-              <Link href="/#why-us" className="hover:text-[#0056D2] transition-colors">
-                Why Us
-              </Link>
-              <Link href="/#methodology" className="hover:text-[#0056D2] transition-colors">
-                Learning Flow
-              </Link>
-              <Link href="/#mentors" className="hover:text-[#0056D2] transition-colors">
-                Mentors
-              </Link>
-              <Link href="/blog" className="hover:text-[#0056D2] transition-colors">
-                Blog
-              </Link>
+            <nav className="hidden lg:flex items-center gap-5 text-xs sm:text-sm font-semibold text-slate-700">
+              {user ? (
+                <>
+                  <Link
+                    href="/"
+                    className="hover:text-[#0056D2] transition-colors flex items-center gap-1.5 font-bold text-[#0056D2]"
+                  >
+                    <BookOpen size={16} weight="bold" />
+                    <span>My learning</span>
+                  </Link>
 
-              {/* Enquiry Link - Placed Last in the Navigation Menu */}
-              <Link
-                href="/#enquiry"
-                className="px-3 py-1.5 rounded-lg text-xs font-bold text-[#0056D2] bg-blue-50 hover:bg-blue-100/80 border border-blue-200 transition-all flex items-center gap-1.5"
-              >
-                <ChatCircleDots size={14} weight="bold" />
-                <span>Enquiry</span>
-              </Link>
+                  {/* Explore Dropdown: plain text with CaretDown, NOT styled like a button */}
+                  <div
+                    ref={navExploreRef}
+                    className="relative"
+                    onMouseEnter={() => setNavExploreOpen(true)}
+                    onMouseLeave={() => setNavExploreOpen(false)}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setNavExploreOpen(!navExploreOpen)}
+                      className={`flex items-center gap-1 font-semibold transition-colors cursor-pointer py-1 ${
+                        navExploreOpen ? 'text-[#0056D2]' : 'text-slate-700 hover:text-[#0056D2]'
+                      }`}
+                      aria-expanded={navExploreOpen}
+                    >
+                      <span>Explore</span>
+                      <CaretDown
+                        size={13}
+                        weight="bold"
+                        className={`transition-transform duration-200 ${
+                          navExploreOpen ? 'rotate-180 text-[#0056D2]' : 'text-slate-500'
+                        }`}
+                      />
+                    </button>
+
+                    {/* Explore Dropdown Panel */}
+                    <AnimatePresence>
+                      {navExploreOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute left-1/2 -translate-x-1/2 top-[calc(100%+8px)] w-88 md:w-[460px] bg-white border border-slate-200 rounded-2xl shadow-2xl p-4 z-50 text-left"
+                        >
+                          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5 px-2">
+                            Browse Tech Specializations
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {EXPLORE_CATEGORIES.map((track) => {
+                              const Icon = track.icon
+                              return (
+                                <Link
+                                  key={track.title}
+                                  href={`/courses?category=${encodeURIComponent(track.categoryKey)}`}
+                                  onClick={() => setNavExploreOpen(false)}
+                                  className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-slate-50 transition-colors group"
+                                >
+                                  <div
+                                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                                    style={{ backgroundColor: `${track.color}15`, color: track.color }}
+                                  >
+                                    <Icon size={18} weight="duotone" />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <h4 className="text-xs font-bold text-[#101B3C] group-hover:text-[#0056D2] transition-colors leading-tight truncate">
+                                      {track.title}
+                                    </h4>
+                                    <p className="text-[11px] text-slate-500 leading-tight mt-0.5 truncate">
+                                      {track.desc}
+                                    </p>
+                                  </div>
+                                </Link>
+                              )
+                            })}
+                          </div>
+
+                          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs px-2">
+                            <span className="text-slate-500">Live Weekend Cohorts</span>
+                            <Link
+                              href="/courses"
+                              onClick={() => setNavExploreOpen(false)}
+                              className="font-bold text-[#0056D2] hover:underline"
+                            >
+                              View All Programs →
+                            </Link>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  <Link href="/blog" className="hover:text-[#0056D2] transition-colors">
+                    Blog
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/courses" className="hover:text-[#0056D2] transition-colors">
+                    Courses
+                  </Link>
+                  <Link href="/#why-us" className="hover:text-[#0056D2] transition-colors">
+                    Why Us
+                  </Link>
+                  <Link href="/#methodology" className="hover:text-[#0056D2] transition-colors">
+                    Learning Flow
+                  </Link>
+                  <Link href="/#mentors" className="hover:text-[#0056D2] transition-colors">
+                    Mentors
+                  </Link>
+                  <Link href="/blog" className="hover:text-[#0056D2] transition-colors">
+                    Blog
+                  </Link>
+
+                  {/* Enquiry Link - Placed Last in the Navigation Menu */}
+                  <Link
+                    href="/#enquiry"
+                    className="px-3 py-1.5 rounded-lg text-xs font-bold text-[#0056D2] bg-blue-50 hover:bg-blue-100/80 border border-blue-200 transition-all flex items-center gap-1.5"
+                  >
+                    <ChatCircleDots size={14} weight="bold" />
+                    <span>Enquiry</span>
+                  </Link>
+                </>
+              )}
             </nav>
 
             {/* Auth / Student Profile */}
@@ -424,39 +531,14 @@ export default function Navbar() {
                       transition={{ duration: 0.15 }}
                       className="absolute right-0 top-[calc(100%+8px)] w-56 bg-white rounded-2xl border border-slate-200 shadow-xl p-2 z-50 text-xs"
                     >
+                      {/* User Info: Name & Email */}
                       <div className="px-3 py-2 border-b border-slate-100 mb-1">
                         <p className="font-bold text-slate-900 truncate">{user.name}</p>
                         <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
-                        <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          Active Learner
-                        </span>
                       </div>
 
+                      {/* Profile Settings */}
                       <div className="space-y-0.5">
-                        <Link
-                          href="/student/dashboard"
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-blue-50 hover:text-blue-700 font-semibold transition-colors"
-                        >
-                          <BookOpen size={16} />
-                          <span>My Learning Hub</span>
-                        </Link>
-                        <Link
-                          href="/student/dashboard?tab=certificates"
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-blue-50 hover:text-blue-700 font-semibold transition-colors"
-                        >
-                          <Certificate size={16} />
-                          <span>My Certificates</span>
-                        </Link>
-                        <Link
-                          href="/blog"
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-blue-50 hover:text-blue-700 font-semibold transition-colors"
-                        >
-                          <BookOpen size={16} />
-                          <span>Tech Blog</span>
-                        </Link>
                         <Link
                           href="/student/profile"
                           onClick={() => setUserDropdownOpen(false)}
@@ -467,6 +549,7 @@ export default function Navbar() {
                         </Link>
                       </div>
 
+                      {/* Sign Out */}
                       <div className="pt-1 mt-1 border-t border-slate-100">
                         <button
                           type="button"
@@ -474,7 +557,7 @@ export default function Navbar() {
                             setUserDropdownOpen(false)
                             logout()
                           }}
-                          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 font-semibold transition-colors cursor-pointer"
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 font-semibold transition-colors cursor-pointer text-left"
                         >
                           <SignOut size={16} />
                           <span>Sign Out</span>
@@ -496,7 +579,7 @@ export default function Navbar() {
             )}
 
             {/* Mobile Drawer Toggle */}
-            <div className="flex xl:hidden items-center ml-1">
+            <div className="flex lg:hidden items-center ml-1">
               <button
                 type="button"
                 onClick={() => setMobileOpen(!mobileOpen)}
@@ -518,7 +601,7 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.18 }}
-            className="fixed inset-x-0 top-[68px] bg-white border-b border-slate-200 shadow-xl z-40 p-5 xl:hidden font-['Inter'] max-h-[calc(100vh-68px)] overflow-y-auto"
+            className="fixed inset-x-0 top-[68px] bg-white border-b border-slate-200 shadow-xl z-40 p-5 lg:hidden font-['Inter'] max-h-[calc(100vh-68px)] overflow-y-auto"
           >
             {/* Mobile Search */}
             <form onSubmit={handleSearchSubmit} className="relative w-full mb-4">
@@ -538,80 +621,141 @@ export default function Navbar() {
             </form>
 
             <div className="space-y-1 mb-4 text-xs font-semibold text-slate-800">
-              <Link
-                href="/courses"
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
-              >
-                <span>Courses &amp; Specializations</span>
-                <ArrowRight size={13} className="text-slate-400" />
-              </Link>
-              <Link
-                href="/#why-us"
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
-              >
-                <span>Why Learn With Us</span>
-                <ArrowRight size={13} className="text-slate-400" />
-              </Link>
-              <Link
-                href="/#methodology"
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
-              >
-                <span>Learning Methodology</span>
-                <ArrowRight size={13} className="text-slate-400" />
-              </Link>
-              <Link
-                href="/#mentors"
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
-              >
-                <span>Mentors &amp; Faculty</span>
-                <ArrowRight size={13} className="text-slate-400" />
-              </Link>
-              <Link
-                href="/blog"
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
-              >
-                <span>Engineering Blog &amp; Guides</span>
-                <ArrowRight size={13} className="text-slate-400" />
-              </Link>
+              {user ? (
+                <>
+                  <Link
+                    href="/"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <span className="flex items-center gap-2 font-bold text-[#0056D2]">
+                      <BookOpen size={16} weight="bold" />
+                      <span>My learning</span>
+                    </span>
+                    <ArrowRight size={13} className="text-slate-400" />
+                  </Link>
 
-              {/* Enquiry Link in Mobile Drawer - Added Last */}
-              <Link
-                href="/#enquiry"
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-between p-2.5 rounded-lg bg-blue-50 text-[#0056D2] font-bold transition-colors mt-2"
-              >
-                <span className="flex items-center gap-1.5">
-                  <ChatCircleDots size={16} weight="bold" />
-                  <span>Course Enquiry &amp; Admissions</span>
-                </span>
-                <ArrowRight size={13} />
-              </Link>
+                  {/* Mobile Explore Specializations Collapsible / List */}
+                  <div className="p-2.5 rounded-lg bg-slate-50/70 border border-slate-100">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                      Explore Specializations
+                    </span>
+                    <div className="grid grid-cols-1 gap-1 pl-2 border-l-2 border-blue-200">
+                      {EXPLORE_CATEGORIES.map((track) => (
+                        <Link
+                          key={track.title}
+                          href={`/courses?category=${encodeURIComponent(track.categoryKey)}`}
+                          onClick={() => setMobileOpen(false)}
+                          className="py-1 text-xs text-slate-700 hover:text-[#0056D2] flex items-center justify-between"
+                        >
+                          <span>{track.title}</span>
+                          <ArrowRight size={11} className="text-slate-400" />
+                        </Link>
+                      ))}
+                      <Link
+                        href="/courses"
+                        onClick={() => setMobileOpen(false)}
+                        className="py-1 text-xs font-bold text-[#0056D2] hover:underline"
+                      >
+                        View All Programs →
+                      </Link>
+                    </div>
+                  </div>
+
+                  <Link
+                    href="/blog"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <span>Blog</span>
+                    <ArrowRight size={13} className="text-slate-400" />
+                  </Link>
+                  <Link
+                    href="/student/profile"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      <User size={16} className="text-slate-600" />
+                      <span>Profile Settings</span>
+                    </span>
+                    <ArrowRight size={13} className="text-slate-400" />
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/courses"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <span>Courses &amp; Specializations</span>
+                    <ArrowRight size={13} className="text-slate-400" />
+                  </Link>
+                  <Link
+                    href="/#why-us"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <span>Why Learn With Us</span>
+                    <ArrowRight size={13} className="text-slate-400" />
+                  </Link>
+                  <Link
+                    href="/#methodology"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <span>Learning Methodology</span>
+                    <ArrowRight size={13} className="text-slate-400" />
+                  </Link>
+                  <Link
+                    href="/#mentors"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <span>Mentors &amp; Faculty</span>
+                    <ArrowRight size={13} className="text-slate-400" />
+                  </Link>
+                  <Link
+                    href="/blog"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <span>Engineering Blog &amp; Guides</span>
+                    <ArrowRight size={13} className="text-slate-400" />
+                  </Link>
+
+                  {/* Enquiry Link in Mobile Drawer - Added Last */}
+                  <Link
+                    href="/#enquiry"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-between p-2.5 rounded-lg bg-blue-50 text-[#0056D2] font-bold transition-colors mt-2"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <ChatCircleDots size={16} weight="bold" />
+                      <span>Course Enquiry &amp; Admissions</span>
+                    </span>
+                    <ArrowRight size={13} />
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile Auth Bottom Section */}
             <div className="pt-3 border-t border-slate-100">
               {user ? (
                 <div className="space-y-2">
-                  <Link
-                    href="/student/dashboard"
-                    onClick={() => setMobileOpen(false)}
-                    className="w-full py-2.5 px-3 rounded-xl bg-blue-50 text-[#0056D2] text-xs font-bold flex items-center justify-center gap-2"
-                  >
-                    <BookOpen size={16} />
-                    <span>My Learning Hub</span>
-                  </Link>
+                  <div className="px-2 py-1 text-xs">
+                    <p className="font-bold text-slate-900 truncate">{user.name}</p>
+                    <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
+                  </div>
                   <button
                     type="button"
                     onClick={() => {
                       setMobileOpen(false)
                       logout()
                     }}
-                    className="w-full py-2 rounded-xl text-red-600 hover:bg-red-50 text-xs font-semibold flex items-center justify-center gap-1.5"
+                    className="w-full py-2 rounded-xl text-red-600 hover:bg-red-50 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <SignOut size={16} />
                     <span>Sign Out</span>
