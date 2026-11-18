@@ -9,7 +9,6 @@ import {
   X,
   CaretDown,
   MagnifyingGlass,
-  Sparkle,
   User,
   SignOut,
   Code,
@@ -18,10 +17,15 @@ import {
   Cloud,
   DeviceMobile,
   ShieldCheck,
+  Certificate,
+  BookOpen,
+  ArrowRight,
+  ChatCircleDots,
 } from '@phosphor-icons/react'
 import Logo from '../common/Logo'
 import { useStudentAuth } from '@/context/StudentAuthContext'
 import { AuthModal } from '../modals/AuthModal'
+import { COURSES } from '@/lib/constants'
 
 const EXPLORE_CATEGORIES = [
   {
@@ -60,7 +64,7 @@ const EXPLORE_CATEGORIES = [
     color: '#EA580C',
   },
   {
-    title: '1:1 Mentorship Tracks',
+    title: 'Career Mentorship Tracks',
     desc: 'Mock Interviews, Code Reviews & Placement',
     categoryKey: 'Full Stack',
     icon: ShieldCheck,
@@ -74,12 +78,17 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [exploreOpen, setExploreOpen] = useState(false)
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchFocused, setSearchFocused] = useState(false)
+
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const searchContainerRef = useRef<HTMLDivElement>(null)
+  const userMenuRef = useRef<HTMLDivElement>(null)
 
   // Auth Modal state
   const [authModalOpen, setAuthModalOpen] = useState(false)
-  const [authMode, setAuthMode] = useState<'step1' | 'signup' | 'login'>('step1')
+  const [authMode, setAuthMode] = useState<'step1' | 'otp' | 'signup' | 'login'>('step1')
 
   useEffect(() => {
     let ticking = false
@@ -102,6 +111,12 @@ export default function Navbar() {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setExploreOpen(false)
       }
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setSearchFocused(false)
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserDropdownOpen(false)
+      }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
@@ -112,14 +127,26 @@ export default function Navbar() {
       const params = new URLSearchParams(window.location.search)
       const auth = params.get('auth')
       if (auth === 'login' || auth === 'signup') {
-        setAuthMode(auth)
+        setAuthMode(auth === 'login' ? 'step1' : 'signup')
         setAuthModalOpen(true)
       }
     }
   }, [])
 
+  // Filter available courses for live search suggestions
+  const queryClean = searchQuery.trim().toLowerCase()
+  const matchedCourses = queryClean
+    ? COURSES.filter((c) => {
+        const titleMatch = c.title.toLowerCase().includes(queryClean)
+        const catMatch = c.category.toLowerCase().includes(queryClean)
+        const skillMatch = c.skills?.some((s) => s.toLowerCase().includes(queryClean))
+        return titleMatch || catMatch || skillMatch
+      }).slice(0, 5)
+    : []
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    setSearchFocused(false)
     if (searchQuery.trim()) {
       router.push(`/courses?search=${encodeURIComponent(searchQuery.trim())}`)
     } else {
@@ -127,7 +154,7 @@ export default function Navbar() {
     }
   }
 
-  const openAuth = (mode: 'login' | 'signup') => {
+  const openAuth = (mode: 'step1' | 'login' | 'signup') => {
     setAuthMode(mode)
     setAuthModalOpen(true)
     setMobileOpen(false)
@@ -137,17 +164,16 @@ export default function Navbar() {
     <>
       <header
         className={`sticky top-0 z-50 transition-all duration-200 bg-white font-['Inter'] ${
-          scrolled ? 'shadow-xs border-b border-slate-200/80' : 'border-b border-slate-200'
+          scrolled ? 'shadow-xs border-b border-slate-200/90' : 'border-b border-slate-200'
         }`}
         style={{ height: '68px' }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-3 sm:gap-6">
-          
           {/* ─── Left: Brand Logo & Explore ───────────────────────────── */}
           <div className="flex items-center gap-3 sm:gap-4 shrink-0">
             <Logo className="shrink-0 flex items-center" />
 
-            {/* Explore Dropdown (Coursera Style) */}
+            {/* Explore Dropdown */}
             <div
               ref={dropdownRef}
               className="relative hidden sm:block"
@@ -230,86 +256,247 @@ export default function Navbar() {
                 )}
               </AnimatePresence>
             </div>
-
-            {/* Link to Programs / Degrees */}
-            <Link
-              href="/courses"
-              className="hidden lg:inline-block text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#0056D2] transition-colors"
-            >
-              Programs
-            </Link>
           </div>
 
-          {/* ─── Center: Coursera Search Input ────────────────────────── */}
-          <div className="flex-1 max-w-lg hidden md:block">
+          {/* ─── Center: Live Filter Search with Instant Dropdown ──────── */}
+          <div ref={searchContainerRef} className="flex-1 max-w-md hidden md:block relative">
             <form onSubmit={handleSearchSubmit} className="relative w-full">
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="What do you want to learn?"
-                className="w-full pl-4 pr-12 py-2 rounded-full border border-slate-300 text-xs sm:text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:border-[#0056D2] focus:ring-2 focus:ring-[#0056D2]/20 transition-all bg-white"
+                onFocus={() => setSearchFocused(true)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  setSearchFocused(true)
+                }}
+                placeholder="Search available courses, skills, technologies..."
+                className="w-full pl-4 pr-10 py-2 rounded-full border border-slate-300 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0056D2] focus:ring-2 focus:ring-[#0056D2]/20 transition-all bg-slate-50/50 hover:bg-white"
               />
               <button
                 type="submit"
                 className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#0056D2] hover:bg-[#00419e] text-white flex items-center justify-center transition-colors cursor-pointer"
                 title="Search"
-                aria-label="Search courses"
+                aria-label="Search available courses"
               >
                 <MagnifyingGlass size={15} weight="bold" />
               </button>
             </form>
+
+            {/* Live Autocomplete Results Dropdown */}
+            <AnimatePresence>
+              {searchFocused && searchQuery.trim().length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute left-0 right-0 top-[calc(100%+8px)] bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden z-50 p-2"
+                >
+                  <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                    <span>Available Courses</span>
+                    <span className="text-[10px] text-slate-500 font-normal">
+                      {matchedCourses.length} results
+                    </span>
+                  </div>
+
+                  {matchedCourses.length > 0 ? (
+                    <div className="space-y-1">
+                      {matchedCourses.map((c) => (
+                        <Link
+                          key={c.id}
+                          href={`/courses/${c.slug || c.id}`}
+                          onClick={() => {
+                            setSearchFocused(false)
+                            setSearchQuery('')
+                          }}
+                          className="flex items-center gap-3 p-2 rounded-xl hover:bg-blue-50/70 transition-colors group"
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center text-xs font-bold text-blue-600">
+                            {c.thumbnail ? (
+                              <img
+                                src={c.thumbnail}
+                                alt={c.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              c.category.substring(0, 2).toUpperCase()
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#0056D2] truncate">
+                              {c.title}
+                            </h4>
+                            <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                              <span className="px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 font-medium">
+                                {c.category}
+                              </span>
+                              <span>•</span>
+                              <span>{c.duration}</span>
+                            </div>
+                          </div>
+                          <span className="text-xs font-bold text-slate-800 shrink-0">
+                            ₹{c.price.toLocaleString('en-IN')}
+                          </span>
+                        </Link>
+                      ))}
+
+                      <div className="pt-2 mt-1 border-t border-slate-100 text-center">
+                        <Link
+                          href={`/courses?search=${encodeURIComponent(searchQuery)}`}
+                          onClick={() => setSearchFocused(false)}
+                          className="inline-flex items-center gap-1 text-xs font-bold text-[#0056D2] hover:underline py-1"
+                        >
+                          <span>View all results for &ldquo;{searchQuery}&rdquo;</span>
+                          <ArrowRight size={13} weight="bold" />
+                        </Link>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 text-center space-y-1">
+                      <p className="text-xs font-semibold text-slate-700">
+                        No courses found for &ldquo;{searchQuery}&rdquo;
+                      </p>
+                      <p className="text-[11px] text-slate-400">
+                        Try searching for Full Stack, Python, AWS, or UI/UX
+                      </p>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* ─── Right: Log In / Join for Free (Coursera Style) ───────── */}
-          <div className="flex items-center gap-3 shrink-0">
-            {/* Sparkle badge */}
-            <div className="hidden xl:flex items-center text-blue-600" title="AI Cohorts Active">
-              <Sparkle size={18} weight="fill" className="text-blue-600" />
-            </div>
+          {/* ─── Right: Navigation Links with Enquiry at the End & Auth ── */}
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            {/* Desktop Navigation Links */}
+            <nav className="hidden xl:flex items-center gap-4 text-xs sm:text-sm font-semibold text-slate-700">
+              <Link href="/courses" className="hover:text-[#0056D2] transition-colors">
+                Courses
+              </Link>
+              <Link href="/#why-us" className="hover:text-[#0056D2] transition-colors">
+                Why Us
+              </Link>
+              <Link href="/#methodology" className="hover:text-[#0056D2] transition-colors">
+                Learning Flow
+              </Link>
+              <Link href="/#mentors" className="hover:text-[#0056D2] transition-colors">
+                Mentors
+              </Link>
+              <Link href="/blog" className="hover:text-[#0056D2] transition-colors">
+                Blog
+              </Link>
 
+              {/* Enquiry Link - Placed Last in the Navigation Menu */}
+              <Link
+                href="/#enquiry"
+                className="px-3 py-1.5 rounded-lg text-xs font-bold text-[#0056D2] bg-blue-50 hover:bg-blue-100/80 border border-blue-200 transition-all flex items-center gap-1.5"
+              >
+                <ChatCircleDots size={14} weight="bold" />
+                <span>Enquiry</span>
+              </Link>
+            </nav>
+
+            {/* Auth / Student Profile */}
             {user ? (
-              /* User logged in: Profile & Dashboard */
-              <div className="flex items-center gap-2">
-                <Link
-                  href="/student/dashboard"
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/80 hover:bg-blue-100/70 text-[#0056D2] text-xs sm:text-sm font-bold transition-all shadow-2xs"
-                >
-                  <User size={15} weight="bold" />
-                  <span className="truncate max-w-[120px]">{user.name.split(' ')[0]}</span>
-                </Link>
+              /* User logged in: Profile Dropdown */
+              <div ref={userMenuRef} className="relative">
                 <button
                   type="button"
-                  onClick={logout}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                  title="Sign Out"
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50/90 hover:bg-blue-100/80 text-[#0056D2] text-xs sm:text-sm font-bold transition-all shadow-2xs cursor-pointer"
                 >
-                  <SignOut size={18} />
+                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="truncate max-w-[110px] hidden sm:inline">
+                    {user.name.split(' ')[0]}
+                  </span>
+                  <CaretDown size={12} weight="bold" />
                 </button>
+
+                {/* User Dropdown Menu */}
+                <AnimatePresence>
+                  {userDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 4, scale: 0.98 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 top-[calc(100%+8px)] w-56 bg-white rounded-2xl border border-slate-200 shadow-xl p-2 z-50 text-xs"
+                    >
+                      <div className="px-3 py-2 border-b border-slate-100 mb-1">
+                        <p className="font-bold text-slate-900 truncate">{user.name}</p>
+                        <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
+                        <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          Active Learner
+                        </span>
+                      </div>
+
+                      <div className="space-y-0.5">
+                        <Link
+                          href="/student/dashboard"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-blue-50 hover:text-blue-700 font-semibold transition-colors"
+                        >
+                          <BookOpen size={16} />
+                          <span>My Learning Hub</span>
+                        </Link>
+                        <Link
+                          href="/student/dashboard?tab=certificates"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-blue-50 hover:text-blue-700 font-semibold transition-colors"
+                        >
+                          <Certificate size={16} />
+                          <span>My Certificates</span>
+                        </Link>
+                        <Link
+                          href="/blog"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-blue-50 hover:text-blue-700 font-semibold transition-colors"
+                        >
+                          <BookOpen size={16} />
+                          <span>Tech Blog</span>
+                        </Link>
+                        <Link
+                          href="/student/profile"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 font-semibold transition-colors"
+                        >
+                          <User size={16} />
+                          <span>Profile Settings</span>
+                        </Link>
+                      </div>
+
+                      <div className="pt-1 mt-1 border-t border-slate-100">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserDropdownOpen(false)
+                            logout()
+                          }}
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 font-semibold transition-colors cursor-pointer"
+                        >
+                          <SignOut size={16} />
+                          <span>Sign Out</span>
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ) : (
-              /* Not logged in: Log In & Join for Free */
-              <div className="flex items-center gap-2 sm:gap-3">
-                <button
-                  type="button"
-                  onClick={() => openAuth('login')}
-                  className="px-3 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#0056D2] transition-colors cursor-pointer"
-                >
-                  Log In
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => openAuth('signup')}
-                  className="px-3.5 py-1.5 rounded-lg border-2 border-[#0056D2] text-[#0056D2] hover:bg-blue-50 text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs"
-                >
-                  Join for Free
-                </button>
-              </div>
+              /* Not logged in: Log In Button */
+              <button
+                type="button"
+                onClick={() => openAuth('step1')}
+                className="px-4 py-2 rounded-xl bg-[#0056D2] hover:bg-[#00419e] text-white text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs"
+              >
+                Log In
+              </button>
             )}
 
             {/* Mobile Drawer Toggle */}
-            <div className="flex md:hidden items-center ml-1">
+            <div className="flex xl:hidden items-center ml-1">
               <button
                 type="button"
                 onClick={() => setMobileOpen(!mobileOpen)}
@@ -331,7 +518,7 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.18 }}
-            className="fixed inset-x-0 top-[68px] bg-white border-b border-slate-200 shadow-xl z-40 p-5 md:hidden font-['Inter']"
+            className="fixed inset-x-0 top-[68px] bg-white border-b border-slate-200 shadow-xl z-40 p-5 xl:hidden font-['Inter'] max-h-[calc(100vh-68px)] overflow-y-auto"
           >
             {/* Mobile Search */}
             <form onSubmit={handleSearchSubmit} className="relative w-full mb-4">
@@ -339,8 +526,8 @@ export default function Navbar() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="What do you want to learn?"
-                className="w-full pl-3.5 pr-10 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 placeholder:text-slate-500"
+                placeholder="Search available courses..."
+                className="w-full pl-3.5 pr-10 py-2 rounded-xl border border-slate-300 text-xs text-slate-900 placeholder:text-slate-400"
               />
               <button
                 type="submit"
@@ -350,59 +537,101 @@ export default function Navbar() {
               </button>
             </form>
 
-            <div className="space-y-1 mb-4">
+            <div className="space-y-1 mb-4 text-xs font-semibold text-slate-800">
               <Link
                 href="/courses"
                 onClick={() => setMobileOpen(false)}
-                className="block px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50 rounded-lg"
+                className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
               >
-                All Programs
+                <span>Courses &amp; Specializations</span>
+                <ArrowRight size={13} className="text-slate-400" />
               </Link>
-              {EXPLORE_CATEGORIES.map((c) => (
-                <Link
-                  key={c.title}
-                  href={`/courses?category=${encodeURIComponent(c.categoryKey)}`}
-                  onClick={() => setMobileOpen(false)}
-                  className="block px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50 rounded-lg"
-                >
-                  {c.title}
-                </Link>
-              ))}
+              <Link
+                href="/#why-us"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                <span>Why Learn With Us</span>
+                <ArrowRight size={13} className="text-slate-400" />
+              </Link>
+              <Link
+                href="/#methodology"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                <span>Learning Methodology</span>
+                <ArrowRight size={13} className="text-slate-400" />
+              </Link>
+              <Link
+                href="/#mentors"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                <span>Mentors &amp; Faculty</span>
+                <ArrowRight size={13} className="text-slate-400" />
+              </Link>
+              <Link
+                href="/blog"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                <span>Engineering Blog &amp; Guides</span>
+                <ArrowRight size={13} className="text-slate-400" />
+              </Link>
+
+              {/* Enquiry Link in Mobile Drawer - Added Last */}
+              <Link
+                href="/#enquiry"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center justify-between p-2.5 rounded-lg bg-blue-50 text-[#0056D2] font-bold transition-colors mt-2"
+              >
+                <span className="flex items-center gap-1.5">
+                  <ChatCircleDots size={16} weight="bold" />
+                  <span>Course Enquiry &amp; Admissions</span>
+                </span>
+                <ArrowRight size={13} />
+              </Link>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
+            {/* Mobile Auth Bottom Section */}
+            <div className="pt-3 border-t border-slate-100">
               {user ? (
-                <Link
-                  href="/student/dashboard"
-                  onClick={() => setMobileOpen(false)}
-                  className="py-2.5 text-center rounded-xl bg-blue-50 text-[#0056D2] font-bold text-xs"
-                >
-                  My Dashboard ({user.name.split(' ')[0]})
-                </Link>
-              ) : (
-                <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-2">
+                  <Link
+                    href="/student/dashboard"
+                    onClick={() => setMobileOpen(false)}
+                    className="w-full py-2.5 px-3 rounded-xl bg-blue-50 text-[#0056D2] text-xs font-bold flex items-center justify-center gap-2"
+                  >
+                    <BookOpen size={16} />
+                    <span>My Learning Hub</span>
+                  </Link>
                   <button
                     type="button"
-                    onClick={() => openAuth('login')}
-                    className="py-2.5 text-center rounded-xl border border-slate-300 text-slate-700 font-bold text-xs cursor-pointer"
+                    onClick={() => {
+                      setMobileOpen(false)
+                      logout()
+                    }}
+                    className="w-full py-2 rounded-xl text-red-600 hover:bg-red-50 text-xs font-semibold flex items-center justify-center gap-1.5"
                   >
-                    Log In
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => openAuth('signup')}
-                    className="py-2.5 text-center rounded-xl bg-[#0056D2] text-white font-bold text-xs cursor-pointer"
-                  >
-                    Join for Free
+                    <SignOut size={16} />
+                    <span>Sign Out</span>
                   </button>
                 </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => openAuth('step1')}
+                  className="w-full py-2.5 rounded-xl bg-[#0056D2] text-white text-xs font-bold shadow-xs flex items-center justify-center"
+                >
+                  Log In
+                </button>
               )}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Auth Modal directly mounted in Navbar so Log In & Join for Free always work seamlessly */}
+      {/* Universal 2-Step & OTP Auth Modal */}
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
