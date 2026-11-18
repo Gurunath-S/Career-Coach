@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Star,
@@ -12,6 +12,8 @@ import {
   Laptop,
 } from '@phosphor-icons/react'
 import { COURSES } from '@/lib/constants'
+import { apiService } from '@/services/api'
+import type { Course } from '@careercatch/shared-types'
 import { DemoBookingModal } from '@/components/modals/DemoBookingModal'
 
 const TRACK_FILTERS = [
@@ -22,59 +24,106 @@ const TRACK_FILTERS = [
   { label: 'Cloud & DevOps', key: 'Cloud' },
 ]
 
-export default function PopularCourses() {
+interface PopularCoursesProps {
+  hideHeader?: boolean
+}
+
+export default function PopularCourses({ hideHeader = false }: PopularCoursesProps) {
+  const [courses, setCourses] = useState<Course[]>(COURSES)
   const [activeFilter, setActiveFilter] = useState('all')
   const [demoModalOpen, setDemoModalOpen] = useState(false)
 
-  const filteredCourses =
+  // Fetch live courses from database
+  useEffect(() => {
+    let active = true
+    async function loadCourses() {
+      try {
+        const data = await apiService.getCourses()
+        if (active && data && data.length > 0) {
+          setCourses(data)
+        }
+      } catch (err) {
+        console.error('Failed to load DB courses in PopularCourses:', err)
+      }
+    }
+    loadCourses()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  // All courses in the selected track
+  const allFilteredCourses =
     activeFilter === 'all'
-      ? COURSES
-      : COURSES.filter((c) =>
+      ? courses
+      : courses.filter((c) =>
           c.category.toLowerCase().includes(activeFilter.toLowerCase()) ||
           (activeFilter === 'Cloud' && (c.category.includes('Cloud') || c.category.includes('DevOps')))
         )
 
+  // Show limited courses on homepage: max 6 for all, max 4 for specific tracks
+  const displayLimit = activeFilter === 'all' ? 6 : 4
+  const displayedCourses = allFilteredCourses.slice(0, displayLimit)
+
+  // Sector-specific destination URL
+  const viewAllHref =
+    activeFilter === 'all'
+      ? '/courses'
+      : `/courses?category=${encodeURIComponent(activeFilter)}`
+  const activeSectorName =
+    TRACK_FILTERS.find((t) => t.key === activeFilter)?.label || activeFilter
+
   return (
-    <section id="courses" className="py-16 md:py-24 bg-white border-b border-slate-200/80 relative">
-      <div className="container">
-        {/* Section Header: Pure CSS Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end mb-10 pb-6 border-b border-slate-100">
-          <div className="md:col-span-8">
-            <span className="inline-grid grid-flow-col items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-blue-700 text-xs font-bold tracking-wider uppercase mb-3">
-              <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
-              <span>LIVE INDUSTRY COHORTS</span>
-            </span>
+    <section
+      id="courses"
+      className={
+        hideHeader
+          ? 'pt-2 pb-6 bg-transparent relative'
+          : 'py-16 md:py-24 bg-white border-b border-slate-200/80 relative'
+      }
+    >
+      <div className={hideHeader ? 'w-full' : 'container'}>
+        {/* Section Header: Pure CSS Grid (Hidden for logged-in student dashboard) */}
+        {!hideHeader && (
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end mb-10 pb-6 border-b border-slate-100">
+            <div className="md:col-span-8">
+              <span className="inline-grid grid-flow-col items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-blue-700 text-xs font-bold tracking-wider uppercase mb-3">
+                <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                <span>LIVE INDUSTRY COHORTS</span>
+              </span>
 
-            <h2 className="font-['Plus_Jakarta_Sans'] font-extrabold text-2xl sm:text-3xl md:text-4xl text-slate-900 tracking-tight leading-tight">
-              Explore Industry-Aligned Programs
-            </h2>
+              <h2 className="font-['Plus_Jakarta_Sans'] font-extrabold text-2xl sm:text-3xl md:text-4xl text-slate-900 tracking-tight leading-tight">
+                Explore Industry-Aligned Programs
+              </h2>
 
-            <p className="font-['Inter'] text-sm sm:text-base text-slate-600 mt-2 max-w-2xl leading-relaxed">
-              Curricula designed and taught by active practitioners at Google, Microsoft, and Amazon. Learn by shipping real software.
-            </p>
+              <p className="font-['Inter'] text-sm sm:text-base text-slate-600 mt-2 max-w-2xl leading-relaxed">
+                Curricula designed and taught by active practitioners at Google, Microsoft, and Amazon. Learn by shipping real software.
+              </p>
+            </div>
+
+            <div className="md:col-span-4 md:justify-self-end flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setDemoModalOpen(true)}
+                className="grid grid-flow-col items-center gap-2 px-4 py-2.5 rounded-xl border border-blue-200 bg-blue-50/70 hover:bg-blue-100/70 text-blue-700 text-xs sm:text-sm font-bold transition-all shadow-2xs group cursor-pointer"
+              >
+                <span>Talk to an Academic Advisor</span>
+                <ArrowRight
+                  size={15}
+                  weight="bold"
+                  className="transition-transform group-hover:translate-x-1"
+                />
+              </button>
+              <Link
+                href={viewAllHref}
+                className="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-[#0056D2] hover:underline whitespace-nowrap"
+              >
+                <span>{activeFilter === 'all' ? 'View All 12+ Programs' : `View All ${activeSectorName}`}</span>
+                <ArrowRight size={12} weight="bold" />
+              </Link>
+            </div>
           </div>
-
-          <div className="md:col-span-4 md:justify-self-end flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setDemoModalOpen(true)}
-              className="grid grid-flow-col items-center gap-2 px-4 py-2.5 rounded-xl border border-blue-200 bg-blue-50/70 hover:bg-blue-100/70 text-blue-700 text-xs sm:text-sm font-bold transition-all shadow-2xs group cursor-pointer"
-            >
-              <span>Talk to an Academic Advisor</span>
-              <ArrowRight
-                size={15}
-                weight="bold"
-                className="transition-transform group-hover:translate-x-1"
-              />
-            </button>
-            <Link
-              href="/courses"
-              className="hidden sm:inline-block text-xs font-bold text-[#0056D2] hover:underline"
-            >
-              View All →
-            </Link>
-          </div>
-        </div>
+        )}
 
         {/* Filter Bar: Pure CSS Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 mb-10">
@@ -97,9 +146,9 @@ export default function PopularCourses() {
           })}
         </div>
 
-        {/* Course Cards Grid: Pure CSS, Zero JS Scroll Jank */}
+        {/* Course Cards Grid: Limited to top curated programs */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {filteredCourses.map((course) => (
+          {displayedCourses.map((course) => (
             <div
               key={course.id}
               className="grid grid-rows-[auto_1fr] rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-2xs hover:shadow-xl hover:border-blue-300 transition-all duration-200 group"
@@ -230,8 +279,35 @@ export default function PopularCourses() {
           ))}
         </div>
 
-        {/* Section Bottom Feature Pillars: Pure 4-Column CSS Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-12 pt-8 border-t border-slate-100">
+        {/* View All Sector CTA Banner */}
+        <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-gradient-to-r from-blue-50/80 via-slate-50 to-blue-50/50 border border-blue-200/80 shadow-2xs">
+          <div className="text-center sm:text-left">
+            <h4 className="text-sm font-bold text-slate-900">
+              {activeFilter === 'all'
+                ? `Showing ${displayedCourses.length} of ${allFilteredCourses.length} industry-leading programs`
+                : `Showing ${displayedCourses.length} of ${allFilteredCourses.length} programs in ${activeSectorName}`}
+            </h4>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Explore the complete curriculum, projects, and live cohorts in this sector.
+            </p>
+          </div>
+
+          <Link
+            href={viewAllHref}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0056D2] hover:bg-[#00419e] text-white text-xs sm:text-sm font-bold shadow-md shadow-blue-600/20 transition-all shrink-0 group cursor-pointer"
+          >
+            <span>
+              {activeFilter === 'all'
+                ? `Explore All ${allFilteredCourses.length} Programs`
+                : `Explore All ${allFilteredCourses.length} ${activeSectorName} Programs`}
+            </span>
+            <ArrowRight size={15} weight="bold" className="transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
+
+        {/* Section Bottom Feature Pillars: Pure 4-Column CSS Grid (Hidden for student dashboard) */}
+        {!hideHeader && (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-12 pt-8 border-t border-slate-100">
           <div className="grid grid-flow-col items-center justify-start gap-3 p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/60">
             <div className="w-9 h-9 rounded-lg bg-blue-100 text-blue-700 grid place-items-center shrink-0">
               <Laptop size={18} weight="fill" />
@@ -272,6 +348,7 @@ export default function PopularCourses() {
             </div>
           </div>
         </div>
+        )}
       </div>
 
       <DemoBookingModal
