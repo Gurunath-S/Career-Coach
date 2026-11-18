@@ -61,15 +61,44 @@ export async function getStudentProfile(req: AuthRequest, res: Response, next: N
 export async function updateStudentProfile(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     if (!req.user) throw ApiError.unauthorized('Authentication required')
-    const { phone, college, graduationYear, currentRole, skills, bio, resumeUrl } = req.body
+    const {
+      name,
+      avatar,
+      phone,
+      education,
+      college,
+      graduationYear,
+      currentRole,
+      learningGoal,
+      desiredRoles,
+      interestedCourse,
+      skills,
+      bio,
+      resumeUrl,
+    } = req.body
+
+    // Update User name/avatar if provided
+    if (avatar !== undefined || (name && typeof name === 'string')) {
+      await prisma.user.update({
+        where: { id: req.user.id },
+        data: {
+          avatar: avatar !== undefined ? avatar : undefined,
+          name: name ? name.trim() : undefined,
+        },
+      })
+    }
 
     const updated = await prisma.studentProfile.upsert({
       where: { userId: req.user.id },
       update: {
         phone: phone ?? undefined,
+        education: education ?? undefined,
         college: college ?? undefined,
         graduationYear: graduationYear ? Number(graduationYear) : undefined,
         currentRole: currentRole ?? undefined,
+        learningGoal: learningGoal ?? undefined,
+        desiredRoles: Array.isArray(desiredRoles) ? desiredRoles : undefined,
+        interestedCourse: interestedCourse ?? undefined,
         skills: Array.isArray(skills) ? skills : undefined,
         bio: bio ?? undefined,
         resumeUrl: resumeUrl ?? undefined,
@@ -77,9 +106,13 @@ export async function updateStudentProfile(req: AuthRequest, res: Response, next
       create: {
         userId: req.user.id,
         phone: phone || '',
+        education: education || null,
         college: college || null,
         graduationYear: graduationYear ? Number(graduationYear) : null,
         currentRole: currentRole || null,
+        learningGoal: learningGoal || null,
+        desiredRoles: Array.isArray(desiredRoles) ? desiredRoles : [],
+        interestedCourse: interestedCourse || null,
         skills: Array.isArray(skills) ? skills : [],
         bio: bio || null,
         resumeUrl: resumeUrl || null,
