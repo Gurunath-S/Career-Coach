@@ -28,6 +28,7 @@ declare global {
             client_id: string
             scope: string
             callback: (res: { access_token?: string; error?: string }) => void
+            error_callback?: (err: { type: string; message?: string }) => void
           }) => {
             requestAccessToken: () => void
           }
@@ -64,9 +65,14 @@ export function AuthModal({
   const [otpCode, setOtpCode] = useState('')
   const [previewCode, setPreviewCode] = useState('')
   const [resendTimer, setResendTimer] = useState(0)
-  const [loading, setLoading] = useState(false)
+  const [emailLoading, setEmailLoading] = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false)
+  const [otpLoading, setOtpLoading] = useState(false)
+  const [passwordLoading, setPasswordLoading] = useState(false)
   const [error, setError] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
+
+  const isBusy = emailLoading || googleLoading || otpLoading || passwordLoading
 
   useEffect(() => {
     if (resendTimer <= 0) return
@@ -90,29 +96,35 @@ export function AuthModal({
     e.preventDefault()
     setError('')
     setSuccessMsg('')
-    if (!email || !email.includes('@')) {
-      setError('Please enter a valid email address')
+    const cleanEmail = email.trim().toLowerCase()
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
+      setError('Please enter a valid email address (e.g. name@example.com)')
       return
     }
 
-    setLoading(true)
+    setEmailLoading(true)
     try {
-      const result = await checkEmail(email)
+      const result = await checkEmail(cleanEmail)
       if (result.exists) {
-        // Returning user: Automatically send 6-digit login code to their email!
-        const otpRes = await sendOtp(email.trim().toLowerCase())
-        if (otpRes?.previewCode) setPreviewCode(otpRes.previewCode)
-        setSuccessMsg(`We sent a 6-digit login code to ${email}`)
-        setStep('otp')
-        setResendTimer(30)
+        // Returning student: Automatically send 6-digit login code to their email!
+        try {
+          const otpRes = await sendOtp(cleanEmail)
+          if (otpRes?.previewCode) setPreviewCode(otpRes.previewCode)
+          setSuccessMsg(`Welcome back! We sent a 6-digit login code to ${cleanEmail}`)
+          setStep('otp')
+          setResendTimer(30)
+        } catch (otpErr: unknown) {
+          setError(otpErr instanceof Error ? otpErr.message : 'Failed to send login code. Please try again.')
+        }
       } else {
-        // First-time user: ask name and then verify code
+        // First-time student: ask name and then verify code
         setStep('signup')
       }
-    } catch {
-      setStep('signup')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Could not check email. Please check your connection and try again.')
     } finally {
-      setLoading(false)
+      setEmailLoading(false)
     }
   }
 
@@ -126,17 +138,17 @@ export function AuthModal({
       return
     }
 
-    setLoading(true)
+    setOtpLoading(true)
     try {
       const otpRes = await sendOtp(email.trim().toLowerCase(), name.trim())
       if (otpRes?.previewCode) setPreviewCode(otpRes.previewCode)
-      setSuccessMsg(`Verification code sent to ${email}`)
+      setSuccessMsg(`Verification code sent to ${email.trim()}`)
       setStep('otp')
       setResendTimer(30)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to send code. Please try again.')
     } finally {
-      setLoading(false)
+      setOtpLoading(false)
     }
   }
 
@@ -149,7 +161,7 @@ export function AuthModal({
       return
     }
 
-    setLoading(true)
+    setOtpLoading(true)
     try {
       await verifyOtp(email.trim().toLowerCase(), otpCode.trim(), name.trim())
       setSuccessMsg('Signed in successfully!')
@@ -160,7 +172,7 @@ export function AuthModal({
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Invalid or expired code. Please try again.')
     } finally {
-      setLoading(false)
+      setOtpLoading(false)
     }
   }
 
@@ -168,7 +180,7 @@ export function AuthModal({
   const handleResendOtp = async () => {
     if (resendTimer > 0) return
     setError('')
-    setLoading(true)
+    setOtpLoading(true)
     try {
       const otpRes = await sendOtp(email.trim().toLowerCase(), name.trim())
       if (otpRes?.previewCode) setPreviewCode(otpRes.previewCode)
@@ -177,7 +189,7 @@ export function AuthModal({
     } catch {
       setError('Could not resend code. Please try again.')
     } finally {
-      setLoading(false)
+      setOtpLoading(false)
     }
   }
 
@@ -190,7 +202,7 @@ export function AuthModal({
       return
     }
 
-    setLoading(true)
+    setPasswordLoading(true)
     try {
       await login(email.trim().toLowerCase(), password)
       setSuccessMsg('Welcome back!')
@@ -201,14 +213,15 @@ export function AuthModal({
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Invalid email or password.')
     } finally {
-      setLoading(false)
+      setPasswordLoading(false)
     }
   }
 
   // Google OAuth SSO Handler
   const handleGoogleLogin = () => {
     setError('')
-    const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+    const rawClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''
+    const googleClientId = rawClientId.trim()
 
     if (!googleClientId || googleClientId.includes('your-google-client-id')) {
       setError(
@@ -223,14 +236,27 @@ export function AuthModal({
     }
 
     try {
-      setLoading(true)
+      setGoogleLoading(true)
+
+      // Fallback timeout to unblock UI if popup is closed or blocked without event
+      const timer = setTimeout(() => {
+        setGoogleLoading(false)
+      }, 45000)
 
       const tokenClient = window.google.accounts.oauth2.initTokenClient({
         client_id: googleClientId,
         scope: 'email profile openid',
+        error_callback: (err) => {
+          clearTimeout(timer)
+          setGoogleLoading(false)
+          if (err && err.type !== 'popup_closed') {
+            setError(`Google Sign-In cancelled or failed (${err.type || 'error'})`)
+          }
+        },
         callback: async (response) => {
+          clearTimeout(timer)
           if (response.error || !response.access_token) {
-            setLoading(false)
+            setGoogleLoading(false)
             if (response.error !== 'popup_closed_by_user') {
               setError(`Google Sign-In: ${response.error || 'Authentication cancelled'}`)
             }
@@ -247,14 +273,14 @@ export function AuthModal({
           } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Google authentication failed.')
           } finally {
-            setLoading(false)
+            setGoogleLoading(false)
           }
         },
       })
 
       tokenClient.requestAccessToken()
     } catch (err: unknown) {
-      setLoading(false)
+      setGoogleLoading(false)
       setError(err instanceof Error ? err.message : 'Failed to initiate Google sign-in.')
     }
   }
@@ -339,11 +365,15 @@ export function AuthModal({
 
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="w-full py-3.5 px-4 rounded-xl bg-[#0056D2] hover:bg-[#00419e] text-white font-bold text-sm tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-60 cursor-pointer flex items-center justify-center gap-2"
+                  disabled={isBusy}
+                  className="w-full py-3.5 px-4 rounded-xl bg-[#0056D2] hover:bg-[#00419e] text-white font-bold text-sm tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
                 >
-                  <EnvelopeSimple size={18} weight="bold" />
-                  <span>{loading ? 'Checking...' : 'Continue with Email'}</span>
+                  {emailLoading ? (
+                    <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin shrink-0" />
+                  ) : (
+                    <EnvelopeSimple size={18} weight="bold" />
+                  )}
+                  <span>{emailLoading ? 'Checking email...' : 'Continue with Email'}</span>
                 </button>
               </form>
 
@@ -364,28 +394,32 @@ export function AuthModal({
                 <button
                   type="button"
                   onClick={handleGoogleLogin}
-                  disabled={loading}
-                  className="w-full py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-3 cursor-pointer disabled:opacity-60"
+                  disabled={isBusy}
+                  className="w-full py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-3 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                    <path
-                      fill="#4285F4"
-                      d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.25 21.36 7.31 24 12 24z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.25 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-                    />
-                  </svg>
-                  <span>Continue with Google</span>
+                  {googleLoading ? (
+                    <div className="w-4 h-4 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin shrink-0" />
+                  ) : (
+                    <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                      <path
+                        fill="#4285F4"
+                        d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"
+                      />
+                      <path
+                        fill="#34A853"
+                        d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.25 21.36 7.31 24 12 24z"
+                      />
+                      <path
+                        fill="#FBBC05"
+                        d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z"
+                      />
+                      <path
+                        fill="#EA4335"
+                        d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.25 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+                      />
+                    </svg>
+                  )}
+                  <span>{googleLoading ? 'Connecting to Google...' : 'Continue with Google'}</span>
                 </button>
               </div>
 
@@ -464,10 +498,10 @@ export function AuthModal({
 
                 <button
                   type="submit"
-                  disabled={loading || otpCode.length < 6}
+                  disabled={isBusy || otpCode.length < 6}
                   className="w-full py-3.5 px-4 rounded-xl bg-[#0056D2] hover:bg-[#00419e] text-white font-bold text-sm tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-60 cursor-pointer"
                 >
-                  {loading ? 'Verifying...' : 'Verify & Log In'}
+                  {otpLoading ? 'Verifying...' : 'Verify & Log In'}
                 </button>
               </form>
 
@@ -476,7 +510,7 @@ export function AuthModal({
                 <button
                   type="button"
                   onClick={handleResendOtp}
-                  disabled={resendTimer > 0 || loading}
+                  disabled={resendTimer > 0 || isBusy}
                   className="inline-flex items-center gap-1 font-semibold text-[#0056D2] hover:underline disabled:text-slate-400 cursor-pointer disabled:cursor-not-allowed"
                 >
                   <ArrowClockwise size={13} className={resendTimer > 0 ? '' : 'text-[#0056D2]'} />
@@ -545,11 +579,11 @@ export function AuthModal({
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={isBusy}
                   className="w-full py-3.5 px-4 rounded-xl bg-[#0056D2] hover:bg-[#00419e] text-white font-bold text-sm tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-60 cursor-pointer flex items-center justify-center gap-2"
                 >
                   <Key size={18} weight="bold" />
-                  <span>{loading ? 'Sending code...' : 'Send Verification Code'}</span>
+                  <span>{otpLoading ? 'Sending code...' : 'Send Verification Code'}</span>
                 </button>
               </form>
 
@@ -628,10 +662,10 @@ export function AuthModal({
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={isBusy}
                   className="w-full py-3.5 px-4 rounded-xl bg-[#0056D2] hover:bg-[#00419e] text-white font-bold text-sm tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-60 cursor-pointer"
                 >
-                  {loading ? 'Signing in...' : 'Sign In'}
+                  {passwordLoading ? 'Signing in...' : 'Sign In'}
                 </button>
               </form>
 
@@ -640,7 +674,7 @@ export function AuthModal({
                   type="button"
                   onClick={async () => {
                     setError('')
-                    setLoading(true)
+                    setOtpLoading(true)
                     try {
                       const otpRes = await sendOtp(email.trim().toLowerCase())
                       if (otpRes?.previewCode) setPreviewCode(otpRes.previewCode)
@@ -650,7 +684,7 @@ export function AuthModal({
                     } catch {
                       setError('Failed to send code.')
                     } finally {
-                      setLoading(false)
+                      setOtpLoading(false)
                     }
                   }}
                   className="font-bold text-[#0056D2] hover:underline cursor-pointer"
