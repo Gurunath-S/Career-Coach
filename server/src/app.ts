@@ -22,7 +22,7 @@ export function createApp(): Express {
   app.use(
     cors({
       origin: (origin, callback) => {
-        if (!origin || config.corsOrigins.includes(origin)) {
+        if (!origin || config.corsOrigins.includes('*') || config.corsOrigins.includes(origin)) {
           return callback(null, true)
         }
         return callback(new Error(`Origin ${origin} is not allowed by CORS`))
