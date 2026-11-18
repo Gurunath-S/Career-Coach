@@ -24,7 +24,9 @@ interface StudentAuthContextType {
     education?: string
   }) => Promise<void>
   checkEmail: (email: string) => Promise<{ exists: boolean; name?: string | null }>
-  googleSso: (email: string, name?: string) => Promise<void>
+  sendOtp: (email: string, name?: string) => Promise<{ isExistingUser: boolean; previewCode?: string }>
+  verifyOtp: (email: string, code: string, name?: string) => Promise<void>
+  googleSso: (params: { credential?: string; accessToken?: string }) => Promise<void>
   logout: () => Promise<void>
   refreshUser: () => Promise<void>
 }
@@ -124,16 +126,46 @@ export function StudentAuthProvider({ children }: { children: ReactNode }) {
     return json.data
   }
 
-  const googleSso = async (email: string, name?: string) => {
+  const googleSso = async (params: { credential?: string; accessToken?: string }) => {
     const res = await fetch(`${API_BASE_URL}/auth/student/google-sso`, {
       method: 'POST',
       credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    })
+    const json = await res.json()
+    if (!res.ok) {
+      throw new Error(json.message || 'Google SSO failed')
+    }
+    if (json.data?.token && typeof window !== 'undefined') {
+      localStorage.setItem('careercatch_student_token', json.data.token)
+    }
+    setUser(json.data.user)
+  }
+
+  const sendOtp = async (email: string, name?: string) => {
+    const res = await fetch(`${API_BASE_URL}/auth/student/send-otp`, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, name }),
     })
     const json = await res.json()
     if (!res.ok) {
-      throw new Error(json.message || 'Google SSO failed')
+      throw new Error(json.message || 'Failed to send verification code')
+    }
+    return json.data
+  }
+
+  const verifyOtp = async (email: string, code: string, name?: string) => {
+    const res = await fetch(`${API_BASE_URL}/auth/student/verify-otp`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, code, name }),
+    })
+    const json = await res.json()
+    if (!res.ok) {
+      throw new Error(json.message || 'Invalid verification code')
     }
     if (json.data?.token && typeof window !== 'undefined') {
       localStorage.setItem('careercatch_student_token', json.data.token)
@@ -158,7 +190,7 @@ export function StudentAuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <StudentAuthContext.Provider
-      value={{ user, loading, login, register, checkEmail, googleSso, logout, refreshUser }}
+      value={{ user, loading, login, register, checkEmail, sendOtp, verifyOtp, googleSso, logout, refreshUser }}
     >
       {children}
     </StudentAuthContext.Provider>

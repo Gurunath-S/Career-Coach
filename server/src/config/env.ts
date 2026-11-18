@@ -11,6 +11,7 @@ export const config = {
   databaseUrl: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/careercatch',
   jwtSecret: process.env.JWT_SECRET || 'careercatch_super_secure_jwt_secret_2026',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  googleClientId: process.env.GOOGLE_CLIENT_ID || '',
   corsOrigins: [
     'http://localhost:3000',
     'http://localhost:5173',

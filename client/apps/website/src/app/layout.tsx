@@ -23,7 +23,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: 'CareerCatch — Build Skills. Build Your Future.',
   description:
-    'Industry-led tech programs with live classes, hands-on projects, and 1-on-1 mentorship from top engineers. Start your tech career with CareerCatch.',
+    'Industry-led tech programs with live classes, hands-on projects, and mentorship from top engineers. Start your tech career with CareerCatch.',
   keywords: [
     'online coding bootcamp',
     'full stack development',
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'CareerCatch — Build Skills. Build Your Future.',
     description:
-      'Industry-led tech programs with live classes, hands-on projects, and 1-on-1 mentorship from top engineers.',
+      'Industry-led tech programs with live classes, hands-on projects, and mentorship from top engineers.',
     type: 'website',
     locale: 'en_IN',
     siteName: 'CareerCatch',
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'CareerCatch — Build Skills. Build Your Future.',
     description:
-      'Industry-led tech programs with live classes, hands-on projects, and 1-on-1 mentorship from top engineers.',
+      'Industry-led tech programs with live classes, hands-on projects, and mentorship from top engineers.',
   },
   robots: {
     index: true,
@@ -55,6 +55,7 @@ export const metadata: Metadata = {
   },
 }
 
+import Script from 'next/script'
 import { StudentAuthProvider } from '@/context/StudentAuthContext'
 
 export default function RootLayout({
@@ -64,6 +65,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${plusJakartaSans.variable}`} suppressHydrationWarning>
+      <head>
+        <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
+      </head>
       <body
         className="min-h-screen bg-white text-[#101B3C] font-inter selection:bg-[#155EEF]/15 selection:text-[#101B3C]"
         suppressHydrationWarning

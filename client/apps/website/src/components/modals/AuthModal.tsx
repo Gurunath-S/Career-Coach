@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   X,
@@ -9,15 +9,40 @@ import {
   EyeSlash,
   WarningCircle,
   CheckCircle,
+  Key,
+  EnvelopeSimple,
+  ArrowClockwise,
 } from '@phosphor-icons/react'
 import { useStudentAuth } from '@/context/StudentAuthContext'
+
+declare global {
+  interface Window {
+    google?: {
+      accounts?: {
+        id?: {
+          initialize: (config: { client_id: string; callback: (res: { credential?: string }) => void }) => void
+          prompt: () => void
+        }
+        oauth2?: {
+          initTokenClient: (config: {
+            client_id: string
+            scope: string
+            callback: (res: { access_token?: string; error?: string }) => void
+          }) => {
+            requestAccessToken: () => void
+          }
+        }
+      }
+    }
+  }
+}
 
 interface AuthModalProps {
   isOpen: boolean
   onClose: () => void
   onSuccess?: () => void
   initialEmail?: string
-  initialMode?: 'step1' | 'signup' | 'login'
+  initialMode?: 'step1' | 'otp' | 'signup' | 'login'
   courseTitle?: string
 }
 
@@ -29,30 +54,42 @@ export function AuthModal({
   initialMode = 'step1',
   courseTitle,
 }: AuthModalProps) {
-  const { login, register, checkEmail, googleSso } = useStudentAuth()
+  const { login, checkEmail, sendOtp, verifyOtp, googleSso } = useStudentAuth()
 
-  const [step, setStep] = useState<'step1' | 'signup' | 'login'>(initialMode)
+  const [step, setStep] = useState<'step1' | 'otp' | 'signup' | 'login'>(initialMode)
   const [email, setEmail] = useState(initialEmail)
   const [name, setName] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [otpCode, setOtpCode] = useState('')
+  const [previewCode, setPreviewCode] = useState('')
+  const [resendTimer, setResendTimer] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
 
+  useEffect(() => {
+    if (resendTimer <= 0) return
+    const interval = setInterval(() => {
+      setResendTimer((prev) => (prev > 0 ? prev - 1 : 0))
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [resendTimer])
+
   if (!isOpen) return null
 
-  // Reset or switch back to Step 1 (email input)
   const handleEditEmail = () => {
     setError('')
     setSuccessMsg('')
+    setOtpCode('')
     setStep('step1')
   }
 
-  // Step 1: User submits email -> Check if existing or new
+  // Step 1: User submits email -> Check if existing or new user
   const handleContinueWithEmail = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setSuccessMsg('')
     if (!email || !email.includes('@')) {
       setError('Please enter a valid email address')
       return
@@ -62,52 +99,90 @@ export function AuthModal({
     try {
       const result = await checkEmail(email)
       if (result.exists) {
-        setStep('login')
+        // Returning user: Automatically send 6-digit login code to their email!
+        const otpRes = await sendOtp(email.trim().toLowerCase())
+        if (otpRes?.previewCode) setPreviewCode(otpRes.previewCode)
+        setSuccessMsg(`We sent a 6-digit login code to ${email}`)
+        setStep('otp')
+        setResendTimer(30)
       } else {
+        // First-time user: ask name and then verify code
         setStep('signup')
       }
     } catch {
-      // Default to signup if check fails
       setStep('signup')
     } finally {
       setLoading(false)
     }
   }
 
-  // Step 2 (New User): Sign up / Join for free
-  const handleJoinForFree = async (e: React.FormEvent) => {
+  // First-time user requests OTP code
+  const handleRequestSignupOtp = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setSuccessMsg('')
     if (!name.trim()) {
       setError('Please enter your full name')
-      return
-    }
-    if (password.length < 8) {
-      setError('Password must be between 8 and 72 characters')
       return
     }
 
     setLoading(true)
     try {
-      await register({
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-        password,
-      })
-      setSuccessMsg('Account created successfully!')
-      setTimeout(() => {
-        onSuccess?.()
-        onClose()
-      }, 400)
+      const otpRes = await sendOtp(email.trim().toLowerCase(), name.trim())
+      if (otpRes?.previewCode) setPreviewCode(otpRes.previewCode)
+      setSuccessMsg(`Verification code sent to ${email}`)
+      setStep('otp')
+      setResendTimer(30)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Registration failed. Please try again.')
+      setError(err instanceof Error ? err.message : 'Failed to send code. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
-  // Step 2 (Existing User): Log in
-  const handleLogin = async (e: React.FormEvent) => {
+  // Verify OTP Code
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    if (!otpCode || otpCode.trim().length < 6) {
+      setError('Please enter the 6-digit verification code')
+      return
+    }
+
+    setLoading(true)
+    try {
+      await verifyOtp(email.trim().toLowerCase(), otpCode.trim(), name.trim())
+      setSuccessMsg('Signed in successfully!')
+      setTimeout(() => {
+        onSuccess?.()
+        onClose()
+      }, 400)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Invalid or expired code. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Resend OTP Code
+  const handleResendOtp = async () => {
+    if (resendTimer > 0) return
+    setError('')
+    setLoading(true)
+    try {
+      const otpRes = await sendOtp(email.trim().toLowerCase(), name.trim())
+      if (otpRes?.previewCode) setPreviewCode(otpRes.previewCode)
+      setSuccessMsg('A new verification code has been sent!')
+      setResendTimer(30)
+    } catch {
+      setError('Could not resend code. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Optional traditional Password Login fallback
+  const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     if (!password) {
@@ -130,126 +205,167 @@ export function AuthModal({
     }
   }
 
-  // Google SSO Handler
-  const handleGoogleSso = async () => {
+  // Google OAuth SSO Handler
+  const handleGoogleLogin = () => {
     setError('')
-    setLoading(true)
+    const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+
+    if (!googleClientId || googleClientId.includes('your-google-client-id')) {
+      setError(
+        'Google OAuth Client ID is not configured yet. Please set NEXT_PUBLIC_GOOGLE_CLIENT_ID in client/apps/website/.env.local.'
+      )
+      return
+    }
+
+    if (typeof window === 'undefined' || !window.google?.accounts?.oauth2) {
+      setError('Google Sign-In is initializing. Please wait a moment and try again.')
+      return
+    }
+
     try {
-      const defaultEmail = email && email.includes('@') ? email : 'student.learner@gmail.com'
-      const defaultName = name || defaultEmail.split('@')[0]
-      await googleSso(defaultEmail, defaultName)
-      setSuccessMsg('Connected with Google!')
-      setTimeout(() => {
-        onSuccess?.()
-        onClose()
-      }, 400)
+      setLoading(true)
+
+      const tokenClient = window.google.accounts.oauth2.initTokenClient({
+        client_id: googleClientId,
+        scope: 'email profile openid',
+        callback: async (response) => {
+          if (response.error || !response.access_token) {
+            setLoading(false)
+            if (response.error !== 'popup_closed_by_user') {
+              setError(`Google Sign-In: ${response.error || 'Authentication cancelled'}`)
+            }
+            return
+          }
+
+          try {
+            await googleSso({ accessToken: response.access_token })
+            setSuccessMsg('Connected with Google!')
+            setTimeout(() => {
+              onSuccess?.()
+              onClose()
+            }, 400)
+          } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Google authentication failed.')
+          } finally {
+            setLoading(false)
+          }
+        },
+      })
+
+      tokenClient.requestAccessToken()
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Google SSO failed.')
-    } finally {
       setLoading(false)
+      setError(err instanceof Error ? err.message : 'Failed to initiate Google sign-in.')
     }
   }
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs font-['Inter']">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        {/* Backdrop */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 10 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          transition={{ duration: 0.2 }}
-          className="relative w-full max-w-[440px] bg-white rounded-2xl shadow-2xl border border-slate-200/80 p-6 sm:p-8 overflow-hidden"
-        >
-          {/* Close Button */}
-          <button
-            onClick={onClose}
-            type="button"
-            className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-            aria-label="Close modal"
-          >
-            <X size={20} weight="bold" />
-          </button>
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs"
+        />
 
-          {/* Optional Course Enrollment Context Notice */}
-          {courseTitle && (
-            <div className="mb-4 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-100 text-xs font-medium text-blue-700 flex items-center gap-1.5">
-              <span>Enrolling in:</span>
-              <strong className="truncate">{courseTitle}</strong>
-            </div>
-          )}
+        {/* Modal Window */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 12 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 12 }}
+          transition={{ duration: 0.2 }}
+          className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 sm:p-8 z-10 border border-slate-200"
+        >
+          {/* Close button */}
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+            aria-label="Close authentication modal"
+          >
+            <X size={20} />
+          </button>
 
           {/* Feedback messages */}
           {error && (
             <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium flex items-center gap-2">
-              <WarningCircle size={18} className="shrink-0" />
+              <WarningCircle size={16} className="shrink-0 text-red-600" />
               <span>{error}</span>
             </div>
           )}
+
           {successMsg && (
-            <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium flex items-center gap-2">
-              <CheckCircle size={18} className="shrink-0" />
+            <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2">
+              <CheckCircle size={16} className="shrink-0 text-emerald-600" />
               <span>{successMsg}</span>
             </div>
           )}
 
           {/* ═════════════════════════════════════════════════════════════
-              STEP 1: Log in or create account (Email + SSO)
+              STEP 1: Enter Email (Works for first time and returning)
              ═════════════════════════════════════════════════════════════ */}
           {step === 'step1' && (
             <div>
               <div className="mb-6">
                 <h2 className="text-xl sm:text-2xl font-bold font-['Plus_Jakarta_Sans'] text-slate-900 tracking-tight">
-                  Log in or create account
+                  Welcome to CareerCatch
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">
-                  Learn on your own time from top engineering mentors and industry leaders.
+                <p className="text-xs sm:text-sm text-slate-500 mt-1 leading-relaxed">
+                  {courseTitle
+                    ? `Sign in to access ${courseTitle}`
+                    : 'Access live cohort masterclasses, student dashboard, and verifiable certificates.'}
                 </p>
               </div>
 
               <form onSubmit={handleContinueWithEmail} className="space-y-4">
                 <div>
-                  <label htmlFor="modal-email" className="block text-xs font-bold text-slate-800 mb-1">
-                    Email <span className="text-red-500">*</span>
+                  <label htmlFor="modal-email-step1" className="block text-xs font-bold text-slate-800 mb-1">
+                    Email Address <span className="text-red-500">*</span>
                   </label>
                   <input
-                    id="modal-email"
+                    id="modal-email-step1"
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@email.com"
+                    placeholder="name@example.com"
                     autoFocus
-                    className="w-full px-3.5 py-3 rounded-xl border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0056D2] focus:ring-2 focus:ring-[#0056D2]/20 transition-all"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0056D2] focus:ring-2 focus:ring-[#0056D2]/20 transition-all"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3.5 px-4 rounded-xl bg-[#0056D2] hover:bg-[#00419e] text-white font-bold text-sm tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-60 cursor-pointer"
+                  className="w-full py-3.5 px-4 rounded-xl bg-[#0056D2] hover:bg-[#00419e] text-white font-bold text-sm tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-60 cursor-pointer flex items-center justify-center gap-2"
                 >
-                  {loading ? 'Continuing...' : 'Continue'}
+                  <EnvelopeSimple size={18} weight="bold" />
+                  <span>{loading ? 'Checking...' : 'Continue with Email'}</span>
                 </button>
               </form>
 
-              {/* Divider */}
-              <div className="relative my-6 text-center">
+              {/* Or Divider */}
+              <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-slate-200" />
                 </div>
-                <span className="relative px-3 bg-white text-xs text-slate-400 uppercase tracking-wider font-semibold">
-                  or
-                </span>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="relative px-3 bg-white text-xs text-slate-400 uppercase tracking-wider font-semibold">
+                    or
+                  </span>
+                </div>
               </div>
 
-              {/* Social Login Options */}
-              <div className="space-y-2.5">
-                {/* Google Button */}
+              {/* Google OAuth Button */}
+              <div>
                 <button
                   type="button"
-                  onClick={handleGoogleSso}
+                  onClick={handleGoogleLogin}
                   disabled={loading}
-                  className="w-full py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-3 cursor-pointer"
+                  className="w-full py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-3 cursor-pointer disabled:opacity-60"
                 >
                   <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                     <path
@@ -271,90 +387,149 @@ export function AuthModal({
                   </svg>
                   <span>Continue with Google</span>
                 </button>
-
-                {/* Facebook Button */}
-                <button
-                  type="button"
-                  onClick={handleGoogleSso}
-                  disabled={loading}
-                  className="w-full py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-3 cursor-pointer"
-                >
-                  <svg className="w-4 h-4 text-[#1877F2] shrink-0 fill-current" viewBox="0 0 24 24">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                  </svg>
-                  <span>Continue with Facebook</span>
-                </button>
-
-                {/* Apple Button */}
-                <button
-                  type="button"
-                  onClick={handleGoogleSso}
-                  disabled={loading}
-                  className="w-full py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-3 cursor-pointer"
-                >
-                  <svg className="w-4 h-4 text-slate-900 shrink-0 fill-current" viewBox="0 0 24 24">
-                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.36c.64-.78 1.08-1.86.96-2.95-1 .04-2.16.66-2.84 1.45-.6.69-1.12 1.8-1 2.87 1.12.09 2.24-.59 2.88-1.37z" />
-                  </svg>
-                  <span>Continue with Apple</span>
-                </button>
               </div>
 
               {/* Legal Footer */}
               <div className="mt-6 pt-4 border-t border-slate-100 text-center">
                 <p className="text-[11px] text-slate-500 leading-normal">
-                  I accept CareerCatch&apos;s{' '}
-                  <a href="#terms" className="text-[#0056D2] underline">
-                    Terms of Use
-                  </a>{' '}
-                  and{' '}
-                  <a href="#privacy" className="text-[#0056D2] underline">
-                    Privacy Notice
-                  </a>
-                  .
+                  By continuing, you accept CareerCatch&apos;s Terms of Service and Privacy Notice.
                 </p>
               </div>
             </div>
           )}
 
           {/* ═════════════════════════════════════════════════════════════
-              STEP 2: Sign up (Coursera style with email chip + edit icon)
+              STEP: OTP Verification (For returning users & after signup)
+             ═════════════════════════════════════════════════════════════ */}
+          {step === 'otp' && (
+            <div>
+              <div className="mb-5">
+                <h2 className="text-xl sm:text-2xl font-bold font-['Plus_Jakarta_Sans'] text-slate-900 tracking-tight">
+                  Check your email
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 mt-1 leading-relaxed">
+                  We sent a 6-digit login verification code to your email.
+                </p>
+              </div>
+
+              {/* Email chip with edit icon */}
+              <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#EBF3FE] border border-blue-200 mb-4">
+                <div className="flex items-center gap-2 truncate">
+                  <EnvelopeSimple size={16} className="text-[#0056D2] shrink-0" />
+                  <span className="text-xs sm:text-sm font-semibold text-slate-800 truncate">
+                    {email}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleEditEmail}
+                  className="p-1 rounded-md text-slate-600 hover:text-blue-700 hover:bg-blue-100/60 transition-colors cursor-pointer shrink-0"
+                  title="Change email"
+                >
+                  <PencilSimple size={15} weight="bold" />
+                </button>
+              </div>
+
+              {/* Instant Developer / Demo helper badge */}
+              {previewCode && (
+                <div className="mb-4 p-2.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-xs flex items-center justify-between">
+                  <span>Verification Code: <strong className="font-mono text-sm tracking-wider font-extrabold text-[#0056D2]">{previewCode}</strong></span>
+                  <button
+                    type="button"
+                    onClick={() => setOtpCode(previewCode)}
+                    className="text-[11px] font-bold text-[#0056D2] hover:underline cursor-pointer"
+                  >
+                    Auto-Fill
+                  </button>
+                </div>
+              )}
+
+              <form onSubmit={handleVerifyOtp} className="space-y-4">
+                <div>
+                  <label htmlFor="otp-input" className="block text-xs font-bold text-slate-800 mb-1.5">
+                    Enter 6-Digit Code <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="otp-input"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                    placeholder="123456"
+                    autoFocus
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 text-center font-mono font-black text-2xl tracking-[0.4em] text-slate-900 placeholder:text-slate-300 focus:outline-none focus:border-[#0056D2] focus:ring-2 focus:ring-[#0056D2]/20 transition-all bg-slate-50/50"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading || otpCode.length < 6}
+                  className="w-full py-3.5 px-4 rounded-xl bg-[#0056D2] hover:bg-[#00419e] text-white font-bold text-sm tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-60 cursor-pointer"
+                >
+                  {loading ? 'Verifying...' : 'Verify & Log In'}
+                </button>
+              </form>
+
+              {/* Resend and alternate login options */}
+              <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
+                <button
+                  type="button"
+                  onClick={handleResendOtp}
+                  disabled={resendTimer > 0 || loading}
+                  className="inline-flex items-center gap-1 font-semibold text-[#0056D2] hover:underline disabled:text-slate-400 cursor-pointer disabled:cursor-not-allowed"
+                >
+                  <ArrowClockwise size={13} className={resendTimer > 0 ? '' : 'text-[#0056D2]'} />
+                  <span>{resendTimer > 0 ? `Resend code in ${resendTimer}s` : 'Resend code'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setError('')
+                    setStep('login')
+                  }}
+                  className="font-medium text-slate-500 hover:text-slate-800 hover:underline cursor-pointer"
+                >
+                  Use password instead
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ═════════════════════════════════════════════════════════════
+              STEP: First-time Sign Up (Enter name then verify OTP)
              ═════════════════════════════════════════════════════════════ */}
           {step === 'signup' && (
             <div>
               <div className="mb-5">
                 <h2 className="text-xl sm:text-2xl font-bold font-['Plus_Jakarta_Sans'] text-slate-900 tracking-tight">
-                  Sign up
+                  First-Time Student Registration
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 mt-1 leading-relaxed">
-                  Learn on your own time from top universities and businesses.
+                  Enter your name to set up your student learning dashboard.
                 </p>
               </div>
 
-              <form onSubmit={handleJoinForFree} className="space-y-4">
-                {/* Email with edit button (Exact image 1 style) */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1">
-                    Email <span className="text-red-500">*</span>
-                  </label>
-                  <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#EBF3FE] border border-blue-200">
-                    <span className="text-xs sm:text-sm font-medium text-slate-800 truncate">
-                      {email}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={handleEditEmail}
-                      className="p-1 rounded-md text-slate-600 hover:text-blue-700 hover:bg-blue-100/60 transition-colors cursor-pointer shrink-0"
-                      title="Edit email address"
-                    >
-                      <PencilSimple size={16} weight="bold" />
-                    </button>
-                  </div>
-                </div>
+              {/* Email chip with edit */}
+              <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#EBF3FE] border border-blue-200 mb-4">
+                <span className="text-xs sm:text-sm font-medium text-slate-800 truncate">
+                  {email}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleEditEmail}
+                  className="p-1 rounded-md text-slate-600 hover:text-blue-700 hover:bg-blue-100/60 transition-colors cursor-pointer shrink-0"
+                  title="Edit email address"
+                >
+                  <PencilSimple size={15} weight="bold" />
+                </button>
+              </div>
 
-                {/* Full Name */}
+              <form onSubmit={handleRequestSignupOtp} className="space-y-4">
                 <div>
                   <label htmlFor="modal-name" className="block text-xs font-bold text-slate-800 mb-1">
-                    Full Name <span className="text-red-500">*</span>
+                    Your Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="modal-name"
@@ -368,49 +543,18 @@ export function AuthModal({
                   />
                 </div>
 
-                {/* Password with Eye toggle */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label htmlFor="modal-password" className="block text-xs font-bold text-slate-800">
-                      Password <span className="text-red-500">*</span>
-                    </label>
-                  </div>
-                  <p className="text-[11px] text-slate-500 mb-1">Between 8 and 72 characters</p>
-                  <div className="relative">
-                    <input
-                      id="modal-password"
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      minLength={8}
-                      maxLength={72}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Create password"
-                      className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0056D2] focus:ring-2 focus:ring-[#0056D2]/20 transition-all"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
-                    >
-                      {showPassword ? <EyeSlash size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Join for Free Button */}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3.5 px-4 rounded-xl bg-[#0056D2] hover:bg-[#00419e] text-white font-bold text-sm tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-60 cursor-pointer"
+                  className="w-full py-3.5 px-4 rounded-xl bg-[#0056D2] hover:bg-[#00419e] text-white font-bold text-sm tracking-wide transition-all shadow-md hover:shadow-lg disabled:opacity-60 cursor-pointer flex items-center justify-center gap-2"
                 >
-                  {loading ? 'Creating account...' : 'Join for Free'}
+                  <Key size={18} weight="bold" />
+                  <span>{loading ? 'Sending code...' : 'Send Verification Code'}</span>
                 </button>
               </form>
 
-              {/* Bottom footer link */}
               <div className="mt-5 text-center text-xs text-slate-600">
-                Already on CareerCatch?{' '}
+                Already registered?{' '}
                 <button
                   type="button"
                   onClick={() => {
@@ -419,14 +563,14 @@ export function AuthModal({
                   }}
                   className="font-bold text-[#0056D2] hover:underline cursor-pointer"
                 >
-                  Log in
+                  Log in with password
                 </button>
               </div>
             </div>
           )}
 
           {/* ═════════════════════════════════════════════════════════════
-              STEP 2 (Existing User): Log in
+              STEP: Traditional Password Login (Optional Alternative)
              ═════════════════════════════════════════════════════════════ */}
           {step === 'login' && (
             <div>
@@ -435,32 +579,26 @@ export function AuthModal({
                   Welcome back!
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 mt-1 leading-relaxed">
-                  Enter your password to sign in.
+                  Sign in with your password or use email verification code.
                 </p>
               </div>
 
-              <form onSubmit={handleLogin} className="space-y-4">
-                {/* Email with edit button */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1">
-                    Email Address
-                  </label>
-                  <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#EBF3FE] border border-blue-200">
-                    <span className="text-xs sm:text-sm font-medium text-slate-800 truncate">
-                      {email}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={handleEditEmail}
-                      className="p-1 rounded-md text-slate-600 hover:text-blue-700 hover:bg-blue-100/60 transition-colors cursor-pointer shrink-0"
-                      title="Edit email address"
-                    >
-                      <PencilSimple size={16} weight="bold" />
-                    </button>
-                  </div>
-                </div>
+              {/* Email chip with edit button */}
+              <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#EBF3FE] border border-blue-200 mb-4">
+                <span className="text-xs sm:text-sm font-medium text-slate-800 truncate">
+                  {email}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleEditEmail}
+                  className="p-1 rounded-md text-slate-600 hover:text-blue-700 hover:bg-blue-100/60 transition-colors cursor-pointer shrink-0"
+                  title="Edit email address"
+                >
+                  <PencilSimple size={15} weight="bold" />
+                </button>
+              </div>
 
-                {/* Password */}
+              <form onSubmit={handlePasswordLogin} className="space-y-4">
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label htmlFor="modal-login-password" className="block text-xs font-bold text-slate-800">
@@ -488,7 +626,6 @@ export function AuthModal({
                   </div>
                 </div>
 
-                {/* Sign In Button */}
                 <button
                   type="submit"
                   disabled={loading}
@@ -498,18 +635,38 @@ export function AuthModal({
                 </button>
               </form>
 
-              {/* Bottom footer link */}
-              <div className="mt-5 text-center text-xs text-slate-600">
-                New to CareerCatch?{' '}
+              <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setError('')
+                    setLoading(true)
+                    try {
+                      const otpRes = await sendOtp(email.trim().toLowerCase())
+                      if (otpRes?.previewCode) setPreviewCode(otpRes.previewCode)
+                      setSuccessMsg(`Login code sent to ${email}`)
+                      setStep('otp')
+                      setResendTimer(30)
+                    } catch {
+                      setError('Failed to send code.')
+                    } finally {
+                      setLoading(false)
+                    }
+                  }}
+                  className="font-bold text-[#0056D2] hover:underline cursor-pointer"
+                >
+                  Send login code to email
+                </button>
+
                 <button
                   type="button"
                   onClick={() => {
                     setError('')
                     setStep('signup')
                   }}
-                  className="font-bold text-[#0056D2] hover:underline cursor-pointer"
+                  className="font-medium text-slate-500 hover:underline cursor-pointer"
                 >
-                  Create an account
+                  New user? Sign up
                 </button>
               </div>
             </div>

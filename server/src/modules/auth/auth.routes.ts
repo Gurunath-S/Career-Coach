@@ -7,6 +7,8 @@ import {
   getMe,
   checkEmail,
   googleSso,
+  sendStudentOtp,
+  verifyStudentOtp,
 } from './auth.controller'
 import { validateRequest } from '../../middlewares/validate'
 import { authenticate } from '../../middlewares/auth'
@@ -19,6 +21,9 @@ authRouter.post('/student/login', validateRequest(loginSchema), studentLogin)
 authRouter.post('/student/register', validateRequest(registerStudentSchema), studentRegister)
 authRouter.post('/student/logout', studentLogout)
 authRouter.post('/student/check-email', checkEmail)
+authRouter.post('/student/send-otp', sendStudentOtp)
+authRouter.post('/student/verify-otp', verifyStudentOtp)
 authRouter.post('/student/google-sso', googleSso)
 authRouter.get('/me', authenticate, getMe)
+
 
