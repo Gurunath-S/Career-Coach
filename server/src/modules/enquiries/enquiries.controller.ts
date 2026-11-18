@@ -33,19 +33,35 @@ let fallbackEnquiries: Enquiry[] = [
 
 export async function submitEnquiry(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = req.body
+    const { fullName, email, phone, college, currentYear, course, message, source } = req.body
+
+    if (!fullName || !email || !phone) {
+      throw ApiError.badRequest('Full Name, Email, and Phone number are required')
+    }
+
+    const payload = {
+      fullName: String(fullName).trim(),
+      email: String(email).trim().toLowerCase(),
+      phone: String(phone).trim(),
+      college: college ? String(college).trim() : null,
+      currentYear: currentYear ? String(currentYear).trim() : null,
+      course: course ? String(course).trim() : null,
+      message: message ? String(message).trim() : null,
+      source: source || 'Course Enquiry Form',
+    }
+
     try {
-      const created = await prisma.enquiry.create({ data })
-      return successResponse(res, created, 'Enquiry submitted successfully', 201)
+      const created = await prisma.enquiry.create({ data: payload })
+      return successResponse(res, created, 'Course enquiry submitted successfully', 201)
     } catch {
       const newEnquiry: Enquiry = {
         id: fallbackEnquiries.length + 1,
-        ...data,
+        ...payload,
         status: 'NEW',
         createdAt: new Date().toISOString(),
       }
       fallbackEnquiries.unshift(newEnquiry)
-      return successResponse(res, newEnquiry, 'Enquiry submitted successfully', 201)
+      return successResponse(res, newEnquiry, 'Course enquiry submitted successfully', 201)
     }
   } catch (error) {
     next(error)

@@ -15,7 +15,6 @@ import {
   Clock,
   WhatsappLogo,
   Buildings,
-  ArrowRight,
   FileText,
   Star,
 } from '@phosphor-icons/react'
@@ -29,19 +28,13 @@ const TRACK_OPTIONS = [
   { id: 'devops', label: 'DevOps & CI/CD', category: 'Infra' },
 ]
 
-const BACKGROUND_OPTIONS = [
-  'College Student / Fresher',
-  'Working Professional (Switching to Tech)',
-  'Upskilling Current Role',
-  'Other',
-]
-
 export default function EnquiryCTA() {
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
+  const [college, setCollege] = useState('')
+  const [currentYear, setCurrentYear] = useState('3rd Year / 4th Year')
   const [selectedTrack, setSelectedTrack] = useState('Full Stack Web')
-  const [learnerGoal, setLearnerGoal] = useState('College Student / Fresher')
   const [message, setMessage] = useState('')
 
   const [loading, setLoading] = useState(false)
@@ -68,8 +61,10 @@ export default function EnquiryCTA() {
         fullName,
         email,
         phone,
+        college,
+        currentYear,
         course: selectedTrack,
-        message: `${learnerGoal}${message ? ` - ${message}` : ''}`,
+        message,
       })
       setSubmitted(true)
     } catch {
@@ -104,7 +99,7 @@ export default function EnquiryCTA() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span>Admissions &amp; 1:1 Career Counseling</span>
+            <span>Course Enquiry &amp; Admissions</span>
           </div>
 
           <h2 className="font-['Plus_Jakarta_Sans'] text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-4 leading-tight">
@@ -112,7 +107,7 @@ export default function EnquiryCTA() {
           </h2>
 
           <p className="font-['Inter'] text-base md:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
-            Speak directly with our senior mentors and career advisors. Get a personalized roadmap, course syllabus, and eligible scholarship evaluation in minutes.
+            Speak directly with our senior mentors and career advisors. Get a personalized roadmap, course syllabus, and curriculum details in minutes.
           </p>
         </div>
 
@@ -133,7 +128,7 @@ export default function EnquiryCTA() {
                     <GraduationCap size={18} weight="fill" />
                   </div>
                   <div>
-                    <strong className="block text-slate-900 font-semibold">1:1 Career Roadmap</strong>
+                    <strong className="block text-slate-900 font-semibold">Personalized Career Roadmap</strong>
                     <span className="text-slate-500 text-xs leading-relaxed">
                       Personalized timeline mapped to your background and target engineering role.
                     </span>
@@ -169,9 +164,9 @@ export default function EnquiryCTA() {
                     <Sparkle size={18} weight="fill" />
                   </div>
                   <div>
-                    <strong className="block text-slate-900 font-semibold">Up to 40% Merit Scholarship</strong>
+                    <strong className="block text-slate-900 font-semibold">Live Mentorship &amp; Guidance</strong>
                     <span className="text-slate-500 text-xs leading-relaxed">
-                      Check your eligibility for early enrollment fee waivers and 0% EMI plans.
+                      Interactive cohorts with real-time doubt clearing and direct code guidance.
                     </span>
                   </div>
                 </li>
@@ -285,7 +280,7 @@ export default function EnquiryCTA() {
                     </p>
                     <p className="flex items-center gap-2">
                       <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center shrink-0 text-[10px]">3</span>
-                      <span>Personalized scholarship evaluation and batch seat reservation.</span>
+                      <span>Course schedule details and batch seat reservation.</span>
                     </p>
                   </div>
 
@@ -309,23 +304,23 @@ export default function EnquiryCTA() {
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-5">
                     <div>
                       <h3 className="font-['Plus_Jakarta_Sans'] text-xl sm:text-2xl font-bold text-slate-900">
-                        Book Your Free 1:1 Counseling
+                        Course Enquiry &amp; Admissions
                       </h3>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        No fees • Instant 2026 syllabus PDF • Direct mentor chat
+                        No fees • Instant 2026 syllabus PDF • Direct advisor guidance
                       </p>
                     </div>
 
                     <span className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold shrink-0">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      <span>6 Slots Open Today</span>
+                      <span>Admissions Open</span>
                     </span>
                   </div>
 
-                  {/* Step 1: Program of Interest (Interactive Chips) */}
+                  {/* Field 1: Interested Course */}
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2.5">
-                      1. Select Program of Interest <span className="text-blue-700">*</span>
+                      1. Interested Course <span className="text-blue-700">*</span>
                     </label>
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -354,7 +349,7 @@ export default function EnquiryCTA() {
                     </div>
                   </div>
 
-                  {/* Step 2: Personal Contact Information */}
+                  {/* Field 2 & 3: Personal Contact Information */}
                   <div className="space-y-4">
                     <div>
                       <label htmlFor="form-full-name" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
@@ -379,29 +374,6 @@ export default function EnquiryCTA() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Email */}
-                      <div>
-                        <label htmlFor="form-email" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                          Email Address <span className="text-blue-700">*</span>
-                        </label>
-                        <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                            <EnvelopeSimple size={18} />
-                          </div>
-                          <input
-                            id="form-email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="vikram@example.com"
-                            className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white text-sm transition-all shadow-2xs"
-                          />
-                        </div>
-                        {errors.email && (
-                          <p className="text-xs text-rose-600 mt-1">{errors.email}</p>
-                        )}
-                      </div>
-
                       {/* Phone */}
                       <div>
                         <label htmlFor="form-phone" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
@@ -424,46 +396,84 @@ export default function EnquiryCTA() {
                           <p className="text-xs text-rose-600 mt-1">{errors.phone}</p>
                         )}
                       </div>
+
+                      {/* Email */}
+                      <div>
+                        <label htmlFor="form-email" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                          Email Address <span className="text-blue-700">*</span>
+                        </label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <EnvelopeSimple size={18} />
+                          </div>
+                          <input
+                            id="form-email"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="vikram@example.com"
+                            className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white text-sm transition-all shadow-2xs"
+                          />
+                        </div>
+                        {errors.email && (
+                          <p className="text-xs text-rose-600 mt-1">{errors.email}</p>
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Step 3: Current Background */}
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-                      3. Current Background / Role
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {BACKGROUND_OPTIONS.map((bg) => {
-                        const isSelected = learnerGoal === bg
-                        return (
-                          <button
-                            key={bg}
-                            type="button"
-                            onClick={() => setLearnerGoal(bg)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer border ${
-                              isSelected
-                                ? 'bg-blue-600 text-white border-blue-600'
-                                : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
-                            }`}
-                          >
-                            {bg}
-                          </button>
-                        )
-                      })}
+                  {/* Field 4 & 5: College/Organization & Current Year/Qualification */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="form-college" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        College / Organization
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                          <Buildings size={18} />
+                        </div>
+                        <input
+                          id="form-college"
+                          type="text"
+                          value={college}
+                          onChange={(e) => setCollege(e.target.value)}
+                          placeholder="e.g. RV College of Engineering"
+                          className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white text-sm transition-all shadow-2xs"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="form-current-year" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Current Year / Qualification
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                          <GraduationCap size={18} />
+                        </div>
+                        <input
+                          id="form-current-year"
+                          type="text"
+                          value={currentYear}
+                          onChange={(e) => setCurrentYear(e.target.value)}
+                          placeholder="e.g. 3rd Year B.Tech / BCA Graduate"
+                          className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white text-sm transition-all shadow-2xs"
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  {/* Step 4: Questions / Notes */}
+                  {/* Field 7: Message */}
                   <div>
                     <label htmlFor="form-message" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                      Specific Questions or Career Goal (Optional)
+                      Message / Career Goals (Optional)
                     </label>
                     <textarea
                       id="form-message"
                       rows={2}
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      placeholder="e.g. Looking to switch to frontend, want to know about placement support and upcoming weekend batches..."
+                      placeholder="e.g. Looking to switch to frontend, want to know about placement support and upcoming batches..."
                       className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white text-sm transition-all shadow-2xs resize-none"
                     />
                   </div>
@@ -478,16 +488,12 @@ export default function EnquiryCTA() {
                       {loading ? (
                         <>
                           <CircleNotch size={20} className="animate-spin" />
-                          <span>Reserving Your Strategy Call...</span>
+                          <span>Submitting Course Enquiry...</span>
                         </>
                       ) : (
                         <>
-                          <span>Start to Enroll • Claim Free Counseling</span>
-                          <ArrowRight
-                            size={18}
-                            weight="bold"
-                            className="group-hover:translate-x-1 transition-transform duration-200"
-                          />
+                          <span>Submit Course Enquiry</span>
+                          <PaperPlaneRight size={18} weight="bold" className="group-hover:translate-x-1 transition-transform" />
                         </>
                       )}
                     </button>

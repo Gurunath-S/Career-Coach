@@ -13,23 +13,20 @@ The **EnquiryCTA** is the central conversion engine and admissions application h
 
 The section is organized into a high-converting two-column layout:
 1. **Left Trust & Direct Channel Hub:**
-   - **Session Value Deliverables:** Outlines what the applicant receives: a personalized 1:1 career roadmap, 15-minute priority callback, 2026 capstone dossier, and up to 40% merit scholarship evaluation.
+   - **Session Value Deliverables:** Outlines what the applicant receives: a personalized career roadmap, 15-minute priority callback, 2026 capstone dossier, and live cohort guidance.
    - **Toll-Free Helpline & WhatsApp Gateway:** An active hotline card (`1800-890-2282`) with an *"Active Now"* pulsing indicator, direct click-to-chat WhatsApp button, and physical campus location tags (Bengaluru & Hyderabad).
    - **Social Proof Strip:** Avatar cluster highlighting `1,240+ Enrolled this Month` and a 4.9/5 rating.
 2. **Right Interactive Application Form:**
-   - Client-side validated form fields for Full Name, Email, and Phone number.
-   - Interactive track selector pills (6 technical domains).
-   - Educational/career background selector dropdown.
-   - Optional candidate notes textarea.
+   - Client-side validated form fields for Full Name, Email, Phone, College/Organization, Current Year/Qualification, Interested Course, and Message.
    - Loading state spinner and success celebration confirmation screen.
 
 ---
 
 ## 2. What Purpose It Serves
 
-1. **Lead Generation & Student Acquisition:** Captures high-intent applicant data (name, email, phone, target track, current career stage) for admissions counselor follow-up.
+1. **Lead Generation & Student Acquisition:** Captures high-intent applicant data (Name, Phone, Email, College/Organization, Year/Qualification, Course, Message) for admissions counselor follow-up.
 2. **Immediate Consultation Routing:** Offers multi-channel access (web form, instant WhatsApp chat, or direct toll-free telephone).
-3. **Scholarship Assessment:** Incentivizes immediate submission by offering merit-based fee evaluation (up to 40% scholarship).
+3. **Cohort Guidance:** Clarifies syllabus details, schedule timing, and batch seat reservation.
 4. **Friction-Free Confirmation:** Reassures users upon submission with immediate feedback displaying their name, selected program, and expected advisor contact window.
 
 ---
