@@ -21,7 +21,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'CareerCatch — Build Skills. Build Your Future.',
+  title: 'CareerCatch | Build Skills. Build Your Future.',
   description:
     'Industry-led tech programs with live classes, hands-on projects, and mentorship from top engineers. Start your tech career with CareerCatch.',
   keywords: [
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   authors: [{ name: 'CareerCatch' }],
   metadataBase: new URL('https://careercatch.in'),
   openGraph: {
-    title: 'CareerCatch — Build Skills. Build Your Future.',
+    title: 'CareerCatch | Build Skills. Build Your Future.',
     description:
       'Industry-led tech programs with live classes, hands-on projects, and mentorship from top engineers.',
     type: 'website',
@@ -45,13 +45,21 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'CareerCatch — Build Skills. Build Your Future.',
+    title: 'CareerCatch | Build Skills. Build Your Future.',
     description:
       'Industry-led tech programs with live classes, hands-on projects, and mentorship from top engineers.',
   },
   robots: {
     index: true,
     follow: true,
+  },
+  icons: {
+    icon: [
+      { url: '/icon.svg?v=2', type: 'image/svg+xml' },
+      { url: '/favicon.ico?v=2', sizes: 'any' },
+    ],
+    shortcut: '/favicon.ico?v=2',
+    apple: '/apple-icon.png?v=2',
   },
 }
 
