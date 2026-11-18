@@ -20,6 +20,9 @@ export interface StudentProfile {
   college?: string | null
   graduationYear?: number | null
   currentRole?: string | null
+  learningGoal?: string | null
+  desiredRoles?: string[]
+  interestedCourse?: string | null
   bio?: string | null
   resumeUrl?: string | null
   skills: string[]
