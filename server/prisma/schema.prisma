@@ -39,6 +39,9 @@ model StudentProfile {
   college         String?
   graduationYear  Int?
   currentRole     String?
+  learningGoal    String?
+  desiredRoles    String[] @default([])
+  interestedCourse String?
   bio             String?  @db.Text
   resumeUrl       String?
   skills          String[] @default([])
@@ -107,6 +110,9 @@ model Course {
   instructor       String
   instructorAvatar String?
   thumbnail        String?
+  partner          String?
+  certificateType  String?
+  skills           String[]     @default([])
   rating           Float        @default(0)
   reviews          Int          @default(0)
   duration         String
