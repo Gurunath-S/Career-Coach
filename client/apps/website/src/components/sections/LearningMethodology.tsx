@@ -377,7 +377,7 @@ export default function LearningMethodology() {
                       <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-800">
                         {i === 0 && 'Industry Curriculum'}
                         {i === 1 && 'System Design Architecture'}
-                        {i === 2 && '1-on-1 Feedback'}
+                        {i === 2 && 'Personalized Feedback'}
                         {i === 3 && 'Offer Negotiation'}
                       </span>
                     </div>

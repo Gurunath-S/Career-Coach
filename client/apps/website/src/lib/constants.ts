@@ -363,7 +363,7 @@ export const FAQS: FAQItem[] = [
   { q: "What tools and software will I need?", a: "A modern laptop (Windows, macOS, or Linux), a stable internet connection, and free tools like VS Code, Git, and a browser. All proprietary software access is covered in course fees." },
   { q: "Are the certificates recognized by employers?", a: "Our completion certificates are industry-recognized and backed by mentor testimonials. Many hiring partners explicitly consider CareerCatch certifications in their screening process." },
   { q: "How do I access materials after completion?", a: "Lifetime access to course recordings and materials is included with every enrollment. You can revisit content anytime via the CareerCatch student dashboard." },
-  { q: "Is there an EMI or payment plan available?", a: "Yes. We offer EMI options starting at 0% interest through partner finance platforms. You can split payments into 3, 6, or 12 monthly installments." },
+  { q: "How are course fees structured?", a: "Course fees are straightforward and transparent with no hidden charges. All live classes, mentor sessions, and project evaluations are covered in the program fee." },
 ];
 
 export const PROJECTS: Project[] = [

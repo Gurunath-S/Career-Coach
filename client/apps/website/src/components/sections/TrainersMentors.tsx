@@ -17,7 +17,7 @@ export default function TrainersMentors() {
             Learn from Industry Insiders
           </h2>
           <p className="font-['Inter'] text-base md:text-lg text-slate-600 leading-relaxed">
-            Direct 1:1 guidance from active senior engineers, architects, and designers at high-scale tech giants.
+            Direct guidance from active senior engineers, architects, and designers at high-scale tech giants.
           </p>
         </div>
 
@@ -86,7 +86,7 @@ export default function TrainersMentors() {
                 <span className="flex items-center gap-1 text-amber-700 font-semibold">
                   <Sparkle size={13} weight="fill" /> Top Rated Mentor
                 </span>
-                <span className="text-blue-700 font-semibold">1:1 Mentorship</span>
+                <span className="text-blue-700 font-semibold">Live Mentorship</span>
               </div>
             </motion.div>
           ))}

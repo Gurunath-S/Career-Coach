@@ -120,7 +120,7 @@ export default function CourseHighlights() {
               </p>
             </div>
             <div className="pt-4 text-xs text-purple-700 font-semibold flex items-center gap-1 mt-4">
-              Private Discord + 1-on-1 audio rooms <ArrowRight size={14} />
+              Private Discord + Dedicated Audio Rooms <ArrowRight size={14} />
             </div>
           </motion.div>
 
@@ -192,7 +192,7 @@ export default function CourseHighlights() {
               </div>
               <div>
                 <h4 className="font-['Plus_Jakarta_Sans'] text-xl md:text-2xl font-extrabold text-slate-900 mb-1">
-                  1-on-1 Code Reviews &amp; Resume Audits
+                  Expert Code Reviews &amp; Resume Audits
                 </h4>
                 <p className="font-['Inter'] text-sm text-slate-600 max-w-xl leading-relaxed">
                   Get line-by-line PR feedback directly on GitHub from tech leads working at top product companies.

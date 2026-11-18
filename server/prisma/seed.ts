@@ -217,7 +217,7 @@ async function main() {
           email: 'ananya.sen@example.com',
           phone: '9731298765',
           course: 'Data Science & Machine Learning',
-          message: 'Looking for syllabus details and EMI payment plans.',
+          message: 'Looking for syllabus details and upcoming cohort schedule.',
           source: 'Floating CTA',
           status: 'CONTACTED',
           notes: 'Counselor demo scheduled.',

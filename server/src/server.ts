@@ -4,8 +4,8 @@ import { config } from './config/env'
 const app = createApp()
 
 const server = app.listen(config.port, () => {
-  console.log(`🚀 CareerCatch Backend API listening on http://localhost:${config.port}`)
-  console.log(`📡 Environment: ${config.nodeEnv}`)
+  console.log(`CareerCatch Backend API listening on http://localhost:${config.port}`)
+  console.log(`Environment: ${config.nodeEnv}`)
 })
 
 // Graceful shutdown

@@ -18,7 +18,7 @@ The **HeroBanner** is the primary above-the-fold centerpiece of the website. It 
 ## 2. What Purpose It Serves
 
 1. **Immediate Value Articulation:** In less than 3 seconds, communicates what CareerCatch offers: live cohorts, real-world project work, top-tier engineering mentorship, and verified placement support.
-2. **Batch Urgency:** The prominent amber badge (`ADMISSIONS OPEN · BATCH 2026`) creates urgency and signals fresh cohort availability.
+2. **Batch Urgency:** The prominent amber badge (`ADMISSIONS OPEN · BATCH {currentYear}`) creates urgency and signals fresh cohort availability dynamically based on the current calendar year.
 3. **Overcoming Educational Skepticism:** The three bullet points directly counter common edtech grievances (passive video watching, absent instructors, and lack of hiring connections).
 4. **Immediate Career Path Orientation:** The overlapping career dock allows users with a specific goal in mind (e.g., AI/ML or Full Stack) to jump directly to their domain of interest without having to scroll through long descriptive text.
 5. **Instant Social Proof:** Floating rating badge (`4.9/5 Learner Rating · 10,000+ students trained`) provides instant third-party validation above the fold.

@@ -87,8 +87,8 @@ const COURSE_FAQS = [
     a: 'College students (B.Tech, BCA, MCA, B.Sc), fresh graduates, and working professionals looking to transition into high-growth software engineering or data roles are eligible. No prior advanced programming experience is required as we build progressively from fundamentals.',
   },
   {
-    q: 'How does the enrollment and payment on hold work?',
-    a: 'You can enroll today with payment on hold. This gives you instant access to your student dashboard, onboarding orientation, and community channels while your financial counseling or scholarship is finalized.',
+    q: 'How does course enrollment work?',
+    a: 'Once you enroll, you get immediate access to your student dashboard, onboarding orientation, curriculum materials, and community channels.',
   },
   {
     q: 'What is the schedule and weekly time commitment?',
@@ -100,7 +100,7 @@ const COURSE_FAQS = [
   },
   {
     q: 'What kind of placement support is provided?',
-    a: 'Our career services include 1:1 resume optimization, GitHub portfolio reviews, mock technical interview sessions with senior engineers, and direct referrals to over 200+ partner tech companies.',
+    a: 'Our career services include personalized resume optimization, GitHub portfolio reviews, mock technical interview sessions with senior engineers, and direct referrals to over 200+ partner tech companies.',
   },
 ]
 
@@ -110,7 +110,7 @@ const TESTIMONIALS_DATA = [
     role: 'Software Development Engineer',
     company: 'CRED',
     avatar: '/images/faculty/priya-sharma.jpg',
-    text: 'CareerCatch provided exactly what college was missing: building real microservices, conducting PR reviews, and thinking like a staff engineer. The 1:1 mentorship helped me crack my dream placement.',
+    text: 'CareerCatch provided exactly what college was missing: building real microservices, conducting PR reviews, and thinking like a staff engineer. The direct mentorship helped me crack my dream placement.',
     rating: 5,
   },
   {
@@ -523,15 +523,12 @@ export default function CourseDetailClient({
                   className="px-4 py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition-colors cursor-pointer flex items-center gap-2 shadow-2xs"
                 >
                   <Sparkle size={15} weight="fill" className="text-amber-500" />
-                  <span>Book Free 1:1 Live Demo</span>
+                  <span>Book Free Live Demo</span>
                 </button>
               </div>
 
-              {/* Financial Aid & Social Proof */}
+              {/* Social Proof */}
               <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600">
-                <span className="font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/80">
-                  Payment on Hold • Instant Hub Access
-                </span>
                 <span className="flex items-center gap-1.5 text-slate-600 font-medium">
                   <Users size={14} className="text-blue-600" />
                   <span>{(course.reviews * 12 + 1420).toLocaleString()} learners already enrolled</span>
@@ -758,7 +755,7 @@ export default function CourseDetailClient({
                   <div className="flex items-start gap-3">
                     <CheckCircle size={18} weight="fill" className="text-blue-600 shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="text-xs font-bold text-slate-900">Direct 1:1 Senior Engineering Mentorship</h4>
+                      <h4 className="text-xs font-bold text-slate-900">Direct Senior Engineering Mentorship</h4>
                       <p className="text-[11px] text-slate-500">Get unblocked anytime with dedicated mock interviews and technical guidance.</p>
                     </div>
                   </div>
@@ -770,7 +767,7 @@ export default function CourseDetailClient({
                     onClick={() => setDemoModalOpen(true)}
                     className="px-5 py-2.5 rounded-xl bg-blue-50 text-[#0056D2] hover:bg-blue-100 font-bold text-xs sm:text-sm border border-blue-200 transition-colors cursor-pointer"
                   >
-                    Schedule a 1:1 Academic Consultation →
+                    Schedule Academic Consultation →
                   </button>
                 </div>
               </div>
@@ -1161,7 +1158,7 @@ export default function CourseDetailClient({
                   onClick={() => setDemoModalOpen(true)}
                   className="w-full py-2.5 px-4 rounded-xl bg-[#0056D2] hover:bg-[#00419e] text-white font-bold text-xs transition-colors cursor-pointer"
                 >
-                  Book Free 1:1 Counseling
+                  Book Free Demo &amp; Counseling
                 </button>
               </div>
             </div>
@@ -1172,7 +1169,7 @@ export default function CourseDetailClient({
 
       <Footer />
 
-      {/* 1:1 Demo Booking Modal */}
+      {/* Demo Booking Modal */}
       <DemoBookingModal
         isOpen={demoModalOpen}
         onClose={() => setDemoModalOpen(false)}

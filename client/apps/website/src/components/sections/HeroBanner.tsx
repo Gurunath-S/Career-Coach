@@ -66,7 +66,7 @@ const POPULAR_TRACKS = [
     href: '/courses?category=Mobile',
   },
   {
-    role: '1-on-1 Mentorship',
+    role: 'Live Mentorship',
     highlight: 'Top Tech Leads',
     icon: UsersThree,
     accent: '#0284C7',
@@ -77,6 +77,8 @@ const POPULAR_TRACKS = [
 ]
 
 export default function HeroBanner() {
+  const currentYear = new Date().getFullYear()
+
   return (
     <section id="hero" className="pt-4 sm:pt-6 pb-12 sm:pb-16 bg-white relative">
       <div className="container relative">
@@ -100,7 +102,7 @@ export default function HeroBanner() {
               {/* Admissions Open Pill Badge */}
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FF9F1C] text-slate-950 font-bold text-xs uppercase tracking-wider mb-5 shadow-xs">
                 <GraduationCap size={16} weight="fill" />
-                <span>ADMISSIONS OPEN · BATCH 2026</span>
+                <span>ADMISSIONS OPEN · BATCH {currentYear}</span>
               </div>
 
               {/* Exact 3-color Headline: BUILD SKILLS. (Navy) / BUILD YOUR (Blue) / FUTURE. (Orange) */}
@@ -114,7 +116,7 @@ export default function HeroBanner() {
 
               {/* Sub-headline */}
               <p className="font-['Inter'] text-slate-600 text-sm sm:text-base lg:text-lg max-w-xl mb-8 leading-relaxed">
-                Industry-led tech programs with live classes, hands-on projects and 1-on-1 mentorship from top engineers.
+                Industry-led tech programs with live classes, hands-on projects and mentorship from top engineers.
               </p>
 
               {/* Three Value-Proposition Bullets */}

@@ -10,7 +10,7 @@ const ROWS = [
     imageAlt: 'Live mentoring session on video call',
     headline: 'Live Mentoring, Not Recorded Lectures',
     body: 'Every cohort runs with weekly live sessions where you can ask questions, get real-time feedback on your code, and learn alongside peers facing the same problems.',
-    points: ['Weekly 1:1 sessions', 'Real-time doubt clearing', 'Industry Q&A panels'],
+    points: ['Weekly live cohort sessions', 'Real-time doubt clearing', 'Industry Q&A panels'],
   },
   {
     imageLeft: false,

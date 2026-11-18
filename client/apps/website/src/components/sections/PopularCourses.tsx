@@ -257,8 +257,8 @@ export default function PopularCourses() {
               <Sparkle size={18} weight="fill" />
             </div>
             <div className="grid">
-              <strong className="text-xs font-bold text-slate-900 leading-tight">1:1 Mentorship</strong>
-              <span className="text-[11px] text-slate-500">Direct senior feedback</span>
+              <strong className="text-xs font-bold text-slate-900 leading-tight">Senior Mentorship</strong>
+              <span className="text-[11px] text-slate-500">Direct mentor feedback</span>
             </div>
           </div>
 

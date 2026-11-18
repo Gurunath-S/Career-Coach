@@ -12,8 +12,8 @@
 The **FloatingEnrollButton** is a conversion-focused, viewport-anchored interactive widget designed to maintain a persistent enrollment pathway as users explore long-form curriculum content.
 
 The widget operates in two distinct reactive states:
-1. **Expanded Mode (Floating Pill Card):** A card (`max-w-[380px]`) featuring an active admissions beacon, a 40% scholarship badge, a graduation cap glyph, concise messaging (*"Start to Enroll Today 🚀"*), a primary action button (*"Apply for Cohort & Scholarship"*), and reassurance micro-copy.
-2. **Minimized Mode (Circular Quick Action Floating Bubble):** A compact 56x56px circular button displaying a `RocketLaunch` icon and an animated scholarship percentage badge (`%`).
+1. **Expanded Mode (Floating Pill Card):** A card (`max-w-[380px]`) featuring an active admissions beacon, a graduation cap glyph, concise messaging (*"Start to Enroll Today 🚀"*), a primary action button (*"Apply for Upcoming Cohort"*), and reassurance micro-copy.
+2. **Minimized Mode (Circular Quick Action Floating Bubble):** A compact 56x56px circular button displaying a `RocketLaunch` icon and an active status dot.
 
 ---
 

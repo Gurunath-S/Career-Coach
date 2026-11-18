@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   RocketLaunch,
-  Sparkle,
   ArrowRight,
   X,
   GraduationCap,
@@ -12,13 +11,15 @@ import {
 } from '@phosphor-icons/react'
 
 import { useRouter } from 'next/navigation'
+import { useStudentAuth } from '@/context/StudentAuthContext'
 
 export default function FloatingEnrollButton() {
   const router = useRouter()
+  const { user } = useStudentAuth()
   const [isVisible, setIsVisible] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
 
-  // Show after scrolling past 250px or after 2.5 seconds
+  // Show after scrolling past 200px or after 2.5 seconds
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 200) {
@@ -55,7 +56,7 @@ export default function FloatingEnrollButton() {
     }
   }
 
-  if (!isVisible) return null
+  if (user || !isVisible) return null
 
   return (
     <div
@@ -75,15 +76,13 @@ export default function FloatingEnrollButton() {
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsMinimized(false)}
             className="group relative flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 text-white shadow-xl shadow-blue-600/30 border border-blue-400/30 cursor-pointer"
-            title="Open Enrollment - 40% Scholarship Active"
+            title="Open Admissions - Enroll Today"
             aria-label="Expand enrollment prompt"
           >
             <RocketLaunch size={26} weight="fill" className="group-hover:rotate-12 transition-transform duration-300" />
-            <span className="absolute -top-1 -right-1 flex h-4 w-4">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-4 w-4 bg-amber-500 text-[9px] font-bold text-slate-900 items-center justify-center">
-                %
-              </span>
+            <span className="absolute -top-1 -right-1 flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
             </span>
           </motion.button>
         ) : (
@@ -112,9 +111,6 @@ export default function FloatingEnrollButton() {
               </div>
 
               <div className="flex items-center gap-1">
-                <span className="text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200/80 flex items-center gap-1">
-                  <Sparkle size={11} weight="fill" /> Up to 40% Off
-                </span>
                 <button
                   type="button"
                   onClick={(e) => {
@@ -141,7 +137,7 @@ export default function FloatingEnrollButton() {
                   Start to Enroll Today 🚀
                 </p>
                 <p className="text-[11px] text-slate-500 truncate">
-                  Free 1:1 Mentorship • 2026 Tech Cohort
+                  Live Mentorship • Tech Cohort
                 </p>
               </div>
             </div>
@@ -152,7 +148,7 @@ export default function FloatingEnrollButton() {
               onClick={handleScrollToEnroll}
               className="mt-3 w-full py-2.5 px-3.5 rounded-xl bg-blue-700 hover:bg-blue-800 active:scale-[0.99] text-white text-xs sm:text-sm font-bold transition-all shadow-md shadow-blue-700/20 flex items-center justify-center gap-2 cursor-pointer group"
             >
-              <span>Apply for Cohort &amp; Scholarship</span>
+              <span>Apply for Upcoming Cohort</span>
               <ArrowRight
                 size={14}
                 weight="bold"
