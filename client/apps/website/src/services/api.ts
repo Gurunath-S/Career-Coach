@@ -4,7 +4,6 @@ import {
   FAQItem,
   Testimonial,
   Project,
-  Event,
   LearningPath,
   StudentProfile,
   DemoRequest,
@@ -79,24 +78,6 @@ export const apiService = {
     return fetchWithFallback<Project[]>('/content/projects', PROJECTS)
   },
 
-  async getEvents(): Promise<Event[]> {
-    return fetchWithFallback<Event[]>('/events', [])
-  },
-
-  async getEventBySlug(slug: string): Promise<Event | null> {
-    try {
-      const res = await fetch(`${API_BASE_URL}/events/${slug}`, {
-        next: { revalidate: 60 },
-        headers: { 'Content-Type': 'application/json' },
-      })
-      if (!res.ok) return null
-      const json = await res.json()
-      return json.data
-    } catch {
-      return null
-    }
-  },
-
   async getLearningPaths(): Promise<LearningPath[]> {
     return fetchWithFallback<LearningPath[]>('/learning-paths', [])
   },
@@ -146,19 +127,6 @@ export const apiService = {
   },
 
   // ─── Authenticated Student Endpoints ──────────────────────────────
-  async registerForEvent(eventId: string): Promise<{ success: boolean; message: string; data: unknown }> {
-    const res = await fetch(`${API_BASE_URL}/events/${eventId}/register`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-    })
-    const json = await res.json()
-    if (!res.ok) {
-      throw new Error(json.message || 'Failed to register for event')
-    }
-    return json
-  },
-
   async getStudentProfile(): Promise<StudentProfile & { user: { name: string; email: string; avatar?: string } }> {
     const res = await fetch(`${API_BASE_URL}/students/me`, {
       credentials: 'include',
@@ -185,17 +153,6 @@ export const apiService = {
     return json.data
   },
 
-  async getStudentEvents(): Promise<RegisteredEvent[]> {
-    const res = await fetch(`${API_BASE_URL}/students/me/events`, {
-      credentials: 'include',
-      headers: getAuthHeaders(),
-    })
-    const json = await res.json()
-    if (!res.ok) {
-      throw new Error(json.message || 'Failed to fetch registered events')
-    }
-    return json.data || []
-  },
 
   async getStudentCourses(): Promise<{
     all: Record<string, unknown>[]
@@ -254,12 +211,12 @@ export const apiService = {
     return json.data
   },
 
-  async googleSso(email: string, name?: string): Promise<unknown> {
+  async googleSso(params: { credential?: string; accessToken?: string }): Promise<unknown> {
     const res = await fetch(`${API_BASE_URL}/auth/student/google-sso`, {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, name }),
+      body: JSON.stringify(params),
     })
     const json = await res.json()
     if (!res.ok) {
@@ -267,26 +224,5 @@ export const apiService = {
     }
     return json.data
   },
-}
-
-export interface RegisteredEvent {
-  id: string
-  eventId: string
-  studentId?: string
-  status: string
-  createdAt?: string | Date
-  event: {
-    id: string
-    title: string
-    slug: string
-    category?: string
-    categoryName?: string
-    date?: string | Date
-    eventDate?: string | Date
-    time?: string
-    duration?: string
-    location: string
-    [key: string]: unknown
-  }
 }
 

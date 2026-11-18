@@ -21,7 +21,7 @@ const FOOTER_COLS = [
     links: [
       { label: 'About CareerCatch', href: '/about' },
       { label: 'Hands-on Projects', href: '/projects' },
-      { label: 'Workshops & Events', href: '/events' },
+      { label: 'Engineering Blog', href: '/blog' },
       { label: 'Contact Advisors', href: '/contact' },
     ],
   },
