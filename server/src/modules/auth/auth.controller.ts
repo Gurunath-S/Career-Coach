@@ -179,7 +179,11 @@ export async function studentLogout(req: Request, res: Response) {
 export async function getMe(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     if (!req.user) throw ApiError.unauthorized()
-    return successResponse(res, req.user, 'Current user profile')
+    const dbUser = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { id: true, name: true, email: true, role: true, avatar: true },
+    })
+    return successResponse(res, dbUser || req.user, 'Current user profile')
   } catch (error) {
     next(error)
   }
