@@ -92,7 +92,7 @@ const COURSE_FAQS = [
   },
   {
     q: 'What is the schedule and weekly time commitment?',
-    a: 'Live cohort sessions are held on weekends with recordings available on your dashboard within 2 hours. We recommend dedicating 6 to 8 hours per week for coding assignments and capstone project development.',
+    a: 'Sessions and coursework are structured flexibly with complete access on your student dashboard. We recommend dedicating 6 to 8 hours per week for learning modules, coding assignments, and capstone project development.',
   },
   {
     q: 'Will I receive a verifiable certificate upon completion?',
@@ -126,7 +126,7 @@ const TESTIMONIALS_DATA = [
     role: 'Full Stack Engineer',
     company: 'Razorpay',
     avatar: '/images/faculty/arjun-mehta.jpg',
-    text: 'Live weekend classes made all the difference. Asking questions in real time and having line-by-line code reviews beats pre-recorded video tutorials every single time.',
+    text: 'The practical approach made all the difference. Building real systems and having line-by-line code reviews beats passive tutorials every single time.',
     rating: 5,
   },
   {
@@ -167,7 +167,7 @@ const VERIFIED_REVIEWS = [
     name: 'Aditya M.',
     date: 'Reviewed Sep 28, 2026',
     rating: 5,
-    text: 'Excellent pacing for working professionals and students alike. The weekend live sessions allowed me to upskill without disturbing my college schedule.',
+    text: 'Excellent pacing for working professionals and students alike. The flexible curriculum and practical assignments allowed me to upskill without disturbing my college schedule.',
   },
 ]
 
@@ -523,7 +523,7 @@ export default function CourseDetailClient({
                   className="px-4 py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition-colors cursor-pointer flex items-center gap-2 shadow-2xs"
                 >
                   <Sparkle size={15} weight="fill" className="text-amber-500" />
-                  <span>Book Free Live Demo</span>
+                  <span>Book Free Consultation</span>
                 </button>
               </div>
 
@@ -552,7 +552,7 @@ export default function CourseDetailClient({
                 {course.certificateType || 'Professional Certificate'}
               </span>
               <span className="text-[11px] text-slate-500 mt-0.5">
-                Live Cohort &amp; Capstone
+                Hands-On &amp; Capstone Project
               </span>
             </div>
 
@@ -672,8 +672,8 @@ export default function CourseDetailClient({
                 <div className="flex items-start gap-3">
                   <Laptop size={22} className="text-blue-600 shrink-0 mt-0.5" weight="duotone" />
                   <div>
-                    <h4 className="text-xs font-bold text-slate-900">100% Online &amp; Live</h4>
-                    <p className="text-[11px] text-slate-500 mt-0.5">Interactive live weekend classes and recorded replays</p>
+                    <h4 className="text-xs font-bold text-slate-900">100% Online &amp; Flexible</h4>
+                    <p className="text-[11px] text-slate-500 mt-0.5">Structured self-paced modules and project reviews</p>
                   </div>
                 </div>
 
@@ -876,7 +876,7 @@ export default function CourseDetailClient({
                     </div>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Senior practitioner with 8+ years experience guiding cohorts in architecture, clean code, and production scaling.
+                    Senior practitioner with 8+ years experience guiding engineers in architecture, clean code, and production scaling.
                   </p>
                 </div>
 
@@ -892,7 +892,7 @@ export default function CourseDetailClient({
                     <span className="text-xs font-bold text-slate-900">CareerCatch</span>
                   </div>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Empowering students and developers through verified tech curriculum, live weekend cohorts, and direct engineering placement support.
+                    Empowering students and developers through verified tech curriculum, hands-on projects, and direct engineering placement support.
                   </p>
                 </div>
               </div>
@@ -1016,7 +1016,7 @@ export default function CourseDetailClient({
                 Learner reviews and ratings
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                Verified feedback from enrolled students across recent cohorts.
+                Verified feedback from enrolled students across recent programs.
               </p>
             </div>
 
@@ -1116,7 +1116,7 @@ export default function CourseDetailClient({
                 Frequently asked questions
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                Everything you need to know about enrollment, live schedules, and certificates.
+                Everything you need to know about enrollment, course schedules, and certificates.
               </p>
             </div>
 

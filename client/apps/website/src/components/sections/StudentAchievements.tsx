@@ -95,7 +95,7 @@ export default function StudentAchievements() {
         <div className="mb-16 text-center max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200/80 text-blue-700 text-xs font-bold tracking-wider uppercase mb-4 shadow-xs">
             <SealCheck size={16} weight="fill" className="text-blue-600" />
-            <span>Verified Outcomes • 2024–2026 Cohorts</span>
+            <span>Verified Outcomes • 2024–2026 Graduates</span>
           </div>
           <h2 className="font-['Plus_Jakarta_Sans'] text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-4 leading-tight">
             Results Our Students{' '}

@@ -27,7 +27,7 @@ export default function CareerOpportunities() {
               Where CareerCatch Alumni Work
             </h2>
             <p className="font-['Inter'] text-base md:text-lg text-slate-600 mb-8 max-w-xl leading-relaxed">
-              From high-growth hyper-scaling startups to global Fortune 500 tech leaders, our hiring network actively recruits directly from our graduating cohorts.
+              From high-growth hyper-scaling startups to global Fortune 500 tech leaders, our hiring network actively recruits directly from our graduating students.
             </p>
 
             {/* Hiring Partners Logos Grid */}

@@ -185,7 +185,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ slug: str
             <div className="space-y-2">
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[11px] font-bold uppercase tracking-wider">
                 <Sparkle size={13} weight="fill" className="text-amber-400" />
-                Industry Cohorts
+                Industry Programs
               </span>
               <h3 className="text-lg sm:text-xl font-bold font-display">
                 Ready to master these skills with senior mentors?

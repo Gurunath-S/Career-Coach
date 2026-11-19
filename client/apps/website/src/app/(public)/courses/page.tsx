@@ -255,8 +255,8 @@ function CoursesPageContent() {
   // Active Category Title
   const activeTitle = selectedCategory || 'All Courses & Specializations'
   const activeDescription = selectedCategory
-    ? `Learn ${selectedCategory} or advance your tech career online today. Choose from high-impact live cohorts and industry-standard specializations.`
-    : 'Choose from a wide range of industry-aligned tech courses and live cohorts with verified credentials and expert mentorship.'
+    ? `Learn ${selectedCategory} or advance your tech career online today. Choose from high-impact courses and industry-standard specializations.`
+    : 'Choose from a wide range of industry-aligned tech courses and programs with verified credentials and expert mentorship.'
 
   return (
     <div className="bg-[#F8FAFC] min-h-screen font-['Inter'] text-slate-800">

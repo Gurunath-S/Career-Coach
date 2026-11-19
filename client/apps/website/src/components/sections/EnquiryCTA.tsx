@@ -164,9 +164,9 @@ export default function EnquiryCTA() {
                     <Sparkle size={18} weight="fill" />
                   </div>
                   <div>
-                    <strong className="block text-slate-900 font-semibold">Live Mentorship &amp; Guidance</strong>
+                    <strong className="block text-slate-900 font-semibold">Mentor Guidance &amp; Reviews</strong>
                     <span className="text-slate-500 text-xs leading-relaxed">
-                      Interactive cohorts with real-time doubt clearing and direct code guidance.
+                      Personalized 1-on-1 guidance with detailed feedback and project reviews.
                     </span>
                   </div>
                 </li>

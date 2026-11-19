@@ -333,7 +333,7 @@ export const TESTIMONIALS: Testimonial[] = [
   },
   {
     id: 5,
-    quote: "Live classes made all the difference. Asking questions in real-time beats rewatching a recorded lecture every time.",
+    quote: "The hands-on practical curriculum made all the difference. Building real projects with code reviews beats passive learning every time.",
     name: "Siddharth Rao",
     role: "Backend Engineer",
     company: "Infosys",
@@ -356,14 +356,14 @@ export const TESTIMONIALS: Testimonial[] = [
 export const FAQS: FAQItem[] = [
   { q: "What courses does CareerCatch offer?", a: "We offer industry-aligned tech courses across Web Development, Data Science, UI/UX Design, Cloud Computing, Mobile Development, Cybersecurity, and AI/ML - all taught by active industry professionals." },
   { q: "Do I need prior coding experience?", a: "No. Most of our courses are designed for beginners. We start from fundamentals and progressively build toward job-ready skills. We also offer advanced courses for experienced learners." },
-  { q: "How are the live classes conducted?", a: "All live classes run on Zoom with interactive Q&A, screen sharing, and real-time code reviews. Recordings are available for 90 days after each session." },
+  { q: "How are the courses conducted?", a: "Courses are self-paced and structured with comprehensive practical modules, hands-on assignments, and personalized mentor reviews accessible directly via your student dashboard." },
   { q: "What is the course duration?", a: "Course durations range from 36 to 60 hours of content spread across 3 to 5 months, depending on the program. Courses are designed to fit alongside full-time study or work." },
   { q: "Is there a placement guarantee?", a: "We offer placement support including resume reviews, mock interviews, and recruiter connections, but do not guarantee a specific salary. Our 95% placement rate reflects students who receive job offers within 6 months of completion." },
-  { q: "Can I get a refund if I'm not satisfied?", a: "Yes. We offer a 7-day no-questions-asked refund policy from the date of enrollment, as long as you have attended fewer than 3 live sessions." },
+  { q: "Can I get a refund if I'm not satisfied?", a: "Yes. We offer a 7-day no-questions-asked refund policy from the date of enrollment, as long as you have completed fewer than 20% of the course modules." },
   { q: "What tools and software will I need?", a: "A modern laptop (Windows, macOS, or Linux), a stable internet connection, and free tools like VS Code, Git, and a browser. All proprietary software access is covered in course fees." },
   { q: "Are the certificates recognized by employers?", a: "Our completion certificates are industry-recognized and backed by mentor testimonials. Many hiring partners explicitly consider CareerCatch certifications in their screening process." },
   { q: "How do I access materials after completion?", a: "Lifetime access to course recordings and materials is included with every enrollment. You can revisit content anytime via the CareerCatch student dashboard." },
-  { q: "How are course fees structured?", a: "Course fees are straightforward and transparent with no hidden charges. All live classes, mentor sessions, and project evaluations are covered in the program fee." },
+  { q: "How are course fees structured?", a: "Course fees are straightforward and transparent with no hidden charges. All course curriculum, mentor feedback, and capstone project evaluations are covered in the program fee." },
 ];
 
 export const PROJECTS: Project[] = [
@@ -390,8 +390,8 @@ export const METHODOLOGY_STEPS = [
   {
     step: "01",
     title: "Learn",
-    subtitle: "Structured curriculum, live sessions",
-    body: "Every course follows a project-driven curriculum built by professionals who hire for these exact roles. Live weekly sessions keep you accountable and connected.",
+    subtitle: "Structured curriculum, practical modules",
+    body: "Every course follows a project-driven curriculum built by professionals who hire for these exact roles. Continuous project feedback keeps you accountable and growing.",
     icon: "BookOpen",
   },
   {

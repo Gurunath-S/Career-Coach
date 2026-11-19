@@ -66,7 +66,7 @@ import { CourseMetricsSkeleton, CourseMetrics } from './components'
 export default async function CourseDashboard({ courseId }: { courseId: string }) {
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Live Cohort Dashboard</h1>
+      <h1 className="text-2xl font-bold">Student Learning Dashboard</h1>
       <Suspense fallback={<CourseMetricsSkeleton />}>
         <CourseMetrics courseId={courseId} />
       </Suspense>

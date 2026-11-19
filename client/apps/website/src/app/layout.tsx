@@ -23,7 +23,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: 'CareerCatch | Build Skills. Build Your Future.',
   description:
-    'Industry-led tech programs with live classes, hands-on projects, and mentorship from top engineers. Start your tech career with CareerCatch.',
+    'Industry-led tech programs with hands-on projects, real-world case studies, and mentorship from top engineers. Start your tech career with CareerCatch.',
   keywords: [
     'online coding bootcamp',
     'full stack development',
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'CareerCatch | Build Skills. Build Your Future.',
     description:
-      'Industry-led tech programs with live classes, hands-on projects, and mentorship from top engineers.',
+      'Industry-led tech programs with hands-on projects, real-world case studies, and mentorship from top engineers.',
     type: 'website',
     locale: 'en_IN',
     siteName: 'CareerCatch',
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'CareerCatch | Build Skills. Build Your Future.',
     description:
-      'Industry-led tech programs with live classes, hands-on projects, and mentorship from top engineers.',
+      'Industry-led tech programs with hands-on projects, real-world case studies, and mentorship from top engineers.',
   },
   robots: {
     index: true,

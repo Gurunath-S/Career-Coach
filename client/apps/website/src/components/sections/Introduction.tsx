@@ -115,7 +115,7 @@ export default function Introduction() {
               </span>
               <span className="flex items-center gap-1.5">
                 <CheckCircle size={16} weight="fill" className="text-emerald-500" />
-                Live cohort sprints
+                Hands-on project sprints
               </span>
             </motion.div>
           </div>

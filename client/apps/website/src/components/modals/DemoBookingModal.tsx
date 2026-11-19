@@ -102,10 +102,10 @@ export function DemoBookingModal({ isOpen, onClose, initialCourse }: DemoBooking
           </button>
           <div className="flex items-center gap-2 text-blue-400 text-xs font-bold uppercase tracking-wider mb-1">
             <Sparkle size={14} weight="fill" />
-            <span>Live Interactive Demo</span>
+            <span>1-on-1 Career Consultation</span>
           </div>
           <h3 className="text-xl font-bold font-['Plus_Jakarta_Sans']">
-            Request a Free Live Demo
+            Schedule a Free Consultation
           </h3>
           <p className="text-xs text-slate-300 mt-1">
             Connect with an industry mentor to review curricula, project roadmaps, and career trajectories.

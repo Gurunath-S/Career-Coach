@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   List,
@@ -17,7 +17,6 @@ import {
   Cloud,
   DeviceMobile,
   ShieldCheck,
-  Certificate,
   BookOpen,
   ArrowRight,
   ChatCircleDots,
@@ -74,16 +73,15 @@ const EXPLORE_CATEGORIES = [
 
 export default function Navbar() {
   const router = useRouter()
+  const pathname = usePathname()
   const { user, logout } = useStudentAuth()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [exploreOpen, setExploreOpen] = useState(false)
   const [navExploreOpen, setNavExploreOpen] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchFocused, setSearchFocused] = useState(false)
 
-  const dropdownRef = useRef<HTMLDivElement>(null)
   const navExploreRef = useRef<HTMLDivElement>(null)
   const searchContainerRef = useRef<HTMLDivElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
@@ -110,9 +108,6 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setExploreOpen(false)
-      }
       if (navExploreRef.current && !navExploreRef.current.contains(e.target as Node)) {
         setNavExploreOpen(false)
       }
@@ -134,6 +129,9 @@ export default function Navbar() {
       if (auth === 'login' || auth === 'signup') {
         setAuthMode(auth === 'login' ? 'step1' : 'signup')
         setAuthModalOpen(true)
+        const url = new URL(window.location.href)
+        url.searchParams.delete('auth')
+        window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''))
       }
     }
   }, [])
@@ -174,95 +172,9 @@ export default function Navbar() {
         style={{ height: '68px' }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-3 sm:gap-6">
-          {/* ─── Left: Brand Logo & Explore ───────────────────────────── */}
+          {/* ─── Left: Brand Logo ────────────────────────────────────── */}
           <div className="flex items-center gap-3 sm:gap-4 shrink-0">
             <Logo className="shrink-0 flex items-center" />
-
-            {/* Explore Dropdown: shown for public visitors; for logged-in students, Explore is in main nav menu */}
-            {!user && (
-              <div
-                ref={dropdownRef}
-                className="relative hidden sm:block"
-                onMouseEnter={() => setExploreOpen(true)}
-                onMouseLeave={() => setExploreOpen(false)}
-              >
-              <button
-                type="button"
-                onClick={() => setExploreOpen(!exploreOpen)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                  exploreOpen
-                    ? 'border-[#0056D2] bg-blue-50/60 text-[#0056D2]'
-                    : 'border-slate-300 hover:border-slate-400 text-slate-700 bg-white'
-                }`}
-                aria-expanded={exploreOpen}
-              >
-                <span>Explore</span>
-                <CaretDown
-                  size={13}
-                  weight="bold"
-                  className={`transition-transform duration-200 ${
-                    exploreOpen ? 'rotate-180 text-[#0056D2]' : 'text-slate-500'
-                  }`}
-                />
-              </button>
-
-              {/* Mega Dropdown Menu */}
-              <AnimatePresence>
-                {exploreOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 6, scale: 0.98 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute left-0 top-[calc(100%+8px)] w-88 md:w-[460px] bg-white border border-slate-200 rounded-2xl shadow-2xl p-4 z-50"
-                  >
-                    <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5 px-2">
-                      Browse Tech Specializations
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {EXPLORE_CATEGORIES.map((track) => {
-                        const Icon = track.icon
-                        return (
-                          <Link
-                            key={track.title}
-                            href={`/courses?category=${encodeURIComponent(track.categoryKey)}`}
-                            onClick={() => setExploreOpen(false)}
-                            className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-slate-50 transition-colors group"
-                          >
-                            <div
-                              className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                              style={{ backgroundColor: `${track.color}15`, color: track.color }}
-                            >
-                              <Icon size={18} weight="duotone" />
-                            </div>
-                            <div className="min-w-0">
-                              <h4 className="text-xs font-bold text-[#101B3C] group-hover:text-[#0056D2] transition-colors leading-tight truncate">
-                                {track.title}
-                              </h4>
-                              <p className="text-[11px] text-slate-500 leading-tight mt-0.5 truncate">
-                                {track.desc}
-                              </p>
-                            </div>
-                          </Link>
-                        )
-                      })}
-                    </div>
-
-                    <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs px-2">
-                      <span className="text-slate-500">Live Weekend Cohorts</span>
-                      <Link
-                        href="/courses"
-                        onClick={() => setExploreOpen(false)}
-                        className="font-bold text-[#0056D2] hover:underline"
-                      >
-                        View All Programs →
-                      </Link>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              </div>
-            )}
           </div>
 
           {/* ─── Center: Live Filter Search with Instant Dropdown ──────── */}
@@ -381,7 +293,18 @@ export default function Navbar() {
                 <>
                   <Link
                     href="/"
-                    className="hover:text-[#0056D2] transition-colors flex items-center gap-1.5 font-bold text-[#0056D2]"
+                    className={`hover:text-[#0056D2] transition-colors py-1 ${
+                      pathname === '/' ? 'text-[#0056D2] font-bold' : 'text-slate-700'
+                    }`}
+                  >
+                    Home
+                  </Link>
+
+                  <Link
+                    href="/my-learning"
+                    className={`hover:text-[#0056D2] transition-colors flex items-center gap-1.5 py-1 ${
+                      pathname === '/my-learning' ? 'text-[#0056D2] font-bold' : 'text-slate-700'
+                    }`}
                   >
                     <BookOpen size={16} weight="bold" />
                     <span>My learning</span>
@@ -455,7 +378,7 @@ export default function Navbar() {
                           </div>
 
                           <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs px-2">
-                            <span className="text-slate-500">Live Weekend Cohorts</span>
+                            <span className="text-slate-500">Industry-Aligned Specializations</span>
                             <Link
                               href="/courses"
                               onClick={() => setNavExploreOpen(false)}
@@ -475,9 +398,87 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <Link href="/courses" className="hover:text-[#0056D2] transition-colors">
-                    Courses
-                  </Link>
+                  {/* Explore Dropdown: plain text with CaretDown, NOT styled like a button */}
+                  <div
+                    ref={navExploreRef}
+                    className="relative"
+                    onMouseEnter={() => setNavExploreOpen(true)}
+                    onMouseLeave={() => setNavExploreOpen(false)}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setNavExploreOpen(!navExploreOpen)}
+                      className={`flex items-center gap-1 font-semibold transition-colors cursor-pointer py-1 ${
+                        navExploreOpen ? 'text-[#0056D2]' : 'text-slate-700 hover:text-[#0056D2]'
+                      }`}
+                      aria-expanded={navExploreOpen}
+                    >
+                      <span>Explore</span>
+                      <CaretDown
+                        size={13}
+                        weight="bold"
+                        className={`transition-transform duration-200 ${
+                          navExploreOpen ? 'rotate-180 text-[#0056D2]' : 'text-slate-500'
+                        }`}
+                      />
+                    </button>
+
+                    {/* Explore Dropdown Panel */}
+                    <AnimatePresence>
+                      {navExploreOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute left-1/2 -translate-x-1/2 top-[calc(100%+8px)] w-88 md:w-[460px] bg-white border border-slate-200 rounded-2xl shadow-2xl p-4 z-50 text-left"
+                        >
+                          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5 px-2">
+                            Browse Tech Specializations
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {EXPLORE_CATEGORIES.map((track) => {
+                              const Icon = track.icon
+                              return (
+                                <Link
+                                  key={track.title}
+                                  href={`/courses?category=${encodeURIComponent(track.categoryKey)}`}
+                                  onClick={() => setNavExploreOpen(false)}
+                                  className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-slate-50 transition-colors group"
+                                >
+                                  <div
+                                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                                    style={{ backgroundColor: `${track.color}15`, color: track.color }}
+                                  >
+                                    <Icon size={18} weight="duotone" />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <h4 className="text-xs font-bold text-[#101B3C] group-hover:text-[#0056D2] transition-colors leading-tight truncate">
+                                      {track.title}
+                                    </h4>
+                                    <p className="text-[11px] text-slate-500 leading-tight mt-0.5 truncate">
+                                      {track.desc}
+                                    </p>
+                                  </div>
+                                </Link>
+                              )
+                            })}
+                          </div>
+
+                          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs px-2">
+                            <span className="text-slate-500">Industry-Aligned Specializations</span>
+                            <Link
+                              href="/courses"
+                              onClick={() => setNavExploreOpen(false)}
+                              className="font-bold text-[#0056D2] hover:underline"
+                            >
+                              View All Programs →
+                            </Link>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                   <Link href="/#why-us" className="hover:text-[#0056D2] transition-colors">
                     Why Us
                   </Link>
@@ -537,8 +538,16 @@ export default function Navbar() {
                         <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
                       </div>
 
-                      {/* Profile Settings */}
+                      {/* Profile & Learning Links */}
                       <div className="space-y-0.5">
+                        <Link
+                          href="/my-learning"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-slate-100 font-semibold transition-colors"
+                        >
+                          <BookOpen size={16} />
+                          <span>My Learning Hub</span>
+                        </Link>
                         <Link
                           href="/student/profile"
                           onClick={() => setUserDropdownOpen(false)}
@@ -628,6 +637,17 @@ export default function Navbar() {
                     onClick={() => setMobileOpen(false)}
                     className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
                   >
+                    <span className={`font-semibold ${pathname === '/' ? 'text-[#0056D2] font-bold' : 'text-slate-800'}`}>
+                      Home
+                    </span>
+                    <ArrowRight size={13} className="text-slate-400" />
+                  </Link>
+
+                  <Link
+                    href="/my-learning"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
                     <span className="flex items-center gap-2 font-bold text-[#0056D2]">
                       <BookOpen size={16} weight="bold" />
                       <span>My learning</span>
@@ -684,14 +704,32 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <Link
-                    href="/courses"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors"
-                  >
-                    <span>Courses &amp; Specializations</span>
-                    <ArrowRight size={13} className="text-slate-400" />
-                  </Link>
+                  {/* Mobile Explore Specializations Collapsible / List */}
+                  <div className="p-2.5 rounded-lg bg-slate-50/70 border border-slate-100">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                      Explore Specializations
+                    </span>
+                    <div className="grid grid-cols-1 gap-1 pl-2 border-l-2 border-blue-200">
+                      {EXPLORE_CATEGORIES.map((track) => (
+                        <Link
+                          key={track.title}
+                          href={`/courses?category=${encodeURIComponent(track.categoryKey)}`}
+                          onClick={() => setMobileOpen(false)}
+                          className="py-1 text-xs text-slate-700 hover:text-[#0056D2] flex items-center justify-between"
+                        >
+                          <span>{track.title}</span>
+                          <ArrowRight size={11} className="text-slate-400" />
+                        </Link>
+                      ))}
+                      <Link
+                        href="/courses"
+                        onClick={() => setMobileOpen(false)}
+                        className="py-1 text-xs font-bold text-[#0056D2] hover:underline"
+                      >
+                        View All Programs →
+                      </Link>
+                    </div>
+                  </div>
                   <Link
                     href="/#why-us"
                     onClick={() => setMobileOpen(false)}

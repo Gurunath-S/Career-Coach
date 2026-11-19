@@ -88,8 +88,8 @@ export default function PopularCourses({ hideHeader = false }: PopularCoursesPro
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end mb-10 pb-6 border-b border-slate-100">
             <div className="md:col-span-8">
               <span className="inline-grid grid-flow-col items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-blue-700 text-xs font-bold tracking-wider uppercase mb-3">
-                <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
-                <span>LIVE INDUSTRY COHORTS</span>
+                <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                <span>INDUSTRY-ALIGNED PROGRAMS</span>
               </span>
 
               <h2 className="font-['Plus_Jakarta_Sans'] font-extrabold text-2xl sm:text-3xl md:text-4xl text-slate-900 tracking-tight leading-tight">
@@ -170,9 +170,8 @@ export default function PopularCourses({ hideHeader = false }: PopularCoursesPro
                   <span>{course.category}</span>
                 </div>
 
-                <div className="absolute top-3 right-3 grid grid-flow-col items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/90 backdrop-blur-md text-white text-[10px] font-bold shadow-xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                  <span>Live Cohort</span>
+                <div className="absolute top-3 right-3 grid grid-flow-col items-center gap-1 px-2.5 py-1 rounded-full bg-[#0056D2]/90 backdrop-blur-md text-white text-[10px] font-bold shadow-xs">
+                  <span>Specialization</span>
                 </div>
               </Link>
 
@@ -236,7 +235,7 @@ export default function PopularCourses({ hideHeader = false }: PopularCoursesPro
                 {/* Curriculum Bullet Points */}
                 <div className="grid gap-1.5 py-1">
                   {[
-                    'Live weekend mentor-led sessions',
+                    'Practical project-based curriculum',
                     'Production capstone code portfolio',
                     'Direct hiring partner referrals',
                   ].map((feat, i) => (
@@ -288,7 +287,7 @@ export default function PopularCourses({ hideHeader = false }: PopularCoursesPro
                 : `Showing ${displayedCourses.length} of ${allFilteredCourses.length} programs in ${activeSectorName}`}
             </h4>
             <p className="text-xs text-slate-500 mt-0.5">
-              Explore the complete curriculum, projects, and live cohorts in this sector.
+              Explore the complete curriculum, projects, and specializations in this sector.
             </p>
           </div>
 
@@ -313,8 +312,8 @@ export default function PopularCourses({ hideHeader = false }: PopularCoursesPro
               <Laptop size={18} weight="fill" />
             </div>
             <div className="grid">
-              <strong className="text-xs font-bold text-slate-900 leading-tight">Live Interactive</strong>
-              <span className="text-[11px] text-slate-500">Zoom Q&amp;A sessions</span>
+              <strong className="text-xs font-bold text-slate-900 leading-tight">Practical Learning</strong>
+              <span className="text-[11px] text-slate-500">Hands-on exercises</span>
             </div>
           </div>
 

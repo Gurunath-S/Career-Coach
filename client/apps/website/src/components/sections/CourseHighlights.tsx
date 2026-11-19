@@ -10,6 +10,7 @@ import {
   UsersThree,
   CodeBlock,
   ArrowRight,
+  Laptop,
 } from '@phosphor-icons/react'
 
 export default function CourseHighlights() {
@@ -70,7 +71,7 @@ export default function CourseHighlights() {
             </div>
           </motion.div>
 
-          {/* Small Cell 1: Live Classes */}
+          {/* Small Cell 1: Practical Projects */}
           <motion.div
             initial={prefersReduced ? false : { opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -80,20 +81,20 @@ export default function CourseHighlights() {
           >
             <div>
               <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center mb-6 border border-blue-200/60">
-                <VideoCamera size={26} weight="duotone" />
+                <Laptop size={26} weight="duotone" />
               </div>
               <span className="font-['Plus_Jakarta_Sans'] text-3xl font-extrabold text-slate-900 block mb-1">
-                3x / Week
+                100% Practical
               </span>
               <h4 className="font-['Plus_Jakarta_Sans'] text-lg font-bold text-slate-900 mb-2">
-                Live Interactive Sessions
+                Hands-On Project Modules
               </h4>
               <p className="font-['Inter'] text-sm text-slate-600 leading-relaxed">
-                Real-time code along sessions with immediate feedback and screen-sharing help.
+                Step-by-step code implementations with comprehensive test suites and production setups.
               </p>
             </div>
             <div className="pt-4 text-xs text-blue-700 font-semibold flex items-center gap-1 mt-4">
-              90-day cloud recordings included <ArrowRight size={14} />
+              Full source code &amp; repo access <ArrowRight size={14} />
             </div>
           </motion.div>
 

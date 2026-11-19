@@ -18,7 +18,7 @@ export async function generateMetadata({
   return {
     title: course ? `${course.title} — CareerCatch` : 'Course Details — CareerCatch',
     description: course
-      ? `Enroll in ${course.title} by ${course.instructor}. Live cohort classes, capstone projects, and placement support.`
+      ? `Enroll in ${course.title} by ${course.instructor}. Practical learning, capstone projects, and career placement support.`
       : 'Explore industry-led software engineering and data science programs at CareerCatch.',
   }
 }

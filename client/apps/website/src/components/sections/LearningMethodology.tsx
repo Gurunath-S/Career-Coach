@@ -71,17 +71,16 @@ const ICON_MAP = {
 // Crisp, high-contrast preview widgets tailored for light mode
 function StepPreviewPanel({ stepIndex }: { stepIndex: number }) {
   if (stepIndex === 0) {
-    // Step 01: Learn - Live Cohort & Module Breakdown
+    // Step 01: Learn - Module Breakdown
     return (
       <div className="flex flex-col gap-3 bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-xs">
         <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500" />
             </span>
             <span className="text-xs font-bold text-slate-800 tracking-wide uppercase">
-              Cohort 14 • Live Now
+              Curriculum • Active Track
             </span>
           </div>
           <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-blue-100 text-blue-800">
@@ -129,7 +128,7 @@ function StepPreviewPanel({ stepIndex }: { stepIndex: number }) {
         </div>
 
         <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs text-slate-600">
-          <span>Cohort Progress</span>
+          <span>Curriculum Progress</span>
           <span className="font-bold text-blue-700">76% Completed</span>
         </div>
       </div>
@@ -369,7 +368,7 @@ export default function LearningMethodology() {
                     <div className="mt-6 pt-5 border-t border-slate-100 flex flex-wrap items-center gap-2.5">
                       <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Key Focus:</span>
                       <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-800">
-                        {i === 0 && 'Cohort Live Mentoring'}
+                        {i === 0 && 'Industry Curriculum'}
                         {i === 1 && 'Production Git Repositories'}
                         {i === 2 && 'Senior Engineer Rubrics'}
                         {i === 3 && 'Direct Hiring Pipeline'}

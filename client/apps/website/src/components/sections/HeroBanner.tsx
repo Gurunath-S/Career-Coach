@@ -66,7 +66,7 @@ const POPULAR_TRACKS = [
     href: '/courses?category=Mobile',
   },
   {
-    role: 'Live Mentorship',
+    role: 'Tech Mentorship',
     highlight: 'Top Tech Leads',
     icon: UsersThree,
     accent: '#0284C7',
@@ -116,19 +116,19 @@ export default function HeroBanner() {
 
               {/* Sub-headline */}
               <p className="font-['Inter'] text-slate-600 text-sm sm:text-base lg:text-lg max-w-xl mb-8 leading-relaxed">
-                Industry-led tech programs with live classes, hands-on projects and mentorship from top engineers.
+                Industry-led tech programs with hands-on projects, real-world case studies, and mentorship from top engineers.
               </p>
 
               {/* Three Value-Proposition Bullets */}
               <div className="space-y-4 mb-8 w-full max-w-lg">
-                {/* Item 1: Live Interactive Classes */}
+                {/* Item 1: Practical Hands-On Learning */}
                 <div className="flex items-start gap-3.5">
                   <div className="w-10 h-10 rounded-full bg-blue-100/80 text-[#155EEF] flex items-center justify-center shrink-0">
                     <Laptop size={20} weight="fill" />
                   </div>
                   <div>
                     <h2 className="font-['Plus_Jakarta_Sans'] font-bold text-sm sm:text-base text-[#101B3C] leading-snug">
-                      Live Interactive Classes
+                      Practical Hands-On Learning
                     </h2>
                     <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
                       Learn by doing with real-world projects
@@ -257,7 +257,7 @@ export default function HeroBanner() {
                   <span>Popular Career Tracks</span>
                 </span>
                 <span className="text-xs sm:text-sm text-slate-500 font-medium hidden md:inline">
-                  Industry-designed paths with live cohorts and verified placement records
+                  Industry-designed paths with verified credentials and placement assistance
                 </span>
               </div>
 

@@ -86,7 +86,7 @@ export default function TrainersMentors() {
                 <span className="flex items-center gap-1 text-amber-700 font-semibold">
                   <Sparkle size={13} weight="fill" /> Top Rated Mentor
                 </span>
-                <span className="text-blue-700 font-semibold">Live Mentorship</span>
+                <span className="text-blue-700 font-semibold">Expert Mentorship</span>
               </div>
             </motion.div>
           ))}

@@ -137,7 +137,7 @@ export default function FloatingEnrollButton() {
                   Start to Enroll Today 🚀
                 </p>
                 <p className="text-[11px] text-slate-500 truncate">
-                  Live Mentorship • Tech Cohort
+                  Expert Mentorship • Tech Career Track
                 </p>
               </div>
             </div>
@@ -148,7 +148,7 @@ export default function FloatingEnrollButton() {
               onClick={handleScrollToEnroll}
               className="mt-3 w-full py-2.5 px-3.5 rounded-xl bg-blue-700 hover:bg-blue-800 active:scale-[0.99] text-white text-xs sm:text-sm font-bold transition-all shadow-md shadow-blue-700/20 flex items-center justify-center gap-2 cursor-pointer group"
             >
-              <span>Apply for Upcoming Cohort</span>
+              <span>Enroll in Program</span>
               <ArrowRight
                 size={14}
                 weight="bold"

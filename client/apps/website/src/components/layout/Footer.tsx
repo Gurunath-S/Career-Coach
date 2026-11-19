@@ -46,7 +46,7 @@ export default function Footer() {
               <Logo iconSize={32} />
             </div>
             <p className="text-slate-500 text-sm leading-relaxed mb-5 max-w-sm">
-              Careers Crafted. Skills Proven. Industry-led tech programs with live weekend classes, capstone codebases, and direct senior engineer mentorship.
+              Careers Crafted. Skills Proven. Industry-led tech programs with practical coursework, capstone codebases, and direct senior engineer mentorship.
             </p>
             <div className="flex gap-2.5">
               {[

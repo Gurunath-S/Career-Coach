@@ -7,10 +7,10 @@ const ROWS = [
   {
     imageLeft: true,
     image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',
-    imageAlt: 'Live mentoring session on video call',
-    headline: 'Live Mentoring, Not Recorded Lectures',
-    body: 'Every cohort runs with weekly live sessions where you can ask questions, get real-time feedback on your code, and learn alongside peers facing the same problems.',
-    points: ['Weekly live cohort sessions', 'Real-time doubt clearing', 'Industry Q&A panels'],
+    imageAlt: 'Mentor guiding student on project code',
+    headline: 'Dedicated Mentorship & Code Reviews',
+    body: 'Get personalized feedback on your code, clarify technical doubts with experienced industry engineers, and build production-grade projects.',
+    points: ['1-on-1 mentor guidance', 'Detailed code reviews', 'Industry-led project evaluations'],
   },
   {
     imageLeft: false,
