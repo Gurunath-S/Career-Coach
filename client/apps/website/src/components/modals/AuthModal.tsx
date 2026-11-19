@@ -14,6 +14,7 @@ import {
   ArrowClockwise,
 } from '@phosphor-icons/react'
 import { useStudentAuth } from '@/context/StudentAuthContext'
+import { useRouter } from 'next/navigation'
 
 declare global {
   interface Window {
@@ -56,6 +57,7 @@ export function AuthModal({
   courseTitle,
 }: AuthModalProps) {
   const { login, checkEmail, sendOtp, verifyOtp, googleSso } = useStudentAuth()
+  const router = useRouter()
 
   const [step, setStep] = useState<'step1' | 'otp' | 'signup' | 'login'>(initialMode)
   const [email, setEmail] = useState(initialEmail)
@@ -165,10 +167,14 @@ export function AuthModal({
     try {
       await verifyOtp(email.trim().toLowerCase(), otpCode.trim(), name.trim())
       setSuccessMsg('Signed in successfully!')
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('careercatch_show_onboarding', 'true')
+      }
       setTimeout(() => {
         onSuccess?.()
         onClose()
-      }, 400)
+        router.push('/onboarding')
+      }, 300)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Invalid or expired code. Please try again.')
     } finally {
@@ -206,10 +212,14 @@ export function AuthModal({
     try {
       await login(email.trim().toLowerCase(), password)
       setSuccessMsg('Welcome back!')
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('careercatch_show_onboarding', 'true')
+      }
       setTimeout(() => {
         onSuccess?.()
         onClose()
-      }, 400)
+        router.push('/onboarding')
+      }, 300)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Invalid email or password.')
     } finally {
@@ -266,10 +276,14 @@ export function AuthModal({
           try {
             await googleSso({ accessToken: response.access_token })
             setSuccessMsg('Connected with Google!')
+            if (typeof window !== 'undefined') {
+              sessionStorage.setItem('careercatch_show_onboarding', 'true')
+            }
             setTimeout(() => {
               onSuccess?.()
               onClose()
-            }, 400)
+              router.push('/onboarding')
+            }, 300)
           } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Google authentication failed.')
           } finally {
@@ -342,7 +356,7 @@ export function AuthModal({
                 <p className="text-xs sm:text-sm text-slate-500 mt-1 leading-relaxed">
                   {courseTitle
                     ? `Sign in to access ${courseTitle}`
-                    : 'Access live cohort masterclasses, student dashboard, and verifiable certificates.'}
+                    : 'Access your courses, student dashboard, and verifiable certificates.'}
                 </p>
               </div>
 
