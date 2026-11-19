@@ -184,7 +184,7 @@ export function StudentAuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem('careercatch_student_token')
       }
       setUser(null)
-      window.location.href = '/student/login'
+      window.location.href = '/'
     }
   }
 

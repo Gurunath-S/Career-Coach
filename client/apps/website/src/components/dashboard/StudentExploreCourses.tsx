@@ -3,17 +3,12 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import {
-  Code,
-  ChartLine,
-  Cloud,
-  PenNib,
   Star,
   Clock,
   ArrowRight,
   CaretLeft,
   CaretRight,
   GraduationCap,
-  Sparkle,
   Target,
   TrendUp,
   Fire,
@@ -22,50 +17,6 @@ import {
 import { COURSES } from '@/lib/constants'
 import { apiService } from '@/services/api'
 import type { Course, StudentProfile } from '@careercatch/shared-types'
-
-interface SectorGroup {
-  id: string
-  title: string
-  subtitle: string
-  icon: Icon
-  categoryKey: string
-  matchKeywords: string[]
-}
-
-const SECTORS: SectorGroup[] = [
-  {
-    id: 'fullstack',
-    title: 'Full Stack Web Development',
-    subtitle: 'Build modern distributed architectures with React, Next.js, Node.js & System Design',
-    icon: Code,
-    categoryKey: 'Full Stack',
-    matchKeywords: ['full stack', 'web', 'react', 'node'],
-  },
-  {
-    id: 'datascience',
-    title: 'Data Science & Artificial Intelligence',
-    subtitle: 'Master Python, Machine Learning, Deep Learning, Analytics & Neural Networks',
-    icon: ChartLine,
-    categoryKey: 'Data Science',
-    matchKeywords: ['data', 'machine learning', 'python', 'ai', 'deep learning'],
-  },
-  {
-    id: 'cloud',
-    title: 'Cloud Computing & DevOps Engineering',
-    subtitle: 'Architect resilient infrastructure & CI/CD pipelines with AWS, Docker & Kubernetes',
-    icon: Cloud,
-    categoryKey: 'Cloud',
-    matchKeywords: ['cloud', 'aws', 'devops', 'docker', 'kubernetes'],
-  },
-  {
-    id: 'uiux',
-    title: 'UI/UX Design & Product Architecture',
-    subtitle: 'Master user research, Figma prototypes, design systems & interactive experiences',
-    icon: PenNib,
-    categoryKey: 'UI/UX Design',
-    matchKeywords: ['ui', 'ux', 'design', 'figma'],
-  },
-]
 
 interface RecommendationResult {
   type: 'goals' | 'role' | 'popular'
@@ -162,7 +113,7 @@ function computePersonalizedRecommendations(
       return {
         type: 'role',
         title: `Recommended for Your Role: ${profile?.currentRole}`,
-        subtitle: `Next-level engineering cohorts to help you upskill and advance from ${profile?.currentRole}`,
+        subtitle: `Next-level engineering programs to help you upskill and advance from ${profile?.currentRole}`,
         badge: 'Based on Current Role',
         icon: TrendUp,
         courses: roleMatched,
@@ -170,7 +121,7 @@ function computePersonalizedRecommendations(
     }
   }
 
-  // 3. Fallback: If user entered none of the data, return Popular Cohorts by ratings & reviews
+  // 3. Fallback: If user entered none of the data, return Popular Programs by ratings & reviews
   const sortedPopular = courses.slice().sort((a, b) => {
     const aWeight = (a.rating || 4.5) * (a.reviews || 10)
     const bWeight = (b.rating || 4.5) * (b.reviews || 10)
@@ -179,7 +130,7 @@ function computePersonalizedRecommendations(
 
   return {
     type: 'popular',
-    title: 'Most Popular & Trending Cohorts',
+    title: 'Most Popular & Trending Programs',
     subtitle: 'Highest-rated programs chosen by 10,000+ learners across top tech companies',
     badge: 'Popular by Student Reviews & Enrollments',
     icon: Fire,
@@ -320,9 +271,8 @@ function HorizontalCoursesRow({
                   <span>{course.category}</span>
                 </div>
 
-                <div className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/90 backdrop-blur-md text-white text-[10px] font-bold shadow-xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                  <span>Live Cohort</span>
+                <div className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#0056D2]/90 backdrop-blur-md text-white text-[10px] font-bold shadow-xs">
+                  <span>Specialization</span>
                 </div>
               </Link>
 
@@ -395,7 +345,6 @@ function HorizontalCoursesRow({
 export function StudentExploreCourses() {
   const [courses, setCourses] = useState<Course[]>(COURSES)
   const [profile, setProfile] = useState<StudentProfile | null>(null)
-  const [activeSectorFilter, setActiveSectorFilter] = useState('all')
 
   useEffect(() => {
     let active = true
@@ -430,111 +379,32 @@ export function StudentExploreCourses() {
     return inDemandKeywords.some((kw) => title.includes(kw) || skills.some((s) => s.includes(kw)))
   })
 
-  // 3. Filter sectors if a quick filter is active
-  const displayedSectors =
-    activeSectorFilter === 'all'
-      ? SECTORS
-      : SECTORS.filter((s) => s.id === activeSectorFilter)
-
   return (
     <div className="space-y-10">
-      {/* ─── Category Quick Options Bar with "View All" Button Right Beside It ─── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-blue-100/80">
-        {/* Category Option Chips */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none flex-1">
-          <button
-            type="button"
-            onClick={() => setActiveSectorFilter('all')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0 border ${
-              activeSectorFilter === 'all'
-                ? 'bg-[#0056D2] text-white border-[#0056D2] shadow-xs'
-                : 'bg-white text-slate-700 hover:bg-slate-100 border-slate-200'
-            }`}
-          >
-            All Sectors
-          </button>
-
-          {SECTORS.map((sector) => {
-            const isActive = activeSectorFilter === sector.id
-            return (
-              <button
-                key={sector.id}
-                type="button"
-                onClick={() => setActiveSectorFilter(sector.id)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shrink-0 border ${
-                  isActive
-                    ? 'bg-[#0056D2] text-white border-[#0056D2] shadow-xs'
-                    : 'bg-white text-slate-700 hover:bg-slate-100 border-slate-200'
-                }`}
-              >
-                {sector.categoryKey}
-              </button>
-            )
-          })}
-        </div>
-
-        {/* View All Button Right Beside the Category Options */}
-        <Link
-          href="/courses"
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0056D2] hover:bg-[#00419e] text-white text-xs font-bold transition-all shadow-xs shrink-0 self-start sm:self-auto"
-        >
-          <span>View All Courses</span>
-          <ArrowRight size={13} weight="bold" />
-        </Link>
-      </div>
-
       {/* ─── 1. Primary Recommendation Spotlight (Personalized or Popular) ─── */}
-      {activeSectorFilter === 'all' && (
-        <HorizontalCoursesRow
-          title={recommendation.title}
-          subtitle={recommendation.subtitle}
-          courses={recommendation.courses}
-          exploreHref="/courses"
-          exploreLabel="View Catalog"
-        />
-      )}
+      <HorizontalCoursesRow
+        title={recommendation.title}
+        subtitle={recommendation.subtitle}
+        courses={recommendation.courses}
+        exploreHref="/courses"
+        exploreLabel="View Catalog"
+      />
 
-      {/* ─── 2. In-Demand Skills Spotlight (Shown when no personal data or on All Sectors) ─── */}
-      {activeSectorFilter === 'all' && (
-        <HorizontalCoursesRow
-          title="Trending In-Demand Skills in Tech"
-          subtitle="Top hiring vacancies actively seeking talent in React, Next.js, Python, AWS Cloud & Docker"
-          courses={inDemandCourses}
-          exploreHref="/courses"
-          exploreLabel="Browse In-Demand"
-        />
-      )}
-
-      {/* ─── 3. Sector-by-Sector Horizontal Rows ─── */}
-      <div className="space-y-10">
-        {displayedSectors.map((sector) => {
-          const sectorCourses = courses.filter((c) => {
-            const cat = (c.category || '').toLowerCase()
-            const title = (c.title || '').toLowerCase()
-            return sector.matchKeywords.some(
-              (kw) => cat.includes(kw) || title.includes(kw)
-            )
-          })
-
-          return (
-            <HorizontalCoursesRow
-              key={sector.id}
-              title={sector.title}
-              subtitle={sector.subtitle}
-              courses={sectorCourses}
-              exploreHref={`/courses?category=${encodeURIComponent(sector.categoryKey)}`}
-              exploreLabel={`Explore ${sector.categoryKey}`}
-            />
-          )
-        })}
-      </div>
+      {/* ─── 2. In-Demand Skills Spotlight ─── */}
+      <HorizontalCoursesRow
+        title="Trending In-Demand Skills in Tech"
+        subtitle="Top hiring vacancies actively seeking talent in React, Next.js, Python, AWS Cloud & Docker"
+        courses={inDemandCourses}
+        exploreHref="/courses"
+        exploreLabel="Browse In-Demand"
+      />
 
       {/* ─── 4. Last Segment: View All Courses Full Banner CTA ─────────────── */}
       <div className="pt-4">
-        <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-[#101B3C] via-[#15346F] to-[#155EEF] text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md">
+        <div className="p-6 sm:p-8 rounded-3xl bg-[#0056D2] text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md">
           <div className="space-y-1.5 text-center sm:text-left">
             <h3 className="text-xl sm:text-2xl font-extrabold font-['Plus_Jakarta_Sans'] tracking-tight">
-              Looking for another specialization or cohort?
+              Looking for another specialization or course?
             </h3>
             <p className="text-xs sm:text-sm text-blue-100 max-w-xl">
               Explore our full curriculum catalog across web engineering, data intelligence, cloud architecture, and product design with senior faculty mentors.

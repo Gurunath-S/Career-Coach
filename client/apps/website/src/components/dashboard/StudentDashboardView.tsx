@@ -22,7 +22,6 @@ import {
 } from '@phosphor-icons/react'
 import { useStudentAuth } from '@/context/StudentAuthContext'
 import { apiService } from '@/services/api'
-import { StudentExploreCourses } from './StudentExploreCourses'
 
 interface CourseEnrollment {
   id: number
@@ -169,7 +168,7 @@ export function StudentDashboardView() {
                   <div>
                     <p className="font-bold text-white">🎉 Enrollment Confirmed</p>
                     <p className="text-xs text-emerald-200/90 mt-0.5 font-normal">
-                      Welcome to the program! Your course materials and live batch schedule have been unlocked below.
+                      Welcome to the program! Your course materials and learning modules have been unlocked below.
                     </p>
                   </div>
                 </div>
@@ -295,9 +294,9 @@ export function StudentDashboardView() {
                     <BookOpen size={28} />
                   </div>
                 <div className="space-y-1">
-                  <h3 className="text-base font-bold text-slate-900">No active ongoing programs</h3>
+                  <h3 className="text-base font-bold text-slate-900">No active ongoing courses</h3>
                   <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
-                    You have not enrolled in any ongoing tech cohorts yet. Scroll down to explore our live programs and start learning with senior mentors.
+                    You have not enrolled in any ongoing courses yet. Explore our career programs and start learning today.
                   </p>
                 </div>
                 <Link
@@ -511,7 +510,7 @@ export function StudentDashboardView() {
             {coursesData.demoBookings.length === 0 ? (
               <div className="p-8 sm:p-14 rounded-3xl bg-white border border-dashed border-slate-300 text-center space-y-3 my-auto max-w-2xl mx-auto w-full">
                 <VideoCamera size={32} className="text-slate-300 mx-auto" />
-                <h3 className="text-base font-bold text-slate-900">No live demos scheduled</h3>
+                <h3 className="text-base font-bold text-slate-900">No sessions scheduled</h3>
                 <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
                   Need personalized roadmap guidance? Explore available programs below or schedule a 1-on-1 session with a mentor.
                 </p>
@@ -553,7 +552,7 @@ export function StudentDashboardView() {
                     </div>
 
                     <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-[11px] text-slate-500">Live on Google Meet</span>
+                      <span className="text-[11px] text-slate-500">Google Meet</span>
                       <span className="text-xs font-bold text-blue-600">Mentor Assigned</span>
                     </div>
                   </div>
@@ -564,23 +563,6 @@ export function StudentDashboardView() {
         )}
 
           </div>
-        </div>
-      </section>
-
-      {/* ─── SCROLLED DOWN SECTION: EXPLORE OTHER COURSES (Replaced with Bluish Background #F0F6FF) ─── */}
-      <section className="bg-[#F0F6FF] border-t border-blue-100 py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#101B3C] font-['Plus_Jakarta_Sans'] tracking-tight">
-              Explore Other Courses &amp; Specializations
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-xl">
-              Broaden your skillset across full stack development, cloud computing, AI, or product design with industry-aligned cohorts.
-            </p>
-          </div>
-
-          {/* Categorized Horizontal Sectors Showcase (Coursera-style) */}
-          <StudentExploreCourses />
         </div>
       </section>
 

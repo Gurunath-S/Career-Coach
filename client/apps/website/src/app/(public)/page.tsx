@@ -20,7 +20,7 @@ import CareerOpportunities from '@/components/sections/CareerOpportunities'
 import FAQ from '@/components/sections/FAQ'
 import EnquiryCTA from '@/components/sections/EnquiryCTA'
 import { useStudentAuth } from '@/context/StudentAuthContext'
-import { StudentDashboardView } from '@/components/dashboard/StudentDashboardView'
+import { StudentHomeFeed } from '@/components/dashboard/StudentHomeFeed'
 
 export default function HomePage() {
   const { user } = useStudentAuth()
@@ -31,8 +31,8 @@ export default function HomePage() {
 
       <main>
         {user ? (
-          /* ─── Logged-In Student Experience: Directly shows student's dashboard & work done ─── */
-          <StudentDashboardView />
+          /* ─── Logged-In Student Experience: Personalized Discovery Home Feed ─── */
+          <StudentHomeFeed />
         ) : (
           /* ─── Non-Logged-In Visitor Experience: Full Public Marketing Page ─── */
           <>

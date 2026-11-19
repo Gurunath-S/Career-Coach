@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useStudentAuth } from '@/context/StudentAuthContext'
 
 export default function StudentDashboardLayout({
@@ -11,12 +11,19 @@ export default function StudentDashboardLayout({
 }) {
   const { user, loading } = useStudentAuth()
   const router = useRouter()
+  const pathname = usePathname()
+
+  const isLoginPage = pathname === '/student/login'
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/?auth=login')
+    if (!isLoginPage && !loading && !user) {
+      router.push('/student/login')
     }
-  }, [user, loading, router])
+  }, [user, loading, router, isLoginPage])
+
+  if (isLoginPage) {
+    return <>{children}</>
+  }
 
   if (loading) {
     return (

@@ -300,7 +300,7 @@ export default function StudentProfilePage() {
             Profile &amp; Career Settings
           </h1>
           <p className="text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
-            Customize your learning goals, target roles, technical skills, and academic profile. We tailor your cohort recommendations and mentor reviews around these inputs.
+            Customize your learning goals, target roles, technical skills, and academic profile. We tailor your course recommendations and mentor reviews around these inputs.
           </p>
         </div>
 
@@ -359,7 +359,7 @@ export default function StudentProfilePage() {
                       Profile Photo
                     </h2>
                     <p className="text-xs text-slate-500">
-                      JPG, PNG or GIF up to 2MB. Visible to mentors and cohort peers.
+                      JPG, PNG or GIF up to 2MB. Visible to mentors and instructors.
                     </p>
                     <div className="flex items-center gap-2 pt-1">
                       <button
@@ -792,7 +792,7 @@ export default function StudentProfilePage() {
             {/* Bottom Floating Save Button Bar */}
             <div className="flex items-center justify-between p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
               <span className="text-xs text-slate-500">
-                All changes reflect across your cohort reviews, mentor matching, and dashboard.
+                All changes reflect across your course progress, mentor matching, and dashboard.
               </span>
               <div className="flex items-center gap-3">
                 <Link
