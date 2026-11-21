@@ -1,11 +1,10 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import Breadcrumbs from '@/components/layout/Breadcrumbs'
 import { apiService } from '@/services/api'
 import { Course } from '@careercatch/shared-types'
 import { COURSES } from '@/lib/constants'
@@ -15,69 +14,257 @@ import { useStudentAuth } from '@/context/StudentAuthContext'
 import {
   Star,
   Clock,
-  GraduationCap,
   Users,
   CheckCircle,
   CaretDown,
   CaretUp,
   ShieldCheck,
-  Sparkle,
   ArrowRight,
-  BookOpen,
   Code,
   Laptop,
   Certificate,
-  Briefcase,
-  Question,
-  CalendarCheck,
-  UserCheck,
-  ChatCircleText,
-  Quotes,
   Globe,
   DeviceMobile,
   Check,
+  Play,
+  ShareNetwork,
+  Gift,
+  Tag,
+  Heart,
+  FileText,
+  DownloadSimple,
+  Infinity as InfinityIcon,
+  X,
+  Copy,
+  Question,
+  Buildings,
+  GraduationCap,
+  Sparkle,
+  VideoCamera,
 } from '@phosphor-icons/react'
 
-const DEFAULT_SYLLABUS = [
+interface LectureItem {
+  id: string
+  title: string
+  duration: string
+  preview: boolean
+  description: string
+}
+
+interface SyllabusSection {
+  module: string
+  weeks?: string
+  duration?: string
+  lecturesCount?: number
+  exercise?: string
+  topics?: string[]
+  lectures: LectureItem[]
+}
+
+const DEFAULT_SYLLABUS: SyllabusSection[] = [
   {
-    module: 'Module 1: Foundations & Architecture',
-    weeks: 'Weeks 1-3 • 12 Hours',
-    topics: [
-      'Core Programming Syntax, Modern ECMAScript Standards, and Type Systems',
-      'Data Structures, Control Flow, Memory Management, and Algorithmic Thinking',
-      'Clean Code Principles, Modular File Structure, Git Workflow, and Version Control',
-    ],
+    module: 'Section 1: Foundations, Architecture & Modern Tooling',
+    weeks: 'Weeks 1-3',
+    duration: '3h 45m',
+    lecturesCount: 6,
     exercise: 'Build a modular CLI state-driven task runner from scratch.',
+    lectures: [
+      {
+        id: 's1-l1',
+        title: '1. Course Orientation, Prerequisites & Setup',
+        duration: '08:24',
+        preview: true,
+        description:
+          'Understand the end-to-end curriculum roadmap, install Node.js, Git, Docker, and configure VS Code with professional ESLint and Prettier setups.',
+      },
+      {
+        id: 's1-l2',
+        title: '2. Core Programming Syntax & Modern ECMAScript Standards',
+        duration: '14:15',
+        preview: true,
+        description:
+          'Deep dive into ESNext syntax, closures, prototypes, asynchronous JavaScript (Promises, async/await), and TypeScript type annotations.',
+      },
+      {
+        id: 's1-l3',
+        title: '3. Data Structures, Memory Management & Algorithmic Thinking',
+        duration: '22:40',
+        preview: false,
+        description:
+          'Analyze space and time complexity (Big-O), memory allocation, stack vs heap, arrays, linked lists, hashmaps, and algorithmic problem-solving techniques.',
+      },
+      {
+        id: 's1-l4',
+        title: '4. Clean Code Principles, Modular File Structure & Monorepos',
+        duration: '18:50',
+        preview: false,
+        description:
+          'Learn separation of concerns, SOLID principles, code smell detection, domain-driven directory structures, and scalable repository patterns.',
+      },
+      {
+        id: 's1-l5',
+        title: '5. Git Workflows, Branching Strategies & Conventional Commits',
+        duration: '12:35',
+        preview: true,
+        description:
+          'Master trunk-based development, feature branch rebasing, writing semantic conventional commit messages, and creating professional GitHub pull requests.',
+      },
+      {
+        id: 's1-l6',
+        title: '6. Hands-On Lab: Building an Interactive CLI State Engine',
+        duration: '28:10',
+        preview: false,
+        description:
+          'Apply Section 1 fundamentals by architecting an interactive command-line interface with persistent JSON state, file I/O streams, and automated unit test assertions.',
+      },
+    ],
   },
   {
-    module: 'Module 2: Real-World Implementation & Full Stack APIs',
-    weeks: 'Weeks 4-7 • 16 Hours',
-    topics: [
-      'Interactive Client Applications with Modern React and Next.js Server Components',
-      'API Design, REST Contracts, Input Validation, and Global Error Handling',
-      'Database Modeling, Relational Schemas, PostgreSQL Migrations, and Prisma ORM',
-    ],
+    module: 'Section 2: Real-World Implementation & Full Stack APIs',
+    weeks: 'Weeks 4-7',
+    duration: '4h 30m',
+    lecturesCount: 6,
     exercise: 'Design and deploy a full CRUD REST API with live PostgreSQL database.',
+    lectures: [
+      {
+        id: 's2-l1',
+        title: '7. Architecture Deep Dive: Client vs Server Rendering',
+        duration: '16:10',
+        preview: true,
+        description:
+          'Examine monolithic, modular, and microservice rendering paradigms, comparing Client-Side Rendering (CSR), Server-Side Rendering (SSR), and Edge Streaming.',
+      },
+      {
+        id: 's2-l2',
+        title: '8. Next.js App Router, Server Components & Dynamic Routing',
+        duration: '25:45',
+        preview: false,
+        description:
+          'Build high-performance client applications with React 19, Server Components, suspense boundaries, layout nesting, and optimized asset loading.',
+      },
+      {
+        id: 's2-l3',
+        title: '9. RESTful API Design, Route Handlers & Zod Validation',
+        duration: '21:30',
+        preview: false,
+        description:
+          'Design clean REST contracts, implement typed route handlers, construct schema validation layers with Zod, and structure consistent HTTP error responses.',
+      },
+      {
+        id: 's2-l4',
+        title: '10. Relational Database Modeling with PostgreSQL & Prisma ORM',
+        duration: '32:15',
+        preview: false,
+        description:
+          'Design relational database schemas, execute migrations, configure one-to-many and many-to-many relationships, write raw SQL queries, and optimize index performance.',
+      },
+      {
+        id: 's2-l5',
+        title: '11. Error Handling Middleware & Global Boundary Strategies',
+        duration: '15:20',
+        preview: false,
+        description:
+          'Implement central error-handling middleware, structured application logging, HTTP status code best practices, and graceful exception recoveries.',
+      },
+      {
+        id: 's2-l6',
+        title: '12. Practical Deliverable: Live PostgreSQL CRUD Microservice',
+        duration: '35:00',
+        preview: false,
+        description:
+          'Build and deploy an end-to-end full stack CRUD application with relational data persistence, schema validations, and automated integration tests.',
+      },
+    ],
   },
   {
-    module: 'Module 3: Production Engineering & Cloud Deployment',
-    weeks: 'Weeks 8-10 • 12 Hours',
-    topics: [
-      'Authentication, Authorization, HTTP-Only Session Security, and OAuth 2.0 SSO',
-      'Performance Optimization, Server-Side Caching, Edge Rendering, and Core Web Vitals',
-      'Containerization with Docker, CI/CD GitHub Actions, and Automated Cloud Deployment',
-    ],
+    module: 'Section 3: Production Engineering, Security & Cloud Deployment',
+    weeks: 'Weeks 8-10',
+    duration: '3h 15m',
+    lecturesCount: 5,
     exercise: 'Containerize an end-to-end full stack application and deploy to AWS / Vercel.',
+    lectures: [
+      {
+        id: 's3-l1',
+        title: '13. Authentication, Authorization & HTTP-Only Session Security',
+        duration: '19:40',
+        preview: true,
+        description:
+          'Implement robust authentication flows using HTTP-only cookies, JWT verification, password hashing with bcrypt, role-based access control (RBAC), and CSRF protection.',
+      },
+      {
+        id: 's3-l2',
+        title: '14. Performance Optimization, Edge Caching & Core Web Vitals',
+        duration: '23:15',
+        preview: false,
+        description:
+          'Profile application performance, configure Redis caching, optimize bundle size, implement debouncing, and measure Google Core Web Vitals (LCP, FID, CLS).',
+      },
+      {
+        id: 's3-l3',
+        title: '15. Containerization with Docker & Multi-Stage Builds',
+        duration: '27:50',
+        preview: false,
+        description:
+          'Write production Dockerfiles, leverage multi-stage builds for minimal image size, orchestrate local multi-container environments with Docker Compose.',
+      },
+      {
+        id: 's3-l4',
+        title: '16. Automated CI/CD Pipelines with GitHub Actions',
+        duration: '18:25',
+        preview: false,
+        description:
+          'Create automated GitHub Actions workflows to run linter checks, test suites, build Docker images, and deploy previews automatically on pull requests.',
+      },
+      {
+        id: 's3-l5',
+        title: '17. Production Deployment, Monitoring & Health Checks',
+        duration: '24:10',
+        preview: false,
+        description:
+          'Deploy containerized applications to cloud platforms (AWS / Vercel), configure SSL certificates, set up custom domain DNS, and implement uptime health check endpoints.',
+      },
+    ],
   },
   {
-    module: 'Module 4: Capstone Project & Career Placement Prep',
-    weeks: 'Weeks 11-12 • 8 Hours',
-    topics: [
-      'Production-Grade Capstone Project Guided by Senior Engineers from Tier-1 Companies',
-      'System Architecture Design Document, Production Code Reviews, and Load Testing',
-      'Technical Interview Practice, Live Coding Simulations, and Direct Recruiter Referrals',
-    ],
+    module: 'Section 4: Capstone Project & Career Placement Prep',
+    weeks: 'Weeks 11-12',
+    duration: '2h 50m',
+    lecturesCount: 4,
     exercise: 'Ship capstone portfolio product with live public URL and verifiable GitHub repo.',
+    lectures: [
+      {
+        id: 's4-l1',
+        title: '18. Capstone Project Architecture Design Document (PRD)',
+        duration: '20:15',
+        preview: true,
+        description:
+          'Draft a comprehensive software architecture design document specifying entity relationships, API endpoint contracts, latency targets, and non-functional requirements.',
+      },
+      {
+        id: 's4-l2',
+        title: '19. Code Review Walkthrough with Senior Engineering Mentors',
+        duration: '34:40',
+        preview: false,
+        description:
+          'Participate in live 1:1 code review sessions where Staff Engineers critique pull requests on readability, edge-case coverage, and production reliability.',
+      },
+      {
+        id: 's4-l3',
+        title: '20. Technical Interview Simulations & System Design Live Coding',
+        duration: '40:10',
+        preview: false,
+        description:
+          'Practice live coding challenges under realistic interview time limits, solve architectural scaling problems on virtual whiteboards, and receive rubric-based scoring.',
+      },
+      {
+        id: 's4-l4',
+        title: '21. Direct Recruiter Referrals, Resume Polish & Offer Negotiation',
+        duration: '18:30',
+        preview: false,
+        description:
+          'Optimize your technical resume for applicant tracking systems (ATS), polish your GitHub profile, receive direct recruiter introductions, and evaluate job offers.',
+      },
+    ],
   },
 ]
 
@@ -172,12 +359,11 @@ const VERIFIED_REVIEWS = [
 ]
 
 const NAV_TABS = [
-  { id: 'about', label: 'About' },
-  { id: 'outcomes', label: "What you'll learn" },
-  { id: 'modules', label: 'Modules' },
-  { id: 'recommendations', label: 'Recommendations' },
-  { id: 'testimonials', label: 'Testimonials' },
+  { id: 'overview', label: 'Overview' },
+  { id: 'curriculum', label: 'Curriculum' },
+  { id: 'instructor', label: 'Instructor' },
   { id: 'reviews', label: 'Reviews' },
+  { id: 'faqs', label: 'FAQs' },
 ]
 
 export default function CourseDetailClient({
@@ -192,18 +378,35 @@ export default function CourseDetailClient({
 
   const [course, setCourse] = useState<Course | null>(initialCourse)
   const [loading, setLoading] = useState(!initialCourse)
-  const [openModuleIndex, setOpenModuleIndex] = useState<number | null>(0)
+
+  // Curriculum accordion state: set of open section indices
+  const [openSections, setOpenSections] = useState<Set<number>>(new Set([0]))
+
+  // Expanded lectures state: set of open lecture IDs for the dropdown description
+  const [openLectures, setOpenLectures] = useState<Set<string>>(new Set(['s1-l1']))
+
+  // Description expand/collapse
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false)
+
+  // FAQ accordion state
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0)
 
   // Sticky sub-navbar state
   const [isSticky, setIsSticky] = useState(false)
-  const [activeTab, setActiveTab] = useState('about')
+  const [activeTab, setActiveTab] = useState('overview')
 
   // Modals state
   const [demoModalOpen, setDemoModalOpen] = useState(false)
   const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [previewModalOpen, setPreviewModalOpen] = useState(false)
+  const [previewLectureTitle, setPreviewLectureTitle] = useState('')
   const [enrolling, setEnrolling] = useState(false)
   const [toastMsg, setToastMsg] = useState('')
+  const [wishlist, setWishlist] = useState<Record<number, boolean>>({})
+
+  // Coupon state
+  const [couponCode, setCouponCode] = useState('')
+  const [couponApplied, setCouponApplied] = useState(false)
 
   useEffect(() => {
     async function loadCourse() {
@@ -215,20 +418,20 @@ export default function CourseDetailClient({
     loadCourse()
   }, [slug, initialCourse])
 
-  // Scroll listener for sticky sub-navbar and active tab highlights (throttled with RAF)
+  // Scroll listener for sticky sub-navbar and tab highlighting
   useEffect(() => {
     let ticking = false
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          setIsSticky(window.scrollY > 320)
+          setIsSticky(window.scrollY > 340)
 
-          const tabs = ['about', 'outcomes', 'modules', 'recommendations', 'testimonials', 'reviews']
+          const tabs = ['overview', 'curriculum', 'instructor', 'reviews', 'faqs']
           for (const tab of [...tabs].reverse()) {
             const el = document.getElementById(tab)
             if (el) {
               const rect = el.getBoundingClientRect()
-              if (rect.top <= 200) {
+              if (rect.top <= 220) {
                 setActiveTab(tab)
                 break
               }
@@ -253,17 +456,15 @@ export default function CourseDetailClient({
     }
   }
 
-  // Direct Course Enrollment handler
+  // Enrollment handler
   const handleEnrollClick = async () => {
     if (!course) return
 
-    // If user is not logged in -> Trigger Coursera-style Auth Modal
     if (!user) {
       setAuthModalOpen(true)
       return
     }
 
-    // If logged in -> Execute enrollment immediately
     setEnrolling(true)
     try {
       await apiService.enrollInCourse(course.id)
@@ -287,6 +488,110 @@ export default function CourseDetailClient({
     }
     router.push(`/student/dashboard?enrolled=${course.id}`)
   }
+
+  // Toggle single section
+  const toggleSection = (idx: number) => {
+    setOpenSections((prev) => {
+      const next = new Set(prev)
+      if (next.has(idx)) {
+        next.delete(idx)
+      } else {
+        next.add(idx)
+      }
+      return next
+    })
+  }
+
+  // Toggle single lecture description dropdown
+  const toggleLecture = (lectureId: string) => {
+    setOpenLectures((prev) => {
+      const next = new Set(prev)
+      if (next.has(lectureId)) {
+        next.delete(lectureId)
+      } else {
+        next.add(lectureId)
+      }
+      return next
+    })
+  }
+
+  // Toggle all sections
+  const toggleAllSections = () => {
+    const allCount = syllabus.length
+    if (openSections.size === allCount) {
+      setOpenSections(new Set())
+    } else {
+      setOpenSections(new Set(Array.from({ length: allCount }, (_, i) => i)))
+    }
+  }
+
+  // Trigger video preview modal
+  const handleOpenPreview = (lectureTitle?: string) => {
+    setPreviewLectureTitle(lectureTitle || 'Course Overview & Curriculum Preview')
+    setPreviewModalOpen(true)
+  }
+
+  // Share course URL
+  const handleShare = () => {
+    if (typeof window !== 'undefined') {
+      navigator.clipboard.writeText(window.location.href)
+      setToastMsg('Course link copied to clipboard!')
+      setTimeout(() => setToastMsg(''), 3000)
+    }
+  }
+
+  const toggleWishlist = (id: number) => {
+    setWishlist((prev) => ({ ...prev, [id]: !prev[id] }))
+  }
+
+  const handleApplyCoupon = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!couponCode.trim()) return
+    setCouponApplied(true)
+    setToastMsg(`Coupon "${couponCode.toUpperCase()}" applied!`)
+    setTimeout(() => setToastMsg(''), 3000)
+  }
+
+  // Normalized syllabus with fallback
+  const syllabus: SyllabusSection[] = useMemo(() => {
+    if (course?.syllabus && Array.isArray(course.syllabus) && course.syllabus.length > 0) {
+      return course.syllabus.map((item: any, i: number) => ({
+        module: item.module || `Section ${i + 1}: Core Fundamentals`,
+        weeks: item.weeks || `Module ${i + 1}`,
+        duration: item.duration || '3h 30m',
+        lecturesCount: item.lectures?.length || item.topics?.length || 5,
+        exercise: item.exercise,
+        lectures: item.lectures
+          ? item.lectures.map((l: any, lidx: number) => ({
+              id: l.id || `s${i + 1}-l${lidx + 1}`,
+              title: l.title || `${lidx + 1}. Lecture Overview`,
+              duration: l.duration || '12:00',
+              preview: l.preview ?? (lidx === 0 || lidx === 1),
+              description:
+                l.description ||
+                'Examine core architectural patterns, design principles, modular abstractions, and hands-on implementations for this module deliverable.',
+            }))
+          : (item.topics || []).map((t: string, tidx: number) => ({
+              id: `s${i + 1}-l${tidx + 1}`,
+              title: `${tidx + 1}. ${t}`,
+              duration: `${10 + tidx * 3}:00`,
+              preview: tidx === 0 || tidx === 1,
+              description: `Deep dive into ${t}. Learn practical techniques, modular patterns, and industry-standard best practices.`,
+            })),
+      }))
+    }
+    return DEFAULT_SYLLABUS
+  }, [course])
+
+  // Total lecture count & total course duration
+  const totalLectures = useMemo(() => {
+    return syllabus.reduce((acc, s) => acc + (s.lectures?.length || s.lecturesCount || 5), 0)
+  }, [syllabus])
+
+  const relatedCourses = useMemo(() => {
+    if (!course) return []
+    return COURSES.filter((c) => c.id !== course.id).slice(0, 5)
+  }, [course])
 
   if (loading) {
     return (
