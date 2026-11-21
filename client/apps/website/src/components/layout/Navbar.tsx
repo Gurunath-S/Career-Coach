@@ -506,20 +506,34 @@ export default function Navbar() {
 
             {/* Auth / Student Profile */}
             {user ? (
-              /* User logged in: Profile Dropdown */
-              <div ref={userMenuRef} className="relative">
+              /* User logged in: Profile Dropdown as normal text */
+              <div
+                ref={userMenuRef}
+                className="relative"
+                onMouseEnter={() => setUserDropdownOpen(true)}
+                onMouseLeave={() => setUserDropdownOpen(false)}
+              >
                 <button
                   type="button"
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50/90 hover:bg-blue-100/80 text-[#0056D2] text-xs sm:text-sm font-bold transition-all shadow-2xs cursor-pointer"
+                  className={`flex items-center gap-1.5 font-semibold text-xs sm:text-sm transition-colors cursor-pointer py-1 ${
+                    userDropdownOpen ? 'text-[#0056D2]' : 'text-slate-700 hover:text-[#0056D2]'
+                  }`}
+                  aria-expanded={userDropdownOpen}
                 >
-                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center text-[11px] font-bold shrink-0">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
-                  <span className="truncate max-w-[110px] hidden sm:inline">
-                    {user.name.split(' ')[0]}
+                  <span className="truncate max-w-[120px]">
+                    {user.name.split(' ')[0] || 'Profile'}
                   </span>
-                  <CaretDown size={12} weight="bold" />
+                  <CaretDown
+                    size={12}
+                    weight="bold"
+                    className={`transition-transform duration-200 ${
+                      userDropdownOpen ? 'rotate-180 text-[#0056D2]' : 'text-slate-500'
+                    }`}
+                  />
                 </button>
 
                 {/* User Dropdown Menu */}
@@ -530,7 +544,7 @@ export default function Navbar() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 4, scale: 0.98 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute right-0 top-[calc(100%+8px)] w-56 bg-white rounded-2xl border border-slate-200 shadow-xl p-2 z-50 text-xs"
+                      className="absolute left-1/2 -translate-x-[20%] top-[calc(100%+8px)] w-56 bg-white rounded-2xl border border-slate-200 shadow-xl p-2 z-50 text-xs"
                     >
                       {/* User Info: Name & Email */}
                       <div className="px-3 py-2 border-b border-slate-100 mb-1">
