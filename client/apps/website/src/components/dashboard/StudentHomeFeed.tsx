@@ -1251,14 +1251,13 @@ function IndustryCredentialsAndCategories({ courses }: { courses: Course[] }) {
 }
 
 // ─── Main StudentHomeFeed Component ───────────────────────────────────────────
-
-const computePersonalizedRecommendations = computeRoleRecommendations;
 export function StudentHomeFeed() {
   const router = useRouter()
   const { user } = useStudentAuth()
   const [courses, setCourses] = useState<Course[]>(COURSES)
   const [profile, setProfile] = useState<StudentProfile | null>(null)
   const [enrolledOngoing, setEnrolledOngoing] = useState<EnrolledCourseItem[]>([])
+  const [activeSkillTag, setActiveSkillTag] = useState<string>('All Skills')
 
   useEffect(() => {
     let active = true
@@ -1291,27 +1290,87 @@ export function StudentHomeFeed() {
     return () => {
       active = false
     }
-  }, [user])
+  }, [user, router])
 
-  // Personalized Recommendation
-  const recommendation = computePersonalizedRecommendations(courses, profile)
+  // Reset active skill tag whenever profile changes
+  useEffect(() => {
+    setActiveSkillTag('All Skills')
+  }, [profile])
 
-  // In-Demand Skills Courses
-  const inDemandKeywords = ['react', 'next.js', 'python', 'aws', 'docker', 'machine learning', 'figma']
-  const inDemandCourses = courses.filter((c) => {
-    const title = (c.title || '').toLowerCase()
-    const skills = (c.skills || []).map((s) => s.toLowerCase())
-    return inDemandKeywords.some((kw) => title.includes(kw) || skills.some((s) => s.includes(kw)))
-  })
-
-  const hasSpecificGoal = Boolean(
-    profile?.currentRole ||
-      profile?.interestedCourse ||
-      (profile?.desiredRoles && profile.desiredRoles.length > 0)
+  // Extract planned/target role (deduplicated)
+  const targetRoles = Array.from(
+    new Set(
+      [
+        ...(profile?.desiredRoles || []),
+        profile?.interestedCourse,
+        profile?.currentRole,
+      ]
+        .map((r) => (r || '').trim())
+        .filter(Boolean)
+    )
   )
+  const primaryRole = targetRoles[0] || ''
 
-  const careerInterest =
-    profile?.currentRole || profile?.interestedCourse || profile?.desiredRoles?.[0] || ''
+  // User target skills from onboarding answers
+  const userSkills = (profile?.skills || []).map((s) => s.trim()).filter(Boolean)
+  const hasUserSkills = userSkills.length > 0
+
+  // 1. Target Role Recommendation
+  const roleRecommendation = computeRoleRecommendations(courses, profile)
+
+  // 2. Target Skills Recommendation
+  const skillFilterTags = hasUserSkills
+    ? ['All Skills', ...userSkills]
+    : ['All Skills', 'React & Next.js', 'Python', 'AWS Cloud', 'Docker & DevOps', 'UI/UX Design']
+
+  const allSkillScoredCourses = useMemo(() => {
+    if (hasUserSkills) {
+      const scored = courses.map((course) => {
+        let totalScore = 0
+        for (const skill of userSkills) {
+          totalScore += getCourseSkillScore(course, skill)
+        }
+        return { course, score: totalScore }
+      })
+      const filtered = scored
+        .filter((s) => s.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .map((s) => s.course)
+
+      return filtered.length > 0 ? filtered : courses
+    } else {
+      const inDemandKeywords = ['react', 'next.js', 'python', 'aws', 'docker', 'machine learning', 'figma']
+      return courses.filter((c) => {
+        const title = (c.title || '').toLowerCase()
+        const skills = (c.skills || []).map((s) => s.toLowerCase())
+        return inDemandKeywords.some((kw) => title.includes(kw) || skills.some((s) => s.includes(kw)))
+      })
+    }
+  }, [courses, hasUserSkills, userSkills])
+
+  const displayedSkillCourses = useMemo(() => {
+    if (activeSkillTag === 'All Skills') {
+      return allSkillScoredCourses
+    }
+    const matched = courses
+      .map((course) => ({ course, score: getCourseSkillScore(course, activeSkillTag) }))
+      .filter((s) => s.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map((s) => s.course)
+
+    return matched.length > 0 ? matched : allSkillScoredCourses
+  }, [courses, activeSkillTag, allSkillScoredCourses])
+
+  const skillsRowTitle = hasUserSkills
+    ? 'Courses for Your Target Skills'
+    : 'Trending In-Demand Skills in Tech'
+
+  const skillsRowSubtitle = hasUserSkills
+    ? activeSkillTag === 'All Skills'
+      ? 'Programs tailored to strengthen and advance your selected technical skills'
+      : `Showing courses teaching: ${activeSkillTag}`
+    : 'Top hiring vacancies actively seeking talent in React, Next.js, Python, AWS Cloud & Docker'
+
 
   return (
     <div className="bg-white min-h-screen font-['Inter']">
@@ -1322,22 +1381,32 @@ export function StudentHomeFeed() {
             <h1 className="text-2xl sm:text-4xl font-extrabold text-white font-['Plus_Jakarta_Sans'] tracking-tight">
               Welcome back, {user?.name?.split(' ')[0] || 'Learner'}
             </h1>
-            <p className="text-xs sm:text-sm text-blue-100 mt-2.5 flex items-center gap-2 flex-wrap">
-              <span>Courses tailored to your career goal:</span>
-              {hasSpecificGoal && (
-                <span className="font-bold text-white bg-white/20 px-2.5 py-0.5 rounded-lg border border-white/25">
-                  {careerInterest}
-                </span>
-              )}
-              <Link
-                href="/onboarding"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-white/15 hover:bg-white/25 border border-white/25 px-3 py-1 rounded-md transition-colors cursor-pointer"
-                title="Edit occupation and interests"
-              >
-                <PencilSimple size={13} weight="bold" />
-                <span>Edit occupation and interests</span>
-              </Link>
-            </p>
+            {primaryRole ? (
+              <div className="text-xs sm:text-sm text-blue-100 mt-2.5 flex items-center gap-1.5 flex-wrap">
+                <span>Courses tailored to your career goal:</span>
+                <Link
+                  href="/onboarding"
+                  className="group inline-flex items-center gap-1 text-white hover:text-blue-100 transition-colors cursor-pointer"
+                  title="Edit career goal"
+                >
+                  <span className="font-bold underline underline-offset-4 decoration-white/70 group-hover:decoration-white">
+                    {primaryRole}
+                  </span>
+                  <PencilSimple size={13} weight="bold" className="text-white/80 group-hover:text-white transition-opacity ml-0.5" />
+                </Link>
+              </div>
+            ) : (
+              <div className="text-xs sm:text-sm text-blue-100 mt-2.5 flex items-center gap-1.5 flex-wrap">
+                <Link
+                  href="/onboarding"
+                  className="inline-flex items-center gap-1 text-white underline underline-offset-4 hover:text-blue-100 transition-colors cursor-pointer font-medium"
+                  title="Edit career goals & skills"
+                >
+                  <PencilSimple size={13} weight="bold" />
+                  <span>Edit career goals &amp; skills</span>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -1399,25 +1468,43 @@ export function StudentHomeFeed() {
           </div>
         )}
 
-        {/* ─── 1. Primary Recommendation Spotlight ───────────────────────────── */}
+        {/* ─── 1. Primary Recommendation Spotlight (Target Role Focus) ───────── */}
         <HorizontalCoursesRow
-          title={recommendation.title}
-          subtitle={recommendation.subtitle}
-          courses={recommendation.courses}
-          exploreHref="/courses"
-          exploreLabel="View Full Track"
+          title={roleRecommendation.title}
+          subtitle={roleRecommendation.subtitle}
+          courses={roleRecommendation.courses}
+          profileSkills={userSkills}
         />
 
-        {/* ─── 2. Trending In-Demand Skills Spotlight ────────────────────────── */}
+        {/* ─── 2. Relevant Skills Spotlight (Target Skills Focus) ────────────── */}
         <HorizontalCoursesRow
-          title="Trending In-Demand Skills in Tech"
-          subtitle="Top hiring vacancies actively seeking talent in React, Next.js, Python, AWS Cloud & Docker"
-          courses={inDemandCourses}
-          exploreHref="/courses"
-          exploreLabel="Browse In-Demand"
+          title={skillsRowTitle}
+          subtitle={skillsRowSubtitle}
+          courses={displayedSkillCourses}
+          skillFilterTags={skillFilterTags}
+          activeSkillTag={activeSkillTag}
+          onSelectSkillTag={(tag) => setActiveSkillTag(tag)}
+          profileSkills={userSkills}
         />
 
-        {/* ─── 3. Solid Blue CTA Banner ────────────────────────────────────────── */}
+
+
+
+        {/* ─── 4. Explore Other Career Domains Blue Shelf (Image 3) ────────────── */}
+        <ExploreDomainsBlueShelf
+          targetRoles={targetRoles}
+          primaryRole={primaryRole}
+          userSkills={userSkills}
+          courses={courses}
+        />
+
+        {/* ─── 6. Trending Skills & Personalized Specializations (Image 5) ──────── */}
+        <TrendingSkillsAndSpecializations courses={courses} />
+
+        {/* ─── 7. Explore Categories & Industry Credentials (Image 4) ──────────── */}
+        <IndustryCredentialsAndCategories courses={courses} />
+
+        {/* ─── 8. Solid Blue CTA Banner ────────────────────────────────────────── */}
         <div className="pt-2">
           <div className="p-6 sm:p-8 rounded-3xl bg-[#0056D2] text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md">
             <div className="space-y-1.5 text-center sm:text-left">
