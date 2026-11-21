@@ -617,7 +617,7 @@ export default function CourseDetailClient({
           </p>
           <Link
             href="/courses"
-            className="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 transition-colors shadow-sm"
+            className="px-5 py-2.5 rounded-xl bg-[#0056D2] text-white font-semibold text-sm hover:bg-[#00419e] transition-colors shadow-sm"
           >
             Explore All Programs
           </Link>
@@ -627,51 +627,52 @@ export default function CourseDetailClient({
     )
   }
 
-  const syllabus = (course.syllabus as unknown as typeof DEFAULT_SYLLABUS) || DEFAULT_SYLLABUS
-  const relatedCourses = COURSES.filter((c) => c.id !== course.id).slice(0, 4)
+  const originalPrice = course.originalPrice || Math.round(course.price * 2.2)
+  const discountPercent = Math.max(10, Math.round(((originalPrice - course.price) / originalPrice) * 100))
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen flex flex-col justify-between font-['Inter']">
+    <div className="bg-[#FFFFFF] min-h-screen flex flex-col justify-between font-['Inter'] text-slate-900">
       <Navbar />
-
-      {/* ─── Breadcrumb Navigation ──────────────────────────────────── */}
-      <Breadcrumbs
-        items={[
-          { label: 'Browse', href: '/courses' },
-          { label: course.category, href: `/courses?category=${encodeURIComponent(course.category)}` },
-          { label: course.title },
-        ]}
-      />
 
       {/* ─── Sticky Sub-Navbar on Scroll ────────────────────────────── */}
       {isSticky && (
-        <div className="fixed top-[68px] left-0 right-0 z-40 bg-white border-b border-slate-200/90 shadow-md transition-all duration-200">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="fixed top-[68px] left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-md transition-all duration-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between py-2.5 gap-4">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-7 h-7 rounded-md bg-[#155EEF]/10 text-[#155EEF] font-bold text-xs flex items-center justify-center shrink-0 border border-[#155EEF]/20">
-                  CC
-                </div>
-                <h2 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+              <div className="flex flex-col min-w-0 pr-4">
+                <h2 className="text-sm sm:text-base font-bold text-slate-900 truncate font-['Plus_Jakarta_Sans']">
                   {course.title}
                 </h2>
+                <div className="flex items-center gap-2 text-xs text-slate-600">
+                  <span className="font-bold text-amber-500">{course.rating || 4.8} ★</span>
+                  <span className="text-slate-400">({(course.reviews || 312).toLocaleString()} ratings)</span>
+                  <span className="hidden sm:inline text-slate-400">• {(course.reviews * 12 + 1420).toLocaleString()} students</span>
+                </div>
               </div>
 
-              <div className="shrink-0 flex items-center gap-2 sm:gap-3">
+              <div className="shrink-0 flex items-center gap-3">
+                <div className="text-right hidden sm:block">
+                  <div className="text-base font-bold text-slate-900">
+                    ₹{course.price.toLocaleString('en-IN')}
+                  </div>
+                  <div className="text-[11px] text-slate-400 line-through">
+                    ₹{originalPrice.toLocaleString('en-IN')}
+                  </div>
+                </div>
+
                 <button
                   type="button"
                   onClick={handleEnrollClick}
                   disabled={enrolling}
-                  className="px-4 py-2 rounded-lg bg-[#0056D2] hover:bg-[#00419e] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer flex flex-col items-center leading-tight"
+                  className="px-5 py-2.5 rounded-md bg-[#0056D2] hover:bg-[#00419e] text-white text-xs sm:text-sm font-bold transition-all shadow-sm cursor-pointer whitespace-nowrap"
                 >
-                  <span>{enrolling ? 'Enrolling...' : 'Enroll for Free'}</span>
-                  <span className="text-[10px] font-normal opacity-90">Starts Today</span>
+                  {enrolling ? 'Enrolling...' : 'Enroll Now'}
                 </button>
               </div>
             </div>
 
             {/* Navigation Tabs */}
-            <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto border-t border-slate-100 py-1 scrollbar-none">
+            <div className="flex items-center gap-2 sm:gap-4 border-t border-slate-100 py-1.5 overflow-x-auto scrollbar-none text-xs">
               {NAV_TABS.map((tab) => {
                 const isActive = activeTab === tab.id
                 return (
@@ -679,10 +680,10 @@ export default function CourseDetailClient({
                     key={tab.id}
                     type="button"
                     onClick={() => scrollToTab(tab.id)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                    className={`px-2.5 py-1 font-semibold whitespace-nowrap transition-colors cursor-pointer border-b-2 ${
                       isActive
-                        ? 'bg-blue-50 text-[#0056D2] font-bold'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                        ? 'border-[#0056D2] text-[#0056D2] font-bold'
+                        : 'border-transparent text-slate-500 hover:text-slate-900'
                     }`}
                   >
                     {tab.label}
@@ -702,15 +703,15 @@ export default function CourseDetailClient({
         </div>
       )}
 
-      <main>
+      <main className="relative">
         {/* ════════════════════════════════════════════════════════════════
-            1. HERO & COURSE BANNER (Coursera Reference Layout with Translucent Watermark)
+            1. HERO BANNER: ORIGINAL LIGHT GRADIENT & COMPANY LOGO WATERMARK
            ════════════════════════════════════════════════════════════════ */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-[#EFF6FF] via-[#F8FAFC] to-[#EFF6FF] border-b border-slate-200/80 pt-10 pb-12 md:pt-14 md:pb-16">
-          {/* Large Translucent CareerCatch Logo Watermark on Right */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-[#EFF6FF] via-[#F8FAFC] to-[#EFF6FF] border-b border-slate-200/80 pt-8 pb-12 lg:pb-16">
+          {/* Large Translucent CareerCatch Logo Watermark in Background */}
           <div
             aria-hidden="true"
-            className="absolute -right-16 -top-12 md:-right-8 md:-top-8 pointer-events-none select-none opacity-[0.07] md:opacity-[0.09] z-0 overflow-hidden"
+            className="absolute -right-16 -top-12 md:-right-8 md:-top-8 pointer-events-none select-none opacity-[0.08] md:opacity-[0.10] z-0 overflow-hidden"
           >
             <svg
               width="540"
