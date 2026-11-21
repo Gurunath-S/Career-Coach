@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
@@ -17,6 +17,19 @@ import {
   Target,
   TrendUp,
   Fire,
+  Lightning,
+  Cpu,
+  Code,
+  Palette,
+  ChartLine,
+  ShieldCheck,
+  Briefcase,
+  Buildings,
+  Globe,
+  Desktop,
+  Tag,
+  CheckCircle,
+  Compass,
   type Icon,
 } from '@phosphor-icons/react'
 import { COURSES } from '@/lib/constants'
@@ -49,42 +62,68 @@ interface RecommendationResult {
   courses: Course[]
 }
 
-// ─── Personalized Recommendation Logic ──────────────────────────────────────────
-function computePersonalizedRecommendations(
+// ─── Target Role Recommendation Logic ──────────────────────────────────────────
+function computeRoleRecommendations(
   courses: Course[],
   profile: StudentProfile | null
 ): RecommendationResult {
-  const interestedCourse = (profile?.interestedCourse || '').toLowerCase().trim()
-  const desiredRoles = (profile?.desiredRoles || []).map((r) => r.toLowerCase().trim()).filter(Boolean)
-  const desiredSkills = (profile?.skills || []).map((s) => s.toLowerCase().trim()).filter(Boolean)
-  const currentRole = (profile?.currentRole || '').toLowerCase().trim()
+  // Collect target roles without duplicates
+  const targetRoles = Array.from(
+    new Set(
+      [
+        ...(profile?.desiredRoles || []),
+        profile?.interestedCourse,
+        profile?.currentRole,
+      ]
+        .map((r) => (r || '').trim())
+        .filter(Boolean)
+    )
+  )
 
-  const hasSpecificInterests =
-    Boolean(interestedCourse) || desiredRoles.length > 0 || desiredSkills.length > 0
+  const primaryRole = targetRoles[0] || ''
+  const primaryRoleLower = primaryRole.toLowerCase()
 
-  if (hasSpecificInterests) {
+  if (primaryRole) {
     const scored = courses.map((course) => {
       let score = 0
       const title = (course.title || '').toLowerCase()
       const category = (course.category || '').toLowerCase()
-      const cSkills = (course.skills || []).map((s) => s.toLowerCase())
 
-      if (interestedCourse) {
-        if (title.includes(interestedCourse) || interestedCourse.includes(title)) score += 20
-        else if (category.includes(interestedCourse) || interestedCourse.includes(category)) score += 12
+      // Primary role exact/fuzzy match
+      if (title.includes(primaryRoleLower) || category.includes(primaryRoleLower)) score += 20
+
+      // Domain-specific alignments
+      if (primaryRoleLower.includes('cloud') || primaryRoleLower.includes('devops')) {
+        if (category.includes('cloud') || title.includes('cloud') || title.includes('aws')) score += 18
+        if (category.includes('devops') || title.includes('devops') || title.includes('cicd')) score += 16
       }
-
-      for (const role of desiredRoles) {
-        if (title.includes(role) || category.includes(role)) score += 12
-        if (role.includes('full stack') && (category.includes('full stack') || title.includes('react') || title.includes('web'))) score += 10
-        if (role.includes('data') && (category.includes('data') || title.includes('python') || title.includes('machine learning'))) score += 10
-        if (role.includes('devops') && (category.includes('devops') || category.includes('cloud') || title.includes('aws'))) score += 10
-        if (role.includes('design') && (category.includes('design') || category.includes('ui/ux'))) score += 10
+      if (
+        primaryRoleLower.includes('full stack') ||
+        primaryRoleLower.includes('developer') ||
+        primaryRoleLower.includes('software')
+      ) {
+        if (category.includes('full stack') || title.includes('full stack')) score += 18
+        if (title.includes('react') || title.includes('node')) score += 12
       }
-
-      for (const skill of desiredSkills) {
-        if (cSkills.some((cs) => cs.includes(skill) || skill.includes(cs))) score += 6
-        if (title.includes(skill)) score += 8
+      if (primaryRoleLower.includes('frontend')) {
+        if (category.includes('full stack') || title.includes('react') || title.includes('web')) score += 18
+      }
+      if (primaryRoleLower.includes('backend')) {
+        if (category.includes('full stack') || category.includes('cloud') || title.includes('node')) score += 18
+      }
+      if (
+        primaryRoleLower.includes('data') ||
+        primaryRoleLower.includes('machine learning') ||
+        primaryRoleLower.includes('ai')
+      ) {
+        if (category.includes('data') || title.includes('data') || title.includes('machine learning')) score += 18
+        if (title.includes('python')) score += 14
+      }
+      if (primaryRoleLower.includes('design') || primaryRoleLower.includes('ui') || primaryRoleLower.includes('ux')) {
+        if (category.includes('design') || category.includes('ui/ux') || title.includes('ui/ux')) score += 20
+      }
+      if (primaryRoleLower.includes('student') || primaryRoleLower.includes('fresher')) {
+        if (course.level === 'Beginner') score += 10
       }
 
       return { course, score }
@@ -96,48 +135,18 @@ function computePersonalizedRecommendations(
       .map((s) => s.course)
 
     if (matchedCourses.length > 0) {
-      const criteria: string[] = []
-      if (profile?.interestedCourse) criteria.push(`"${profile.interestedCourse}"`)
-      if (profile?.desiredRoles?.length) criteria.push(profile.desiredRoles.slice(0, 2).join(', '))
-      if (profile?.skills?.length) criteria.push(profile.skills.slice(0, 3).join(', '))
-
       return {
         type: 'goals',
         title: 'Recommended for You',
-        subtitle: `Personalized matches for your career goals in ${criteria.join(' • ')}`,
-        badge: 'Recommended for Your Goals',
+        subtitle: `Personalized matches for your career goals in "${primaryRole}"`,
+        badge: `Target Role: ${primaryRole}`,
         icon: Target,
         courses: matchedCourses,
       }
     }
   }
 
-  if (currentRole) {
-    const roleMatched = courses.filter((c) => {
-      const title = (c.title || '').toLowerCase()
-      const cat = (c.category || '').toLowerCase()
-      return (
-        title.includes(currentRole) ||
-        cat.includes(currentRole) ||
-        (currentRole.includes('frontend') && (cat.includes('full stack') || title.includes('react'))) ||
-        (currentRole.includes('backend') && (cat.includes('full stack') || cat.includes('cloud'))) ||
-        (currentRole.includes('developer') && cat.includes('full stack')) ||
-        ((currentRole.includes('student') || currentRole.includes('fresher')) && c.level === 'Beginner')
-      )
-    })
-
-    if (roleMatched.length > 0) {
-      return {
-        type: 'role',
-        title: `Recommended for Your Role: ${profile?.currentRole}`,
-        subtitle: `Next-level engineering programs to help you upskill and advance from ${profile?.currentRole}`,
-        badge: 'Based on Current Role',
-        icon: TrendUp,
-        courses: roleMatched,
-      }
-    }
-  }
-
+  // Fallback if no role matched or specified
   const sortedPopular = courses.slice().sort((a, b) => {
     const aWeight = (a.rating || 4.5) * (a.reviews || 10)
     const bWeight = (b.rating || 4.5) * (b.reviews || 10)
@@ -154,6 +163,35 @@ function computePersonalizedRecommendations(
   }
 }
 
+// ─── Skill Matching Helper ───────────────────────────────────────────────────
+function getCourseSkillScore(course: Course, skill: string): number {
+  const normSkill = skill.toLowerCase().trim()
+  const cTitle = (course.title || '').toLowerCase()
+  const cCat = (course.category || '').toLowerCase()
+  const cSkills = (course.skills || []).map((s) => s.toLowerCase().trim())
+
+  if (cSkills.some((s) => s.includes(normSkill) || normSkill.includes(s))) {
+    return 15
+  }
+  if (cTitle.includes(normSkill) || cCat.includes(normSkill)) {
+    return 12
+  }
+
+  const tokens = normSkill
+    .split(/[\s,&/()]+/)
+    .map((t) => t.trim())
+    .filter((t) => t.length > 2 && !['and', 'with', 'the', 'for'].includes(t))
+
+  let score = 0
+  for (const token of tokens) {
+    if (cSkills.some((s) => s.includes(token))) score += 6
+    if (cTitle.includes(token)) score += 8
+    if (cCat.includes(token)) score += 4
+  }
+
+  return score
+}
+
 // ─── Horizontal Course Cards Row Component ─────────────────────────────────────
 function HorizontalCoursesRow({
   title,
@@ -161,12 +199,20 @@ function HorizontalCoursesRow({
   courses,
   exploreHref,
   exploreLabel,
+  skillFilterTags,
+  activeSkillTag,
+  onSelectSkillTag,
+  profileSkills,
 }: {
   title: string
   subtitle: string
   courses: Course[]
   exploreHref?: string
   exploreLabel?: string
+  skillFilterTags?: string[]
+  activeSkillTag?: string
+  onSelectSkillTag?: (tag: string) => void
+  profileSkills?: string[]
 }) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
@@ -222,7 +268,7 @@ function HorizontalCoursesRow({
           )}
 
           {/* Scroll Navigation Chevrons */}
-          <div className="hidden sm:flex items-center gap-1.5 pl-2 border-l border-slate-200">
+          <div className={`hidden sm:flex items-center gap-1.5 ${exploreHref ? 'pl-2 border-l border-slate-200' : ''}`}>
             <button
               type="button"
               onClick={() => handleScroll('left')}
@@ -254,6 +300,29 @@ function HorizontalCoursesRow({
           </div>
         </div>
       </div>
+
+      {/* Optional Interactive Skill Filter Pills */}
+      {skillFilterTags && skillFilterTags.length > 1 && (
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar">
+          {skillFilterTags.map((tag) => {
+            const isSelected = (activeSkillTag || 'All Skills') === tag
+            return (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => onSelectSkillTag?.(tag)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                  isSelected
+                    ? 'bg-[#0056D2] text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80'
+                }`}
+              >
+                {tag}
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       {/* Horizontal Scrollable Row of Course Cards */}
       <div
@@ -328,6 +397,34 @@ function HorizontalCoursesRow({
                     {course.level || 'Beginner'}
                   </span>
                 </div>
+
+                {/* Course Skills Badges */}
+                {course.skills && course.skills.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1.5">
+                    {course.skills.slice(0, 3).map((sk) => {
+                      const isMatchedSkill = profileSkills?.some((ps) =>
+                        ps.toLowerCase().includes(sk.toLowerCase()) || sk.toLowerCase().includes(ps.toLowerCase())
+                      )
+                      return (
+                        <span
+                          key={sk}
+                          className={`text-[10px] px-2.5 py-0.5 rounded-full font-medium transition-colors ${
+                            isMatchedSkill
+                              ? 'bg-blue-50 text-[#0056D2] font-semibold border border-blue-200'
+                              : 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          {sk}
+                        </span>
+                      )
+                    })}
+                    {course.skills.length > 3 && (
+                      <span className="text-[10px] text-slate-400 font-medium">
+                        +{course.skills.length - 3}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -357,7 +454,9 @@ function HorizontalCoursesRow({
   )
 }
 
-// ─── Main StudentHomeFeed Component ───────────────────────────────────────────
+// ─── Visual Partner Badge Helper ─────────────────────────────────────────────
+
+const computePersonalizedRecommendations = computeRoleRecommendations;
 export function StudentHomeFeed() {
   const router = useRouter()
   const { user } = useStudentAuth()
