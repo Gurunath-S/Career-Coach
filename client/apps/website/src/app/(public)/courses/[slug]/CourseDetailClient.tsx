@@ -742,430 +742,675 @@ export default function CourseDetailClient({
             </svg>
           </div>
 
-          <div className="container relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
-            <div className="max-w-3xl">
-              {/* Partner / Organization Logo */}
-              <div className="flex items-center gap-2 mb-4">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200 shadow-2xs">
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0">
-                    <svg width="20" height="20" viewBox="0 0 32 32" fill="none">
-                      <path
-                        d="M16 4C9.37 4 4 9.37 4 16C4 22.63 9.37 28 16 28C21.4 28 25.95 24.45 27.5 19.5"
-                        stroke="#155EEF"
-                        strokeWidth="3.5"
-                        strokeLinecap="round"
-                      />
-                      <path
-                        d="M27.8 13.5C27.2 9.8 24.6 6.8 21.2 5.2"
-                        stroke="#FF9F1C"
-                        strokeWidth="3.5"
-                        strokeLinecap="round"
-                      />
-                      <circle cx="15.5" cy="16" r="3" fill="#155EEF" />
-                      <circle cx="19.5" cy="12" r="1.6" fill="#FF9F1C" />
-                    </svg>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              
+              {/* Left Column (Hero Information, ~68% width on desktop) */}
+              <div className="lg:col-span-8 space-y-4">
+                
+                {/* Partner / Organization Logo Badge */}
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200/90 shadow-2xs">
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0">
+                      <svg width="20" height="20" viewBox="0 0 32 32" fill="none">
+                        <path
+                          d="M16 4C9.37 4 4 9.37 4 16C4 22.63 9.37 28 16 28C21.4 28 25.95 24.45 27.5 19.5"
+                          stroke="#155EEF"
+                          strokeWidth="3.5"
+                          strokeLinecap="round"
+                        />
+                        <path
+                          d="M27.8 13.5C27.2 9.8 24.6 6.8 21.2 5.2"
+                          stroke="#FF9F1C"
+                          strokeWidth="3.5"
+                          strokeLinecap="round"
+                        />
+                        <circle cx="15.5" cy="16" r="3" fill="#155EEF" />
+                        <circle cx="19.5" cy="12" r="1.6" fill="#FF9F1C" />
+                      </svg>
+                    </div>
+                    <span className="font-['Plus_Jakarta_Sans'] font-extrabold text-xs text-[#101B3C]">
+                      CareerCatch
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-medium pl-1 border-l border-slate-200">
+                      Industry Partner
+                    </span>
                   </div>
-                  <span className="font-['Plus_Jakarta_Sans'] font-extrabold text-xs text-[#101B3C]">
-                    CareerCatch
+                </div>
+
+                {/* Breadcrumb Links */}
+                <nav className="flex items-center gap-2 text-xs text-[#0056D2] font-semibold flex-wrap">
+                  <Link href="/courses" className="hover:underline">
+                    Browse
+                  </Link>
+                  <span className="text-slate-400">›</span>
+                  <Link
+                    href={`/courses?category=${encodeURIComponent(course.category)}`}
+                    className="hover:underline"
+                  >
+                    {course.category}
+                  </Link>
+                  <span className="text-slate-400">›</span>
+                  <span className="text-slate-600 truncate max-w-[240px] sm:max-w-none">
+                    {course.title}
                   </span>
-                  <span className="text-[10px] text-slate-500 font-medium pl-1 border-l border-slate-200">
-                    Industry Partner
+                </nav>
+
+                {/* Course Title */}
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-['Plus_Jakarta_Sans'] text-[#101B3C] tracking-tight leading-tight">
+                  {course.title}
+                </h1>
+
+                {/* Subtitle / Description */}
+                <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-3xl">
+                  {course.description ||
+                    'Master industry-grade software engineering, scalable architectures, and hands-on production deployments with 1:1 senior code reviews.'}
+                </p>
+
+                {/* Ratings, Students & Badges Line */}
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs sm:text-sm">
+                  {/* Bestseller Badge */}
+                  <span className="px-2.5 py-0.5 rounded text-[11px] font-extrabold uppercase tracking-wide bg-amber-100 text-amber-800 border border-amber-200">
+                    Bestseller
+                  </span>
+
+                  {/* Rating with Stars */}
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-extrabold text-amber-600">{course.rating || 4.8}</span>
+                    <div className="flex items-center text-amber-400">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={14} weight="fill" />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Review Count Link */}
+                  <button
+                    type="button"
+                    onClick={() => scrollToTab('reviews')}
+                    className="text-[#0056D2] hover:underline cursor-pointer font-medium"
+                  >
+                    ({(course.reviews || 312).toLocaleString()} ratings)
+                  </button>
+
+                  <span className="text-slate-300">•</span>
+
+                  {/* Student Count */}
+                  <span className="text-slate-700 font-medium">
+                    {(course.reviews * 12 + 1420).toLocaleString()} students enrolled
                   </span>
                 </div>
-              </div>
 
-              {/* Course Title */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold font-['Plus_Jakarta_Sans'] tracking-tight text-[#101B3C] leading-tight mb-3">
-                {course.title}
-              </h1>
-
-              {/* Specialization / Program Subtitle */}
-              <p className="text-xs sm:text-sm font-semibold text-slate-600 mb-4">
-                This course is part of the{' '}
-                <Link
-                  href={`/courses?category=${encodeURIComponent(course.category)}`}
-                  className="text-[#0056D2] hover:underline font-bold"
-                >
-                  {course.category} Professional Specialization
-                </Link>
-              </p>
-
-              {/* Instructor Attribution Line */}
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-9 h-9 rounded-full overflow-hidden bg-slate-200 shrink-0 border border-slate-300">
-                  {course.instructorAvatar ? (
-                    <img
-                      src={course.instructorAvatar}
-                      alt={course.instructor}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <Users size={20} className="m-auto text-slate-600 mt-2" />
-                  )}
+                {/* Instructor Attribution Line */}
+                <div className="flex items-center gap-3 pt-1">
+                  <div className="w-9 h-9 rounded-full overflow-hidden bg-slate-200 shrink-0 border border-slate-300">
+                    {course.instructorAvatar ? (
+                      <img
+                        src={course.instructorAvatar}
+                        alt={course.instructor}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Users size={20} className="m-auto text-slate-600 mt-2" />
+                    )}
+                  </div>
+                  <div className="text-xs">
+                    <span className="text-slate-500">Taught by </span>
+                    <button
+                      type="button"
+                      onClick={() => scrollToTab('instructor')}
+                      className="font-bold text-[#101B3C] hover:text-[#0056D2] underline cursor-pointer"
+                    >
+                      {course.instructor}
+                    </button>
+                    <span className="text-slate-400"> • </span>
+                    <span className="text-slate-600 font-medium">Senior Engineering Mentor</span>
+                  </div>
                 </div>
-                <div className="text-xs">
-                  <span className="text-slate-500">Taught by </span>
-                  <span className="font-bold text-slate-900">{course.instructor}</span>
-                  <span className="text-slate-400"> • </span>
-                  <span className="text-slate-600 font-medium">Senior Engineering Mentor</span>
+
+                {/* Meta details row: Last updated, Language, Subtitles */}
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500 pt-1">
+                  <div className="flex items-center gap-1.5">
+                    <Clock size={15} className="text-[#0056D2]" />
+                    <span>Last updated November 2026</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Globe size={15} className="text-[#0056D2]" />
+                    <span>English</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <FileText size={15} className="text-[#0056D2]" />
+                    <span>English, Hindi [Auto]</span>
+                  </div>
                 </div>
+
               </div>
 
-              {/* CTA Action Area */}
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-4">
-                <button
-                  type="button"
-                  onClick={handleEnrollClick}
-                  disabled={enrolling}
-                  className="px-6 py-3.5 rounded-xl bg-[#0056D2] hover:bg-[#00419e] text-white font-bold text-sm sm:text-base transition-all shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer active:scale-[0.99]"
-                >
-                  <span>{enrolling ? 'Enrolling...' : 'Enroll for Free'}</span>
-                  <ArrowRight size={16} weight="bold" />
-                </button>
+              {/* Right Column Spacer in Hero for Desktop (Sticky card starts here) */}
+              <div className="hidden lg:block lg:col-span-4" />
 
-                <button
-                  type="button"
-                  onClick={() => setDemoModalOpen(true)}
-                  className="px-4 py-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition-colors cursor-pointer flex items-center gap-2 shadow-2xs"
-                >
-                  <Sparkle size={15} weight="fill" className="text-amber-500" />
-                  <span>Book Free Consultation</span>
-                </button>
-              </div>
-
-              {/* Social Proof */}
-              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600">
-                <span className="flex items-center gap-1.5 text-slate-600 font-medium">
-                  <Users size={14} className="text-blue-600" />
-                  <span>{(course.reviews * 12 + 1420).toLocaleString()} learners already enrolled</span>
-                </span>
-              </div>
             </div>
           </div>
         </section>
 
         {/* ════════════════════════════════════════════════════════════════
-            2. HORIZONTAL 4-STAT METRIC BAR (Coursera Style Card Under Hero)
+            2. MAIN CONTAINER: COURSE CONTENT (LEFT) & FLOATING VIDEO CARD (RIGHT)
            ════════════════════════════════════════════════════════════════ */}
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 -mt-6 relative z-20">
-          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-md p-4 sm:p-5 grid grid-cols-2 md:grid-cols-4 gap-4 divide-y md:divide-y-0 md:divide-x divide-slate-100">
-            {/* Stat 1: Course Type */}
-            <div className="flex flex-col justify-center px-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Format
-              </span>
-              <span className="text-sm font-bold text-slate-900 mt-0.5">
-                {course.certificateType || 'Professional Certificate'}
-              </span>
-              <span className="text-[11px] text-slate-500 mt-0.5">
-                Hands-On &amp; Capstone Project
-              </span>
-            </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start relative">
+            
+            {/* ─── LEFT COLUMN: COURSE CONTENT FIRST (~68% width) ─── */}
+            <div className="lg:col-span-8 space-y-10">
 
-            {/* Stat 2: Rating */}
-            <div className="flex flex-col justify-center px-2 pt-3 md:pt-0">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Learner Rating
-              </span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-sm font-extrabold text-slate-900">{course.rating || 4.8}</span>
-                <div className="flex items-center text-amber-400">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={13} weight="fill" />
-                  ))}
-                </div>
-              </div>
-              <span className="text-[11px] text-slate-500 mt-0.5">
-                ({(course.reviews || 312).toLocaleString()} verified ratings)
-              </span>
-            </div>
-
-            {/* Stat 3: Level */}
-            <div className="flex flex-col justify-center px-2 pt-3 md:pt-0">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Experience Level
-              </span>
-              <span className="text-sm font-bold text-slate-900 mt-0.5">
-                {course.level || 'Beginner level'}
-              </span>
-              <span className="text-[11px] text-slate-500 mt-0.5">
-                No prior coding degree required
-              </span>
-            </div>
-
-            {/* Stat 4: Schedule */}
-            <div className="flex flex-col justify-center px-2 pt-3 md:pt-0">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Schedule &amp; Duration
-              </span>
-              <span className="text-sm font-bold text-slate-900 mt-0.5">
-                {course.duration || '48 Hours'}
-              </span>
-              <span className="text-[11px] text-slate-500 mt-0.5">
-                Flexible weekend classes (6-8 hrs/wk)
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* ════════════════════════════════════════════════════════════════
-            MAIN COURSE CONTENT SECTIONS
-           ════════════════════════════════════════════════════════════════ */}
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 md:py-14 space-y-12">
-
-          {/* ─── SECTION 1: WHAT YOU WILL LEARN & SKILLS GAINED (id="about") ─── */}
-          <section id="about" className="scroll-mt-36 bg-white rounded-2xl p-6 md:p-8 border border-slate-200/90 shadow-2xs space-y-8">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold font-['Plus_Jakarta_Sans'] text-slate-900 mb-2">
-                What you will learn
-              </h2>
-              <p className="text-sm text-slate-600 leading-relaxed mb-6">
-                Designed to bridge academic knowledge with high-scale tech engineering, this curriculum takes you from core design patterns to building, testing, containerizing, and shipping production applications.
-              </p>
-
-              {/* 4-Box Key Takeaways */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[
-                  'Understand real-world production system design, scalable architecture, and modular clean code practices.',
-                  'Develop high-performance client applications with state management, server-side rendering, and responsive UI.',
-                  'Design robust RESTful APIs with database schemas, relational migrations, connection pooling, and indexing.',
-                  'Implement CI/CD workflows, automated testing, Docker containers, and live deployment on cloud infrastructure.',
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/80">
-                    <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
-                      <Check size={13} weight="bold" />
+              {/* Mobile View Video Preview & Pricing Card (< lg screen) */}
+              <div className="block lg:hidden bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden p-4 space-y-4">
+                {/* Video Preview Box */}
+                <div
+                  onClick={() => handleOpenPreview()}
+                  className="relative aspect-video rounded-xl overflow-hidden bg-slate-900 cursor-pointer group shadow-sm"
+                >
+                  <img
+                    src={course.thumbnail || '/images/courses/fullstack-web.jpg'}
+                    alt={course.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-white/95 text-slate-900 shadow-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Play size={28} weight="fill" className="ml-1 text-[#0056D2]" />
                     </div>
-                    <span className="text-xs sm:text-sm text-slate-700 leading-snug">{item}</span>
+                    <span className="text-white font-bold text-xs mt-3 tracking-wide drop-shadow">
+                      Preview this course
+                    </span>
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
 
-            {/* Skills You Will Gain */}
-            <div className="pt-6 border-t border-slate-100">
-              <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-500 mb-3">
-                Skills you will gain
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {(course.skills && course.skills.length > 0
-                  ? course.skills
-                  : ['React', 'Node.js', 'PostgreSQL', 'Next.js', 'REST APIs', 'System Design', 'Git', 'Docker']
-                ).map((skill: string, sidx: number) => (
-                  <span
-                    key={sidx}
-                    className="px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 transition-colors"
+                {/* Mobile Pricing & CTA */}
+                <div className="space-y-3">
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-3xl font-extrabold text-slate-900">
+                      ₹{course.price.toLocaleString('en-IN')}
+                    </span>
+                    <span className="text-sm font-semibold text-slate-400 line-through">
+                      ₹{originalPrice.toLocaleString('en-IN')}
+                    </span>
+                    <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
+                      {discountPercent}% off
+                    </span>
+                  </div>
+                  <div className="text-xs font-semibold text-rose-600 flex items-center gap-1.5">
+                    <Clock size={14} weight="bold" />
+                    <span>1 day left at this price!</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleEnrollClick}
+                    disabled={enrolling}
+                    className="w-full py-3.5 px-4 rounded-lg bg-[#0056D2] hover:bg-[#00419e] text-white font-bold text-sm shadow-md transition-all cursor-pointer"
                   >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
+                    {enrolling ? 'Enrolling...' : 'Enroll for Free'}
+                  </button>
 
-            {/* Details to Know Grid (Coursera Style 4 Details) */}
-            <div className="pt-6 border-t border-slate-100">
-              <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">
-                Details to know
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="flex items-start gap-3">
-                  <Certificate size={22} className="text-blue-600 shrink-0 mt-0.5" weight="duotone" />
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-900">Shareable Certificate</h4>
-                    <p className="text-[11px] text-slate-500 mt-0.5">Add directly to your LinkedIn profile and resume</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Laptop size={22} className="text-blue-600 shrink-0 mt-0.5" weight="duotone" />
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-900">100% Online &amp; Flexible</h4>
-                    <p className="text-[11px] text-slate-500 mt-0.5">Structured self-paced modules and project reviews</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Clock size={22} className="text-blue-600 shrink-0 mt-0.5" weight="duotone" />
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-900">Flexible Schedule</h4>
-                    <p className="text-[11px] text-slate-500 mt-0.5">Learn alongside full-time college study or work</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Globe size={22} className="text-blue-600 shrink-0 mt-0.5" weight="duotone" />
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-900">English &amp; Bilingual</h4>
-                    <p className="text-[11px] text-slate-500 mt-0.5">English curriculum with bilingual Q&amp;A support</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* ─── SECTION 2: HIRING COMPANIES BANNER ─────────────────────── */}
-          <section className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/90 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="max-w-md text-center md:text-left">
-              <h3 className="text-sm sm:text-base font-bold text-slate-900">
-                See how employees at top companies are mastering in-demand skills
-              </h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Alumni from this program work at tier-1 product companies and hyper-growth tech startups.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 opacity-80">
-              {['razorpay', 'swiggy', 'amazon', 'infosys', 'cred'].map((slug) => (
-                <img
-                  key={slug}
-                  src={`https://cdn.simpleicons.org/${slug}/0F172A`}
-                  alt={slug}
-                  className="h-5 sm:h-6 w-auto object-contain grayscale hover:grayscale-0 transition-all opacity-75 hover:opacity-100"
-                  loading="lazy"
-                  decoding="async"
-                />
-              ))}
-            </div>
-          </section>
-
-          {/* ─── SECTION 3: BUILD EXPERTISE WITH HANDS-ON LEARNING ──────── */}
-          <section id="outcomes" className="scroll-mt-36 bg-white rounded-2xl p-6 md:p-10 border border-slate-200/90 shadow-2xs">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-              <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 block mb-2">
-                  Applied Learning
-                </span>
-                <h2 className="text-2xl sm:text-3xl font-bold font-['Plus_Jakarta_Sans'] text-slate-900 leading-tight mb-4">
-                  Build your expertise with hands-on capstone projects
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6">
-                  You will not just watch recorded lectures. Every module includes interactive code labs, architecture design challenges, and real-world pull request reviews led by senior software engineers.
-                </p>
-
-                <div className="space-y-3.5 mb-6">
-                  <div className="flex items-start gap-3">
-                    <CheckCircle size={18} weight="fill" className="text-blue-600 shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-900">Production Code Reviews</h4>
-                      <p className="text-[11px] text-slate-500">Every assignment receives line-by-line feedback on clean code, edge cases, and performance.</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <CheckCircle size={18} weight="fill" className="text-blue-600 shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-900">Public GitHub Portfolio</h4>
-                      <p className="text-[11px] text-slate-500">Graduate with live hosted applications and verifiable GitHub repositories recruiters praise.</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <CheckCircle size={18} weight="fill" className="text-blue-600 shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-900">Direct Senior Engineering Mentorship</h4>
-                      <p className="text-[11px] text-slate-500">Get unblocked anytime with dedicated mock interviews and technical guidance.</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4">
                   <button
                     type="button"
                     onClick={() => setDemoModalOpen(true)}
-                    className="px-5 py-2.5 rounded-xl bg-blue-50 text-[#0056D2] hover:bg-blue-100 font-bold text-xs sm:text-sm border border-blue-200 transition-colors cursor-pointer"
+                    className="w-full py-3 px-4 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-800 font-bold text-xs transition-colors cursor-pointer"
                   >
-                    Schedule Academic Consultation →
+                    Schedule Free 1-on-1 Academic Consultation
                   </button>
+                  <p className="text-[11px] text-center text-slate-500">
+                    30-Day Money-Back Guarantee • Lifetime Access
+                  </p>
                 </div>
               </div>
 
-              {/* Right Side Image */}
-              <div className="rounded-2xl overflow-hidden border border-slate-200/80 shadow-md aspect-16/10 sm:aspect-16/11 bg-slate-100 relative">
-                <img
-                  src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=900&auto=format&fit=crop&q=80"
-                  alt="Student coding on laptop with modern workspace"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-            </div>
-          </section>
+              {/* ─────────────────────────────────────────────────────────────
+                  SECTION 1: "WHAT YOU'LL LEARN" (Udemy Reference Box)
+                 ───────────────────────────────────────────────────────────── */}
+              <section
+                id="overview"
+                className="scroll-mt-36 p-6 sm:p-7 rounded-xl border border-slate-200 bg-white shadow-2xs space-y-4"
+              >
+                <h2 className="text-xl sm:text-2xl font-bold font-['Plus_Jakarta_Sans'] text-slate-900">
+                  What you&apos;ll learn
+                </h2>
 
-          {/* ─── SECTION 4: COURSE SYLLABUS & MODULES (id="modules") ─────── */}
-          <section id="modules" className="scroll-mt-36">
-            <div className="mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold font-['Plus_Jakarta_Sans'] text-slate-900">
-                Course syllabus &amp; modules
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                There are {syllabus.length} comprehensive modules in this program.
-              </p>
-            </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+                  {[
+                    `Master ${course.title} from core foundations to production-grade architectural patterns.`,
+                    'Build and ship real-world portfolio applications with clean, modular, and maintainable code.',
+                    'Design scalable APIs, relational database schemas, migrations, and caching strategies.',
+                    'Implement modern security protocols, OAuth 2.0 / JWT session authentication, and OWASP defenses.',
+                    'Containerize services with Docker and establish automated CI/CD deployment pipelines on AWS / Cloud.',
+                    'Receive 1:1 senior engineering pull request code reviews and direct tech placement referrals.',
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <Check size={16} weight="bold" className="text-slate-800 shrink-0 mt-0.5" />
+                      <span className="text-xs sm:text-sm text-slate-700 leading-snug">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-              {/* Left 2 Cols: Accordion Modules */}
-              <div className="lg:col-span-2 space-y-3">
-                {syllabus.map((mod: (typeof DEFAULT_SYLLABUS)[number], index: number) => {
-                  const isOpen = openModuleIndex === index
-                  return (
-                    <div
-                      key={index}
-                      className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs transition-colors"
+              {/* ─────────────────────────────────────────────────────────────
+                  SECTION 2: "EXPLORE RELATED TOPICS" (Pill Tags)
+                 ───────────────────────────────────────────────────────────── */}
+              <div className="space-y-3">
+                <h3 className="text-base sm:text-lg font-bold font-['Plus_Jakarta_Sans'] text-slate-900">
+                  Explore related topics
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    course.category,
+                    'Full Stack Development',
+                    'System Design',
+                    'REST APIs',
+                    'TypeScript & React',
+                    'PostgreSQL & Databases',
+                    'Cloud Deployment & DevOps',
+                    'Coding Interviews',
+                  ].map((topic, tidx) => (
+                    <Link
+                      key={tidx}
+                      href={`/courses?category=${encodeURIComponent(topic)}`}
+                      className="px-3.5 py-1.5 rounded-full border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-colors"
                     >
+                      {topic}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* ─────────────────────────────────────────────────────────────
+                  SECTION 3: "TOP COMPANIES OFFER THIS COURSE" (Enterprise Endorsement)
+                 ───────────────────────────────────────────────────────────── */}
+              <div className="p-5 sm:p-6 rounded-xl border border-slate-200 bg-slate-50/70 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                      Top companies offer this course to their engineering teams
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Alumni and professionals from leading tech enterprises build skills with CareerCatch.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-6 sm:gap-8 pt-2 opacity-80">
+                  {['razorpay', 'swiggy', 'amazon', 'infosys', 'cred'].map((slug) => (
+                    <img
+                      key={slug}
+                      src={`https://cdn.simpleicons.org/${slug}/0F172A`}
+                      alt={slug}
+                      className="h-5 sm:h-6 w-auto object-contain grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100"
+                      loading="lazy"
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* ─────────────────────────────────────────────────────────────
+                  SECTION 4: "COURSE CONTENT" (Accordion with Smooth Dropdowns & Lecture Descriptions)
+                 ───────────────────────────────────────────────────────────── */}
+              <section id="curriculum" className="scroll-mt-36 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 pb-1">
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-bold font-['Plus_Jakarta_Sans'] text-slate-900">
+                      Course content
+                    </h2>
+                    <div className="text-xs sm:text-sm text-slate-600 mt-1 flex items-center gap-1.5 flex-wrap">
+                      <span>{syllabus.length} sections</span>
+                      <span>•</span>
+                      <span>{totalLectures} lectures</span>
+                      <span>•</span>
+                      <span>{course.duration || '48 Hours'} total length</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={toggleAllSections}
+                    className="text-xs sm:text-sm font-bold text-[#0056D2] hover:underline cursor-pointer self-start sm:self-auto"
+                  >
+                    {openSections.size === syllabus.length
+                      ? 'Collapse all sections'
+                      : 'Expand all sections'}
+                  </button>
+                </div>
+
+                {/* Accordion Sections List */}
+                <div className="border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-200 bg-white shadow-2xs">
+                  {syllabus.map((section, sidx) => {
+                    const isOpen = openSections.has(sidx)
+                    const lectureList = section.lectures || []
+                    const lecturesCount = lectureList.length || section.lecturesCount || 5
+
+                    return (
+                      <div key={sidx} className="bg-white transition-all duration-200">
+                        {/* Section Header Button */}
+                        <button
+                          type="button"
+                          onClick={() => toggleSection(sidx)}
+                          className="w-full flex items-center justify-between p-4 sm:p-4.5 bg-slate-50/70 hover:bg-slate-100/90 text-left transition-colors cursor-pointer select-none"
+                        >
+                          <div className="flex items-center gap-3 pr-4 min-w-0">
+                            {isOpen ? (
+                              <CaretUp size={16} weight="bold" className="text-slate-700 shrink-0" />
+                            ) : (
+                              <CaretDown size={16} weight="bold" className="text-slate-700 shrink-0" />
+                            )}
+                            <span className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                              {section.module}
+                            </span>
+                          </div>
+
+                          <div className="shrink-0 text-right text-xs text-slate-500 font-medium whitespace-nowrap">
+                            <span>{lecturesCount} lectures</span>
+                            <span className="hidden sm:inline"> • {section.duration || '3h 30m'}</span>
+                          </div>
+                        </button>
+
+                        {/* Section Lectures List with Smooth Expand Animation */}
+                        {isOpen && (
+                          <div className="divide-y divide-slate-100 px-4 sm:px-6 py-2 bg-white transition-all duration-300">
+                            {lectureList.map((lec) => {
+                              const isLectureExpanded = openLectures.has(lec.id)
+                              return (
+                                <div key={lec.id} className="py-2.5 transition-colors">
+                                  {/* Lecture Row Trigger */}
+                                  <div
+                                    onClick={() => toggleLecture(lec.id)}
+                                    className="flex items-center justify-between gap-3 text-xs sm:text-sm cursor-pointer hover:text-[#0056D2] group select-none py-1"
+                                  >
+                                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                                      <div className="w-5 h-5 rounded flex items-center justify-center text-slate-500 group-hover:text-[#0056D2] shrink-0">
+                                        <VideoCamera size={15} weight="duotone" />
+                                      </div>
+                                      <span className="text-slate-800 group-hover:text-[#0056D2] font-medium truncate">
+                                        {lec.title}
+                                      </span>
+                                      {/* Expand/Collapse Caret indicator for lecture description */}
+                                      <span className="text-slate-400 group-hover:text-[#0056D2] shrink-0">
+                                        {isLectureExpanded ? (
+                                          <CaretUp size={12} weight="bold" />
+                                        ) : (
+                                          <CaretDown size={12} weight="bold" />
+                                        )}
+                                      </span>
+                                    </div>
+
+                                    <div className="shrink-0 flex items-center gap-3 text-xs">
+                                      {lec.preview && (
+                                        <button
+                                          type="button"
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleOpenPreview(lec.title)
+                                          }}
+                                          className="text-xs font-bold text-[#0056D2] hover:underline cursor-pointer px-1 py-0.5 rounded hover:bg-blue-50"
+                                        >
+                                          Preview
+                                        </button>
+                                      )}
+                                      <span className="text-slate-400 font-medium">{lec.duration}</span>
+                                    </div>
+                                  </div>
+
+                                  {/* Expandable Lecture Description (Matches user screenshot: smooth dropdown with heading & description) */}
+                                  {isLectureExpanded && (
+                                    <div className="mt-2 ml-7 mr-2 p-3.5 rounded-lg bg-slate-50/90 border border-slate-100 text-xs text-slate-600 leading-relaxed space-y-2 animate-fadeIn transition-all">
+                                      <p className="text-slate-700">{lec.description}</p>
+                                      {lec.preview && (
+                                        <div className="pt-1">
+                                          <button
+                                            type="button"
+                                            onClick={() => handleOpenPreview(lec.title)}
+                                            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0056D2] hover:underline cursor-pointer"
+                                          >
+                                            <Play size={12} weight="fill" />
+                                            <span>Watch Video Lecture Preview ({lec.duration})</span>
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
+
+                            {/* Practical Deliverable / Code Lab Note */}
+                            {section.exercise && (
+                              <div className="py-2.5 my-2 px-3 rounded-lg bg-blue-50/80 border border-blue-100 text-xs text-blue-900 flex items-start gap-2">
+                                <Code size={15} className="text-[#0056D2] shrink-0 mt-0.5" />
+                                <span>
+                                  <strong>Deliverable:</strong> {section.exercise}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+
+              {/* ─────────────────────────────────────────────────────────────
+                  SECTION 5: "REQUIREMENTS"
+                 ───────────────────────────────────────────────────────────── */}
+              <div className="space-y-3">
+                <h2 className="text-xl sm:text-2xl font-bold font-['Plus_Jakarta_Sans'] text-slate-900">
+                  Requirements
+                </h2>
+                <ul className="space-y-2 text-xs sm:text-sm text-slate-700">
+                  <li className="flex items-start gap-2.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-800 shrink-0 mt-2" />
+                    <span>A computer (Windows, Mac, or Linux) with an active internet connection.</span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-800 shrink-0 mt-2" />
+                    <span>No prior advanced programming experience required — we start from first principles.</span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-800 shrink-0 mt-2" />
+                    <span>All tools, software, databases, and libraries used in this course are free and open source.</span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-800 shrink-0 mt-2" />
+                    <span>Willingness to dedicate 6–8 hours per week to hands-on coding exercises and project capstones.</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* ─────────────────────────────────────────────────────────────
+                  SECTION 6: "DESCRIPTION" (Rich Text with Show More)
+                 ───────────────────────────────────────────────────────────── */}
+              <div className="space-y-3">
+                <h2 className="text-xl sm:text-2xl font-bold font-['Plus_Jakarta_Sans'] text-slate-900">
+                  Description
+                </h2>
+
+                <div
+                  className={`text-xs sm:text-sm text-slate-700 leading-relaxed space-y-3 ${
+                    !descriptionExpanded ? 'line-clamp-6' : ''
+                  }`}
+                >
+                  <p>
+                    Welcome to <strong>{course.title}</strong>, an intensive career-launchpad program built specifically for aspiring engineers, computer science students, and career switchers wanting to build production software.
+                  </p>
+                  <p>
+                    Unlike generic tutorial courses that only cover theoretical syntax, this track is completely centered around <strong>building and shipping real production systems</strong>. You will design database schemas, write modular RESTful APIs, configure Docker containers, and set up continuous integration pipelines.
+                  </p>
+                  <p>
+                    Throughout the program, senior engineering mentors from Tier-1 product tech companies review your GitHub pull requests, conduct simulated technical interviews, and guide your capstone portfolio projects so you graduate with verifiable proof of work.
+                  </p>
+                  <p>
+                    <strong>Who this course is for:</strong>
+                  </p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>College students (B.Tech, BCA, MCA, B.Sc) aiming for high-paying product company placements.</li>
+                    <li>Frontend developers wanting to transition into high-scale Full Stack engineering.</li>
+                    <li>Professionals seeking to upskill into modern architectures, cloud deployment, and system design.</li>
+                  </ul>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setDescriptionExpanded(!descriptionExpanded)}
+                  className="text-xs sm:text-sm font-bold text-[#0056D2] hover:underline flex items-center gap-1 cursor-pointer pt-1"
+                >
+                  <span>{descriptionExpanded ? 'Show less' : 'Show more'}</span>
+                  {descriptionExpanded ? <CaretUp size={14} /> : <CaretDown size={14} />}
+                </button>
+              </div>
+
+              {/* ─────────────────────────────────────────────────────────────
+                  SECTION 7: "STUDENTS ALSO BOUGHT" (Udemy Reference Course List)
+                 ───────────────────────────────────────────────────────────── */}
+              <div className="space-y-4">
+                <h2 className="text-xl sm:text-2xl font-bold font-['Plus_Jakarta_Sans'] text-slate-900">
+                  Students also bought
+                </h2>
+
+                <div className="divide-y divide-slate-200 border-y border-slate-200">
+                  {relatedCourses.map((rel) => {
+                    const isWishlisted = Boolean(wishlist[rel.id])
+                    return (
+                      <div
+                        key={rel.id}
+                        className="py-3.5 flex items-center justify-between gap-4 group hover:bg-slate-50/70 -mx-3 px-3 rounded transition-colors"
+                      >
+                        <Link
+                          href={`/courses/${rel.slug}`}
+                          className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1"
+                        >
+                          <img
+                            src={rel.thumbnail || '/images/courses/fullstack-web.jpg'}
+                            alt={rel.title}
+                            className="w-16 h-16 sm:w-20 sm:h-14 rounded object-cover shrink-0 bg-slate-100"
+                            loading="lazy"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#0056D2] transition-colors truncate">
+                              {rel.title}
+                            </h3>
+                            <div className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-2 flex-wrap">
+                              <span className="font-bold text-amber-500 flex items-center gap-0.5">
+                                <Star size={12} weight="fill" />
+                                {rel.rating}
+                              </span>
+                              <span>•</span>
+                              <span>{rel.duration}</span>
+                              <span className="hidden sm:inline">•</span>
+                              <span className="hidden sm:inline">Updated Nov 2026</span>
+                            </div>
+                          </div>
+                        </Link>
+
+                        <div className="flex items-center gap-4 shrink-0">
+                          <div className="text-right">
+                            <div className="text-xs sm:text-sm font-extrabold text-slate-900">
+                              ₹{rel.price.toLocaleString('en-IN')}
+                            </div>
+                            <div className="text-[11px] text-slate-400 line-through">
+                              ₹{(rel.originalPrice || rel.price * 2).toLocaleString('en-IN')}
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => toggleWishlist(rel.id)}
+                            className={`p-2 rounded-full border transition-colors cursor-pointer ${
+                              isWishlisted
+                                ? 'border-rose-300 bg-rose-50 text-rose-600'
+                                : 'border-slate-300 text-slate-400 hover:text-slate-700 hover:border-slate-400'
+                            }`}
+                            title={isWishlisted ? 'Saved to Wishlist' : 'Add to Wishlist'}
+                          >
+                            <Heart size={16} weight={isWishlisted ? 'fill' : 'regular'} />
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* ─────────────────────────────────────────────────────────────
+                  SECTION 8: "FREQUENTLY BOUGHT TOGETHER" (Bundle Card)
+                 ───────────────────────────────────────────────────────────── */}
+              {relatedCourses.length >= 2 && (
+                <div className="p-5 sm:p-6 rounded-xl border border-slate-200 bg-white space-y-4 shadow-2xs">
+                  <h3 className="text-lg font-bold font-['Plus_Jakarta_Sans'] text-slate-900">
+                    Frequently Bought Together
+                  </h3>
+
+                  <div className="flex flex-col sm:flex-row items-center gap-4">
+                    {/* Course Thumbnails Row */}
+                    <div className="flex items-center gap-2">
+                      <div className="w-20 h-14 rounded overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                        <img
+                          src={course.thumbnail || '/images/courses/fullstack-web.jpg'}
+                          alt={course.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <span className="text-xl font-bold text-slate-400">+</span>
+                      <div className="w-20 h-14 rounded overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                        <img
+                          src={relatedCourses[0].thumbnail || '/images/courses/fullstack-web.jpg'}
+                          alt={relatedCourses[0].title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <span className="text-xl font-bold text-slate-400">+</span>
+                      <div className="w-20 h-14 rounded overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                        <img
+                          src={relatedCourses[1].thumbnail || '/images/courses/fullstack-web.jpg'}
+                          alt={relatedCourses[1].title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="sm:ml-auto text-center sm:text-right">
+                      <div className="text-xs text-slate-500">Total price:</div>
+                      <div className="text-xl font-extrabold text-slate-900">
+                        ₹{(course.price + relatedCourses[0].price + relatedCourses[1].price).toLocaleString('en-IN')}
+                      </div>
                       <button
                         type="button"
-                        onClick={() => setOpenModuleIndex(isOpen ? null : index)}
-                        className="w-full flex items-center justify-between p-4 sm:p-5 bg-white hover:bg-slate-50/80 text-left transition-colors cursor-pointer"
+                        onClick={handleEnrollClick}
+                        className="mt-2 px-5 py-2 rounded-lg bg-[#0056D2] hover:bg-[#00419e] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
                       >
-                        <div>
-                          <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider block mb-1">
-                            {mod.weeks || `Module ${index + 1}`}
-                          </span>
-                          <span className="text-sm sm:text-base font-bold text-slate-900">
-                            {mod.module}
-                          </span>
-                        </div>
-                        {isOpen ? (
-                          <CaretUp size={18} className="text-slate-500 shrink-0 ml-3" />
-                        ) : (
-                          <CaretDown size={18} className="text-slate-500 shrink-0 ml-3" />
-                        )}
+                        Enroll All Three Tracks
                       </button>
-
-                      {isOpen && (
-                        <div className="p-4 sm:p-5 bg-slate-50/50 border-t border-slate-200 space-y-3.5">
-                          <ul className="space-y-2">
-                            {(mod.topics || []).map((topic: string, tidx: number) => (
-                              <li key={tidx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700">
-                                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0 mt-1.5" />
-                                <span>{topic}</span>
-                              </li>
-                            ))}
-                          </ul>
-                          {mod.exercise && (
-                            <div className="mt-3 p-3 rounded-lg bg-blue-50/70 border border-blue-100 text-xs text-blue-900 flex items-start gap-2">
-                              <Code size={16} className="text-blue-600 shrink-0 mt-0.5" />
-                              <span>
-                                <strong>Practical Deliverable:</strong> {mod.exercise}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </div>
-                  )
-                })}
-              </div>
+                  </div>
+                </div>
+              )}
 
-              {/* Right Col: Instructor & Offered By Sidebar */}
-              <div className="lg:col-span-1 space-y-5">
-                {/* Instructor Card */}
-                <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-2xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-3">
-                    Instructor
-                  </span>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+              {/* ─────────────────────────────────────────────────────────────
+                  SECTION 9: "INSTRUCTOR" (Udemy Reference Profile)
+                 ───────────────────────────────────────────────────────────── */}
+              <section id="instructor" className="scroll-mt-36 space-y-4">
+                <h2 className="text-xl sm:text-2xl font-bold font-['Plus_Jakarta_Sans'] text-slate-900">
+                  Instructor
+                </h2>
+
+                <div className="space-y-3">
+                  <div>
+                    <h3 className="text-base sm:text-lg font-bold text-[#0056D2] hover:underline cursor-pointer">
+                      {course.instructor}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-500">
+                      Staff Software Engineer &amp; Engineering Placement Mentor
+                    </p>
+                  </div>
+
+                  {/* Instructor Stats & Avatar */}
+                  <div className="flex items-center gap-4">
+                    <div className="w-20 h-20 rounded-full overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
                       {course.instructorAvatar ? (
                         <img
                           src={course.instructorAvatar}
