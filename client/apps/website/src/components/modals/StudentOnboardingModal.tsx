@@ -280,24 +280,19 @@ export function StudentOnboardingModal({
     markCompleted()
 
     try {
+      const goalVal = selectedGoal ? selectedGoal.trim() : null
+      const roleVal = selectedRole ? selectedRole.trim() : null
+
       // Build profile update payload
       const payload: Partial<StudentProfile> = {
-        interestedCourse: selectedGoal || currentProfile?.interestedCourse || null,
-        desiredRoles: selectedGoal ? [selectedGoal] : currentProfile?.desiredRoles || [],
-        skills: selectedSkills.length > 0 ? selectedSkills : currentProfile?.skills || [],
-        currentRole: selectedRole || currentProfile?.currentRole || null,
-        education: selectedEducation || currentProfile?.education || null,
+        interestedCourse: goalVal,
+        desiredRoles: goalVal ? [goalVal] : [],
+        skills: selectedSkills,
+        currentRole: roleVal,
+        education: selectedEducation ? selectedEducation.trim() : null,
       }
 
-      // If user provided any input, persist to database
-      const hasAnyInput = Boolean(
-        selectedGoal ||
-          selectedSkills.length > 0 ||
-          selectedRole ||
-          selectedEducation
-      )
-
-      if (hasAnyInput && !isSkippingCurrent) {
+      if (!isSkippingCurrent) {
         const updated = await apiService.updateStudentProfile(payload)
         onSaved?.(updated)
       } else if (currentProfile) {
