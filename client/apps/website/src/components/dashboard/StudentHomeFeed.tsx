@@ -455,6 +455,508 @@ function HorizontalCoursesRow({
 }
 
 // ─── Visual Partner Badge Helper ─────────────────────────────────────────────
+function getPartnerBadge(partner?: string) {
+  if (!partner) return { label: 'CareerCatch', bg: 'bg-blue-50 text-[#0056D2]' }
+  const p = partner.toLowerCase()
+  if (p.includes('google')) return { label: 'Google', bg: 'bg-red-50 text-red-600 font-bold' }
+  if (p.includes('ibm')) return { label: 'IBM', bg: 'bg-indigo-50 text-indigo-700 font-bold' }
+  if (p.includes('michigan')) return { label: 'Univ of Michigan', bg: 'bg-amber-50 text-amber-800 font-bold' }
+  if (p.includes('deeplearning')) return { label: 'DeepLearning.AI', bg: 'bg-purple-50 text-purple-700 font-bold' }
+  return { label: partner, bg: 'bg-slate-100 text-slate-700 font-semibold' }
+}
+
+// ─── Data Constants for Rich Featured Shelves ────────────────────────────────
+const DOMAIN_CARDS = [
+  {
+    id: 'cloud-devops',
+    title: 'Cloud Computing & DevOps Architecture',
+    partner: 'CareerCatch',
+    thumbnail: '/images/courses/cloud-aws.jpg',
+    category: 'Cloud Computing',
+    type: 'Professional Certificate',
+    badge: 'Trending right now',
+    badgeColor: 'bg-rose-50 text-rose-700 border-rose-200',
+    slug: 'cloud-computing-aws',
+    price: 5499,
+    originalPrice: 10999,
+  },
+  {
+    id: 'fullstack-web',
+    title: 'Full Stack Web & Distributed Systems',
+    partner: 'CareerCatch',
+    thumbnail: '/images/courses/fullstack-web.jpg',
+    category: 'Full Stack',
+    type: 'Professional Certificate',
+    badge: 'Bestseller',
+    badgeColor: 'bg-amber-50 text-amber-800 border-amber-200',
+    slug: 'full-stack-web-development',
+    price: 4999,
+    originalPrice: 9999,
+  },
+  {
+    id: 'uiux-design',
+    title: 'UI/UX Design Systems Masterclass',
+    partner: 'CareerCatch',
+    thumbnail: '/images/courses/uiux-design.jpg',
+    category: 'UI/UX Design',
+    type: 'Professional Certificate',
+    badge: 'Recently updated',
+    badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    slug: 'uiux-design-masterclass',
+    price: 3999,
+    originalPrice: 7999,
+  },
+  {
+    id: 'ai-ml',
+    title: 'Data Science & Machine Learning Systems',
+    partner: 'CareerCatch',
+    thumbnail: '/images/courses/datascience-ai.jpg',
+    category: 'Data Science',
+    type: 'Specialization',
+    badge: 'Top AI program',
+    badgeColor: 'bg-purple-50 text-purple-800 border-purple-200',
+    slug: 'data-science-machine-learning',
+    price: 5999,
+    originalPrice: 11999,
+  },
+  {
+    id: 'cybersecurity',
+    title: 'Cybersecurity & Threat Defense Architecture',
+    partner: 'CareerCatch',
+    thumbnail: '/images/courses/cloud-aws.jpg',
+    category: 'Cybersecurity',
+    type: 'Professional Certificate',
+    badge: 'High demand',
+    badgeColor: 'bg-teal-50 text-teal-800 border-teal-200',
+    slug: 'cloud-computing-aws',
+    price: 5299,
+    originalPrice: 10499,
+  },
+  {
+    id: 'mobile-dev',
+    title: 'Mobile App Engineering & Cross-Platform',
+    partner: 'CareerCatch',
+    thumbnail: '/images/courses/react-node.jpg',
+    category: 'Mobile Development',
+    type: 'Professional Certificate',
+    badge: 'High growth',
+    badgeColor: 'bg-indigo-50 text-indigo-800 border-indigo-200',
+    slug: 'react-node-advanced',
+    price: 4799,
+    originalPrice: 9599,
+  },
+  {
+    id: 'devops-eng',
+    title: 'Enterprise DevOps & CI/CD Pipelines',
+    partner: 'CareerCatch',
+    thumbnail: '/images/courses/devops-cicd.jpg',
+    category: 'DevOps',
+    type: 'Professional Certificate',
+    badge: 'Enterprise favorite',
+    badgeColor: 'bg-sky-50 text-sky-800 border-sky-200',
+    slug: 'devops-cicd-pipeline',
+    price: 4499,
+    originalPrice: 8999,
+  },
+]
+
+function isUserDomainCard(
+  card: typeof DOMAIN_CARDS[number],
+  userRoles: string[],
+  userSkills: string[] = []
+): boolean {
+  const combinedUserText = [
+    ...(userRoles || []),
+    ...(userSkills || []),
+  ].join(' ').toLowerCase()
+
+  if (!combinedUserText.trim()) return false
+
+  const catLower = card.category.toLowerCase()
+  const titleLower = card.title.toLowerCase()
+
+  // 1. Cloud & AWS
+  if (
+    combinedUserText.includes('cloud') ||
+    combinedUserText.includes('aws') ||
+    combinedUserText.includes('azure') ||
+    combinedUserText.includes('gcp')
+  ) {
+    if (catLower.includes('cloud') || titleLower.includes('cloud') || titleLower.includes('aws')) {
+      return true
+    }
+  }
+
+  // 2. DevOps & SRE
+  if (
+    combinedUserText.includes('devops') ||
+    combinedUserText.includes('sre') ||
+    combinedUserText.includes('ci/cd') ||
+    combinedUserText.includes('kubernetes') ||
+    combinedUserText.includes('terraform')
+  ) {
+    if (catLower.includes('devops') || titleLower.includes('devops')) {
+      return true
+    }
+  }
+
+  // 3. Full Stack / Web Development / Frontend / Backend
+  if (
+    combinedUserText.includes('full stack') ||
+    combinedUserText.includes('fullstack') ||
+    combinedUserText.includes('web dev') ||
+    combinedUserText.includes('frontend') ||
+    combinedUserText.includes('backend') ||
+    combinedUserText.includes('software engineer') ||
+    combinedUserText.includes('software developer') ||
+    combinedUserText.includes('react') ||
+    combinedUserText.includes('node')
+  ) {
+    if (catLower.includes('full stack') || titleLower.includes('full stack') || titleLower.includes('web')) {
+      return true
+    }
+  }
+
+  // 4. UI/UX Design
+  if (
+    combinedUserText.includes('design') ||
+    combinedUserText.includes('ui/ux') ||
+    combinedUserText.includes('ui ') ||
+    combinedUserText.includes('ux ') ||
+    combinedUserText.includes('figma') ||
+    combinedUserText.includes('product designer')
+  ) {
+    if (catLower.includes('design') || catLower.includes('ui/ux') || titleLower.includes('design')) {
+      return true
+    }
+  }
+
+  // 5. Data Science / AI / ML
+  if (
+    combinedUserText.includes('data science') ||
+    combinedUserText.includes('machine learning') ||
+    combinedUserText.includes('deep learning') ||
+    combinedUserText.includes('ai ') ||
+    combinedUserText.includes('data analyst') ||
+    combinedUserText.includes('data engineer')
+  ) {
+    if (catLower.includes('data') || titleLower.includes('data') || catLower.includes('ai') || titleLower.includes('machine learning')) {
+      return true
+    }
+  }
+
+  // 6. Cybersecurity
+  if (
+    combinedUserText.includes('cyber') ||
+    combinedUserText.includes('security') ||
+    combinedUserText.includes('penetration') ||
+    combinedUserText.includes('ethical hack')
+  ) {
+    if (catLower.includes('cyber') || catLower.includes('security') || titleLower.includes('cybersecurity')) {
+      return true
+    }
+  }
+
+  // 7. Mobile Development
+  if (
+    combinedUserText.includes('mobile') ||
+    combinedUserText.includes('android') ||
+    combinedUserText.includes('ios') ||
+    combinedUserText.includes('flutter') ||
+    combinedUserText.includes('react native')
+  ) {
+    if (catLower.includes('mobile') || titleLower.includes('mobile')) {
+      return true
+    }
+  }
+
+  // 8. Direct matching with category
+  if (catLower && userRoles.some((r) => r.toLowerCase().includes(catLower))) {
+    return true
+  }
+
+  return false
+}
+
+const INSTITUTION_CARDS = [
+  {
+    id: 'umich-python',
+    institution: 'University of Michigan',
+    title: 'Python for Everybody Specialization',
+    credentialType: 'Degree Track Foundation',
+    thumbnail: '/images/courses/datascience-ai.jpg',
+    slug: 'programming-for-everybody-python',
+    rating: 4.8,
+    reviews: '43.2k',
+  },
+  {
+    id: 'google-analytics',
+    institution: 'Google Career Certificates',
+    title: 'Google Data Analytics Professional Certificate',
+    credentialType: 'Professional Certificate',
+    thumbnail: '/images/courses/datascience-ai.jpg',
+    slug: 'google-data-analytics',
+    rating: 4.8,
+    reviews: '142k',
+  },
+  {
+    id: 'ibm-ds',
+    institution: 'IBM Career Academy',
+    title: 'IBM Data Science & AI Professional Certificate',
+    credentialType: 'Professional Certificate',
+    thumbnail: '/images/courses/datascience-ai.jpg',
+    slug: 'ibm-data-science',
+    rating: 4.7,
+    reviews: '69.4k',
+  },
+  {
+    id: 'deeplearning-ml',
+    institution: 'DeepLearning.AI',
+    title: 'Machine Learning Specialization by Andrew Ng',
+    credentialType: 'Specialization',
+    thumbnail: '/images/courses/datascience-ai.jpg',
+    slug: 'machine-learning-specialization',
+    rating: 4.9,
+    reviews: '19.8k',
+  },
+]
+
+const TRENDING_SKILLS_PILLS = [
+  'All Skills',
+  'AI Literacy',
+  'Responsible AI',
+  'Generative AI',
+  'Artificial Intelligence',
+  'Prompt Engineering',
+  'Cloud Architecture',
+  'Full Stack Next.js',
+  'System Design',
+  'Docker & Kubernetes',
+  'PostgreSQL',
+]
+
+const EXPLORE_CATEGORIES = [
+  { name: 'All Categories', icon: Sparkle },
+  { name: 'Full Stack', icon: Code },
+  { name: 'Data Science & AI', icon: ChartLine },
+  { name: 'Cloud Computing', icon: Lightning },
+  { name: 'DevOps', icon: Cpu },
+  { name: 'UI/UX Design', icon: Palette },
+  { name: 'Cybersecurity', icon: ShieldCheck },
+  { name: 'Mobile Development', icon: Desktop },
+]
+
+
+
+
+// ─── 3. Explore Domains Blue Shelf (Image 3) ──────────────────────────────────
+function ExploreDomainsBlueShelf({
+  targetRoles = [],
+  primaryRole = '',
+  userSkills = [],
+  courses = [],
+}: {
+  targetRoles?: string[]
+  primaryRole?: string
+  userSkills?: string[]
+  courses?: Course[]
+}) {
+  // Deterministic initial list to prevent SSR hydration flicker
+  const initialCards = useMemo(() => {
+    const filtered = DOMAIN_CARDS.filter((card) => !isUserDomainCard(card, targetRoles, userSkills))
+    return (filtered.length >= 2 ? filtered : DOMAIN_CARDS).slice(0, 4)
+  }, [targetRoles, userSkills])
+
+  const [displayedDomainCards, setDisplayedDomainCards] = useState<typeof DOMAIN_CARDS>(initialCards)
+
+  // On page load or refresh, dynamically rotate across live courses in other domains
+  useEffect(() => {
+    // 1. Filter out courses belonging to user's profession
+    const otherCourses = (courses || []).filter((c) => {
+      const dummyCard = {
+        id: String(c.id),
+        title: c.title,
+        partner: c.partner || 'CareerCatch',
+        thumbnail: c.thumbnail || '/images/courses/fullstack-web.jpg',
+        category: c.category || 'General',
+        type: c.certificateType || 'Professional Certificate',
+        badge: c.level === 'Advanced' ? 'Advanced' : 'Trending',
+        badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
+        slug: c.slug || String(c.id),
+        price: c.price || 4999,
+        originalPrice: c.originalPrice || (c.price ? Math.round(c.price * 1.8) : 9999),
+      }
+      return !isUserDomainCard(dummyCard, targetRoles, userSkills)
+    })
+
+    if (otherCourses.length >= 2) {
+      // Group by category to pick diverse domains
+      const byCat: Record<string, Course[]> = {}
+      for (const c of otherCourses) {
+        const cat = c.category || 'General'
+        if (!byCat[cat]) byCat[cat] = []
+        byCat[cat].push(c)
+      }
+
+      // Pick 1 random course from each available category
+      const catKeys = Object.keys(byCat).sort(() => 0.5 - Math.random())
+      const chosen: typeof DOMAIN_CARDS = []
+      const pickedCourseIds = new Set<string>()
+
+      for (const cat of catKeys) {
+        const catList = byCat[cat]
+        const randomCourse = catList[Math.floor(Math.random() * catList.length)]
+        if (randomCourse) {
+          pickedCourseIds.add(String(randomCourse.id))
+          chosen.push({
+            id: String(randomCourse.id),
+            title: randomCourse.title,
+            partner: randomCourse.partner || 'CareerCatch',
+            thumbnail: randomCourse.thumbnail || '/images/courses/fullstack-web.jpg',
+            category: randomCourse.category || cat,
+            type: randomCourse.certificateType || 'Professional Certificate',
+            badge: randomCourse.level === 'Advanced' ? 'Advanced track' : 'Trending',
+            badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
+            slug: randomCourse.slug || String(randomCourse.id),
+            price: randomCourse.price || 4999,
+            originalPrice: randomCourse.originalPrice || (randomCourse.price ? Math.round(randomCourse.price * 1.8) : 9999),
+          })
+        }
+        if (chosen.length >= 4) break
+      }
+
+      // If fewer than 4 categories exist, fill up with remaining non-user courses randomly
+      if (chosen.length < 4) {
+        const pool = otherCourses
+          .filter((c) => !pickedCourseIds.has(String(c.id)))
+          .sort(() => 0.5 - Math.random())
+
+        for (const c of pool) {
+          chosen.push({
+            id: String(c.id),
+            title: c.title,
+            partner: c.partner || 'CareerCatch',
+            thumbnail: c.thumbnail || '/images/courses/fullstack-web.jpg',
+            category: c.category || 'General',
+            type: c.certificateType || 'Professional Certificate',
+            badge: 'Bestseller',
+            badgeColor: 'bg-amber-50 text-amber-800 border-amber-200',
+            slug: c.slug || String(c.id),
+            price: c.price || 4999,
+            originalPrice: c.originalPrice || (c.price ? Math.round(c.price * 1.8) : 9999),
+          })
+          if (chosen.length >= 4) break
+        }
+      }
+
+      if (chosen.length >= 2) {
+        setDisplayedDomainCards(chosen)
+        return
+      }
+    }
+
+    // Fallback: shuffle DOMAIN_CARDS on each refresh
+    const randomizedCards = DOMAIN_CARDS
+      .filter((card) => !isUserDomainCard(card, targetRoles, userSkills))
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 4)
+
+    if (randomizedCards.length > 0) {
+      setDisplayedDomainCards(randomizedCards)
+    }
+  }, [courses, targetRoles, userSkills])
+
+  return (
+    <div className="rounded-3xl bg-[#0056D2] text-white p-6 sm:p-8 shadow-md">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        {/* Left text column */}
+        <div className="lg:col-span-4 space-y-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 border border-white/25 text-white text-[11px] font-bold">
+            <Compass size={13} weight="bold" />
+            <span>Cross-Domain Learning</span>
+          </div>
+
+          <h3 className="text-xl sm:text-2xl font-extrabold font-['Plus_Jakarta_Sans'] tracking-tight leading-tight">
+            Explore Other Career Domains
+          </h3>
+
+          <p className="text-xs sm:text-sm text-blue-100 leading-relaxed">
+            {primaryRole
+              ? `Expand your technical versatility beyond ${primaryRole}. Discover accredited programs across complementary disciplines in tech.`
+              : 'Expand your technical versatility beyond a single specialty. Discover accredited certificate programs across high-growth domains in tech.'}
+          </p>
+
+          <div className="pt-2">
+            <Link
+              href="/courses"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-[#0056D2] hover:bg-blue-50 font-bold text-xs sm:text-sm transition-all shadow-xs cursor-pointer active:scale-98"
+            >
+              <span>Explore All Domains</span>
+              <ArrowRight size={14} weight="bold" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Right cards grid */}
+        <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {displayedDomainCards.map((card) => (
+            <Link
+              key={card.id}
+              href={`/courses/${card.slug}`}
+              className="bg-white rounded-2xl p-3.5 text-slate-900 border border-white/30 hover:border-blue-200 hover:shadow-lg transition-all flex flex-col justify-between group cursor-pointer"
+            >
+              <div className="space-y-2.5">
+                <div className="aspect-16/10 rounded-xl overflow-hidden bg-slate-100 relative">
+                  <img
+                    src={card.thumbnail}
+                    alt={card.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
+                  />
+                  {/* Category tag with curved sides */}
+                  <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-white/95 text-slate-800 shadow-xs">
+                    {card.category}
+                  </span>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[10px] font-semibold text-slate-400 block">
+                    {card.partner}
+                  </span>
+                  <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#0056D2] transition-colors line-clamp-2 leading-snug">
+                    {card.title}
+                  </h4>
+                  <span className="text-[10px] text-slate-500 block">
+                    {card.type}
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between">
+                {/* Badge tag with curved sides */}
+                <span className={`text-[9px] px-2.5 py-0.5 rounded-full font-bold border ${card.badgeColor}`}>
+                  {card.badge}
+                </span>
+                <div className="text-right">
+                  {card.originalPrice && card.originalPrice > card.price && (
+                    <span className="text-[10px] text-slate-400 line-through block font-medium leading-none">
+                      ₹{card.originalPrice.toLocaleString('en-IN')}
+                    </span>
+                  )}
+                  <span className="text-xs font-extrabold text-slate-900">
+                    ₹{card.price.toLocaleString('en-IN')}
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── 4. Trending Skills & Personalized Specializations (Image 5) ──────────────
 
 const computePersonalizedRecommendations = computeRoleRecommendations;
 export function StudentHomeFeed() {
