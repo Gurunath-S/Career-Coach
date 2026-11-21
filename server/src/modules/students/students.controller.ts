@@ -88,34 +88,45 @@ export async function updateStudentProfile(req: AuthRequest, res: Response, next
       })
     }
 
+    const toNullable = (v: any) =>
+      v === undefined ? undefined : v === null || (typeof v === 'string' && !v.trim()) ? null : v
+
     const updated = await prisma.studentProfile.upsert({
       where: { userId: req.user.id },
       update: {
-        phone: phone ?? undefined,
-        education: education ?? undefined,
-        college: college ?? undefined,
-        graduationYear: graduationYear ? Number(graduationYear) : undefined,
-        currentRole: currentRole ?? undefined,
-        learningGoal: learningGoal ?? undefined,
-        desiredRoles: Array.isArray(desiredRoles) ? desiredRoles : undefined,
-        interestedCourse: interestedCourse ?? undefined,
-        skills: Array.isArray(skills) ? skills : undefined,
-        bio: bio ?? undefined,
-        resumeUrl: resumeUrl ?? undefined,
+        phone: toNullable(phone),
+        education: toNullable(education),
+        college: toNullable(college),
+        graduationYear: graduationYear !== undefined ? (graduationYear ? Number(graduationYear) : null) : undefined,
+        currentRole: toNullable(currentRole),
+        learningGoal: toNullable(learningGoal),
+        desiredRoles: Array.isArray(desiredRoles)
+          ? desiredRoles.map((r: any) => String(r).trim()).filter(Boolean)
+          : undefined,
+        interestedCourse: toNullable(interestedCourse),
+        skills: Array.isArray(skills)
+          ? skills.map((s: any) => String(s).trim()).filter(Boolean)
+          : undefined,
+        bio: toNullable(bio),
+        resumeUrl: toNullable(resumeUrl),
       },
       create: {
         userId: req.user.id,
         phone: phone || '',
-        education: education || null,
-        college: college || null,
+        education: toNullable(education) ?? null,
+        college: toNullable(college) ?? null,
         graduationYear: graduationYear ? Number(graduationYear) : null,
-        currentRole: currentRole || null,
-        learningGoal: learningGoal || null,
-        desiredRoles: Array.isArray(desiredRoles) ? desiredRoles : [],
-        interestedCourse: interestedCourse || null,
-        skills: Array.isArray(skills) ? skills : [],
-        bio: bio || null,
-        resumeUrl: resumeUrl || null,
+        currentRole: toNullable(currentRole) ?? null,
+        learningGoal: toNullable(learningGoal) ?? null,
+        desiredRoles: Array.isArray(desiredRoles)
+          ? desiredRoles.map((r: any) => String(r).trim()).filter(Boolean)
+          : [],
+        interestedCourse: toNullable(interestedCourse) ?? null,
+        skills: Array.isArray(skills)
+          ? skills.map((s: any) => String(s).trim()).filter(Boolean)
+          : [],
+        bio: toNullable(bio) ?? null,
+        resumeUrl: toNullable(resumeUrl) ?? null,
       },
       include: {
         user: { select: { id: true, name: true, email: true, avatar: true } },
