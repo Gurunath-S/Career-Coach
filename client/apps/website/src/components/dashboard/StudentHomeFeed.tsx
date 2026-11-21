@@ -957,6 +957,300 @@ function ExploreDomainsBlueShelf({
 }
 
 // ─── 4. Trending Skills & Personalized Specializations (Image 5) ──────────────
+function TrendingSkillsAndSpecializations({
+  courses,
+}: {
+  courses: Course[]
+}) {
+  const [activeTrendingSkill, setActiveTrendingSkill] = useState<string>('All Skills')
+
+  const specializations = useMemo(() => {
+    if (activeTrendingSkill === 'All Skills') {
+      return courses.slice(0, 4)
+    }
+    const matched = courses
+      .map((course) => ({ course, score: getCourseSkillScore(course, activeTrendingSkill) }))
+      .filter((s) => s.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map((s) => s.course)
+
+    return matched.length > 0 ? matched.slice(0, 4) : courses.slice(0, 4)
+  }, [courses, activeTrendingSkill])
+
+  const badges = [
+    { text: 'Trending right now', color: 'bg-rose-50 text-rose-700 border-rose-200' },
+    { text: 'Recently updated', color: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+    { text: 'Top AI program', color: 'bg-purple-50 text-purple-800 border-purple-200' },
+    { text: 'Bestseller', color: 'bg-amber-50 text-amber-800 border-amber-200' },
+  ]
+
+  return (
+    <div className="space-y-4">
+      {/* 1. Header Row */}
+      <div className="pb-2 border-b border-blue-100">
+        <div>
+          <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 font-['Plus_Jakarta_Sans'] tracking-tight">
+            Trending Skills &amp; Specializations
+          </h3>
+          <p className="text-xs text-slate-500 mt-1">
+            {activeTrendingSkill === 'All Skills'
+              ? 'Multi-course sequences designed to help you master high-growth technical skills'
+              : `Showing specializations matching: ${activeTrendingSkill}`}
+          </p>
+        </div>
+      </div>
+
+      {/* 2. Trending Skills Filter Pills Row */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 no-scrollbar">
+        {TRENDING_SKILLS_PILLS.map((skill) => {
+          const isSelected = activeTrendingSkill === skill
+          return (
+            <button
+              key={skill}
+              type="button"
+              onClick={() => setActiveTrendingSkill(skill)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                isSelected
+                  ? 'bg-[#0056D2] text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80'
+              }`}
+            >
+              {skill}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* 3. Specialization Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {specializations.map((course, idx) => {
+          const badge = badges[idx % badges.length]
+          const partner = getPartnerBadge(course.partner)
+
+          return (
+            <div
+              key={course.id}
+              className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-lg hover:border-blue-300 transition-all flex flex-col justify-between overflow-hidden group"
+            >
+              <div>
+                <Link
+                  href={`/courses/${course.slug || course.id}`}
+                  className="aspect-16/10 bg-slate-100 block overflow-hidden relative"
+                >
+                  <img
+                    src={course.thumbnail || '/images/courses/fullstack-web.jpg'}
+                    alt={course.title}
+                    className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-300"
+                    loading="lazy"
+                  />
+                  <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-white/95 text-slate-900 text-[10px] font-bold shadow-xs">
+                    {course.category}
+                  </div>
+                </Link>
+
+                <div className="p-4 space-y-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${partner.bg}`}>
+                      {partner.label}
+                    </span>
+                  </div>
+
+                  <Link href={`/courses/${course.slug || course.id}`}>
+                    <h4 className="font-['Plus_Jakarta_Sans'] font-extrabold text-xs sm:text-sm text-slate-900 group-hover:text-[#0056D2] transition-colors leading-snug line-clamp-2 min-h-[2.5rem]">
+                      {course.title}
+                    </h4>
+                  </Link>
+
+                  <span className="text-[11px] text-slate-500 block">
+                    {course.certificateType || 'Specialization'}
+                  </span>
+
+                  <div className="pt-1">
+                    <span className={`text-[9px] px-2.5 py-0.5 rounded-full font-bold border ${badge.color}`}>
+                      {badge.text}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 pt-2.5 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-900">
+                  ₹{course.price?.toLocaleString('en-IN') || '4,999'}
+                </span>
+                <Link
+                  href={`/courses/${course.slug || course.id}`}
+                  className="text-xs font-bold text-[#0056D2] hover:underline flex items-center gap-1"
+                >
+                  <span>Explore</span>
+                  <ArrowRight size={12} weight="bold" />
+                </Link>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Button below specializations */}
+      <div className="pt-2 text-center flex justify-center">
+        <Link
+          href="/courses"
+          className="px-6 py-2.5 rounded-xl border border-blue-600 text-[#0056D2] hover:bg-blue-50 font-bold text-xs sm:text-sm transition-all shadow-2xs flex items-center gap-2 cursor-pointer"
+        >
+          <span>View All Courses &amp; Specializations (12+)</span>
+          <ArrowRight size={14} weight="bold" />
+        </Link>
+      </div>
+    </div>
+  )
+}
+
+// ─── 5. Industry Credentials & Categories (Image 4) ───────────────────────────
+function IndustryCredentialsAndCategories({ courses }: { courses: Course[] }) {
+  const [selectedCategory, setSelectedCategory] = useState<string>('All Categories')
+
+  const displayedCards = useMemo(() => {
+    if (selectedCategory === 'All Categories') {
+      return INSTITUTION_CARDS
+    }
+    const filtered = courses.filter((c) => {
+      const cat = (c.category || '').toLowerCase()
+      const sel = selectedCategory.toLowerCase()
+      return (
+        cat.includes(sel) ||
+        sel.includes(cat) ||
+        (sel.includes('data science') && cat.includes('data')) ||
+        (sel.includes('cloud') && cat.includes('cloud')) ||
+        (sel.includes('devops') && (cat.includes('devops') || cat.includes('cloud')))
+      )
+    })
+    if (filtered.length > 0) {
+      return filtered.slice(0, 4).map((c) => ({
+        id: String(c.id),
+        institution: c.partner || 'CareerCatch Academy',
+        title: c.title,
+        credentialType: c.certificateType || 'Professional Certificate',
+        thumbnail: c.thumbnail || '/images/courses/fullstack-web.jpg',
+        slug: c.slug || String(c.id),
+        rating: c.rating || 4.8,
+        reviews: `${c.reviews || 120}+`,
+      }))
+    }
+    return INSTITUTION_CARDS
+  }, [courses, selectedCategory])
+
+  return (
+    <div className="space-y-6">
+      {/* Explore Categories Header (Bigger text with subtitle below) */}
+      <div className="pb-2 border-b border-blue-100">
+        <div>
+          <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 font-['Plus_Jakarta_Sans'] tracking-tight">
+            Explore Categories
+          </h3>
+          <p className="text-xs text-slate-500 mt-1">
+            Top academic and enterprise certifications designed for career transformation
+          </p>
+        </div>
+      </div>
+
+      {/* Available Categories as added in DB */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+        {EXPLORE_CATEGORIES.map((cat) => {
+          const IconComp = cat.icon
+          const isSelected = selectedCategory === cat.name
+          return (
+            <button
+              key={cat.name}
+              type="button"
+              onClick={() => setSelectedCategory(cat.name)}
+              className={`px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                isSelected
+                  ? 'bg-[#0056D2] text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80'
+              }`}
+            >
+              <IconComp size={14} weight="bold" />
+              <span>{cat.name}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Institution / Category Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {displayedCards.map((inst) => (
+          <div
+            key={inst.id}
+            className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-lg hover:border-blue-300 transition-all flex flex-col justify-between overflow-hidden group"
+          >
+            <div>
+              <Link
+                href={`/courses/${inst.slug}`}
+                className="aspect-16/10 bg-slate-100 block overflow-hidden relative"
+              >
+                <img
+                  src={inst.thumbnail}
+                  alt={inst.title}
+                  className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-300"
+                  loading="lazy"
+                />
+                <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-white/95 text-slate-900 text-[10px] font-bold shadow-xs">
+                  {inst.credentialType}
+                </div>
+              </Link>
+
+              <div className="p-4 space-y-2">
+                <span className="text-[11px] font-bold text-blue-700 block">
+                  {inst.institution}
+                </span>
+
+                <Link href={`/courses/${inst.slug}`}>
+                  <h4 className="font-['Plus_Jakarta_Sans'] font-extrabold text-xs sm:text-sm text-slate-900 group-hover:text-[#0056D2] transition-colors leading-snug line-clamp-2 min-h-[2.5rem]">
+                    {inst.title}
+                  </h4>
+                </Link>
+
+                <div className="flex items-center gap-2 text-[11px] text-slate-500 pt-1">
+                  <span className="flex items-center gap-0.5 text-amber-600 font-bold">
+                    <Star size={11} weight="fill" />
+                    <span>{inst.rating}</span>
+                  </span>
+                  <span>•</span>
+                  <span>{inst.reviews} reviews</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 pt-2.5 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between">
+              <span className="text-[11px] font-semibold text-slate-500">
+                Accredited Track
+              </span>
+              <Link
+                href={`/courses/${inst.slug}`}
+                className="text-xs font-bold text-[#0056D2] hover:underline flex items-center gap-1"
+              >
+                <span>View Program</span>
+                <ArrowRight size={12} weight="bold" />
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Button below */}
+      <div className="pt-2 text-center flex justify-center">
+        <Link
+          href="/courses"
+          className="px-6 py-2.5 rounded-xl border border-blue-600 text-[#0056D2] hover:bg-blue-50 font-bold text-xs sm:text-sm transition-all shadow-2xs flex items-center gap-2 cursor-pointer"
+        >
+          <span>View All Courses in Categories (12+)</span>
+          <ArrowRight size={14} weight="bold" />
+        </Link>
+      </div>
+    </div>
+  )
+}
+
+// ─── Main StudentHomeFeed Component ───────────────────────────────────────────
 
 const computePersonalizedRecommendations = computeRoleRecommendations;
 export function StudentHomeFeed() {
