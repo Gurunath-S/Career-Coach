@@ -1418,307 +1418,385 @@ export default function CourseDetailClient({
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <Users size={24} className="m-auto text-slate-600 mt-3" />
+                        <Users size={32} className="m-auto text-slate-500 mt-5" />
                       )}
                     </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-900">{course.instructor}</h3>
-                      <p className="text-[11px] text-slate-500">Staff Engineering Mentor</p>
+
+                    <div className="space-y-1 text-xs text-slate-700">
+                      <div className="flex items-center gap-2">
+                        <Star size={14} weight="fill" className="text-amber-500" />
+                        <span>4.8 Instructor Rating</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Certificate size={14} weight="duotone" className="text-blue-600" />
+                        <span>{(course.reviews * 4).toLocaleString()} Reviews</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Users size={14} weight="duotone" className="text-blue-600" />
+                        <span>{(course.reviews * 18 + 5000).toLocaleString()} Students</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Play size={14} weight="fill" className="text-blue-600" />
+                        <span>6 Courses</span>
+                      </div>
                     </div>
                   </div>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    Senior practitioner with 8+ years experience guiding engineers in architecture, clean code, and production scaling.
+
+                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed pt-2">
+                    {course.instructor} is a Staff Engineer and educator with over 8 years of industry experience architecting distributed cloud systems and coaching thousands of engineers into Tier-1 product tech companies. Known for clear mental models, line-by-line code reviews, and pragmatic production engineering practices.
                   </p>
                 </div>
+              </section>
 
-                {/* Offered By Card */}
-                <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-2xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-3">
-                    Offered by
-                  </span>
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6 rounded-md bg-[#155EEF]/10 text-[#155EEF] font-bold text-xs flex items-center justify-center">
-                      CC
-                    </div>
-                    <span className="text-xs font-bold text-slate-900">CareerCatch</span>
-                  </div>
-                  <p className="text-xs text-slate-500 leading-relaxed">
-                    Empowering students and developers through verified tech curriculum, hands-on projects, and direct engineering placement support.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* ─── SECTION 5: EXPLORE MORE RELATED COURSES (id="recommendations") ─── */}
-          <section id="recommendations" className="scroll-mt-36">
-            <div className="flex items-center justify-between mb-6">
-              <div>
+              {/* ─────────────────────────────────────────────────────────────
+                  SECTION 10: "STUDENT FEEDBACK & REVIEWS" (Udemy Breakdown)
+                 ───────────────────────────────────────────────────────────── */}
+              <section id="reviews" className="scroll-mt-36 space-y-6">
                 <h2 className="text-xl sm:text-2xl font-bold font-['Plus_Jakarta_Sans'] text-slate-900">
-                  Explore more related programs
+                  Student feedback
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                  Learners interested in {course.title} also explored these tracks.
-                </p>
-              </div>
-              <Link
-                href="/courses"
-                className="text-xs sm:text-sm font-bold text-[#0056D2] hover:underline"
-              >
-                View all courses →
-              </Link>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {relatedCourses.map((rel) => (
-                <Link
-                  key={rel.id}
-                  href={`/courses/${rel.slug}`}
-                  className="bg-white rounded-xl border border-slate-200 hover:border-blue-400 overflow-hidden transition-all duration-200 shadow-2xs hover:shadow-md flex flex-col group"
-                >
-                  <div className="aspect-16/9 w-full bg-slate-100 overflow-hidden relative">
-                    <img
-                      src={rel.thumbnail || '/images/courses/fullstack-web.jpg'}
-                      alt={rel.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      loading="lazy"
-                    />
-                    <div className="absolute top-2 left-2 bg-white/95 px-2 py-0.5 rounded text-[10px] font-bold text-slate-800 shadow-xs">
-                      {rel.partner || 'CareerCatch'}
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 items-center">
+                  {/* Left: Overall Score */}
+                  <div className="sm:col-span-4 text-center sm:text-left space-y-1">
+                    <div className="text-5xl font-black text-amber-500 font-['Plus_Jakarta_Sans']">
+                      {course.rating || 4.8}
                     </div>
-                  </div>
-
-                  <div className="p-4 flex flex-col justify-between flex-1">
-                    <div>
-                      <h3 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#0056D2] transition-colors line-clamp-2 mb-1.5">
-                        {rel.title}
-                      </h3>
-                      <div className="text-[11px] text-slate-500">{rel.duration} • {rel.level}</div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-100 text-xs">
-                      <div className="flex items-center gap-1 text-amber-500 font-bold">
-                        <Star size={13} weight="fill" />
-                        <span>{rel.rating}</span>
-                      </div>
-                      <span className="font-bold text-slate-900">
-                        ₹{rel.price.toLocaleString('en-IN')}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          {/* ─── SECTION 6: WHY PEOPLE CHOOSE CAREERCATCH (id="testimonials") ─── */}
-          <section id="testimonials" className="scroll-mt-36">
-            <div className="mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold font-['Plus_Jakarta_Sans'] text-slate-900">
-                Why people choose CareerCatch for their courses
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                Real stories from students and engineers who launched their careers with us.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {TESTIMONIALS_DATA.map((t, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between space-y-4"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={t.avatar}
-                        alt={t.name}
-                        className="w-10 h-10 rounded-full object-cover border border-slate-200"
-                        loading="lazy"
-                      />
-                      <div>
-                        <h4 className="text-xs font-bold text-slate-900">{t.name}</h4>
-                        <p className="text-[10px] text-slate-500">{t.role} @ <strong className="text-blue-600">{t.company}</strong></p>
-                      </div>
-                    </div>
-                    <div className="flex items-center text-amber-400">
-                      {[...Array(t.rating)].map((_, i) => (
-                        <Star key={i} size={13} weight="fill" />
-                      ))}
-                    </div>
-                    <p className="text-xs text-slate-600 leading-relaxed italic">
-                      &ldquo;{t.text}&rdquo;
-                    </p>
-                  </div>
-
-                  <div className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
-                    <CheckCircle size={13} weight="fill" />
-                    <span>Verified CareerCatch Graduate</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* ─── SECTION 7: RATINGS & VERIFIED REVIEWS (id="reviews") ─────── */}
-          <section id="reviews" className="scroll-mt-36 bg-white rounded-2xl p-6 md:p-8 border border-slate-200/90 shadow-2xs">
-            <div className="mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold font-['Plus_Jakarta_Sans'] text-slate-900">
-                Learner reviews and ratings
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                Verified feedback from enrolled students across recent programs.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Left Column: Rating breakdown */}
-              <div className="lg:col-span-1 space-y-4">
-                <div className="flex items-baseline gap-3">
-                  <span className="text-4xl sm:text-5xl font-black font-['Plus_Jakarta_Sans'] text-[#0056D2]">
-                    {course.rating || 4.8}
-                  </span>
-                  <div>
-                    <div className="flex items-center text-amber-400">
+                    <div className="flex items-center justify-center sm:justify-start text-amber-400">
                       {[...Array(5)].map((_, i) => (
                         <Star key={i} size={18} weight="fill" />
                       ))}
                     </div>
-                    <span className="text-xs text-slate-500 font-medium">
-                      {(course.reviews || 312).toLocaleString()} ratings
-                    </span>
+                    <div className="text-xs font-bold text-amber-600">Course Rating</div>
+                  </div>
+
+                  {/* Right: Percentage Bars */}
+                  <div className="sm:col-span-8 space-y-2">
+                    {REVIEWS_BREAKDOWN.map((row) => (
+                      <div key={row.stars} className="flex items-center gap-2 text-xs">
+                        <div className="flex items-center gap-1 w-16 text-slate-600 font-medium">
+                          <span>{row.stars}</span>
+                          <Star size={11} weight="fill" className="text-amber-400" />
+                        </div>
+                        <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                          <div
+                            className="h-full bg-amber-400 rounded-full"
+                            style={{ width: `${row.percent}%` }}
+                          />
+                        </div>
+                        <span className="w-9 text-right text-slate-500 font-medium text-[11px]">
+                          {row.percent}%
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                <div className="space-y-2 pt-2">
-                  {REVIEWS_BREAKDOWN.map((row) => (
-                    <div key={row.stars} className="flex items-center gap-2 text-xs">
-                      <span className="w-12 text-slate-600 font-medium">{row.stars} stars</span>
-                      <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                        <div
-                          className="h-full bg-amber-400 rounded-full"
-                          style={{ width: `${row.percent}%` }}
-                        />
-                      </div>
-                      <span className="w-8 text-right text-slate-400 text-[11px]">{row.percent}%</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Right 2 Columns: Review Cards */}
-              <div className="lg:col-span-2 space-y-4">
-                {VERIFIED_REVIEWS.map((rev, idx) => (
-                  <div key={idx} className="p-4 rounded-xl bg-slate-50/70 border border-slate-200/80 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-[#0056D2]/10 text-[#0056D2] font-bold text-xs flex items-center justify-center">
-                          {rev.initials}
+                {/* Verified Reviews Cards */}
+                <div className="space-y-4 pt-2">
+                  <h3 className="text-base font-bold text-slate-900">Reviews</h3>
+                  <div className="space-y-4">
+                    {VERIFIED_REVIEWS.map((rev, idx) => (
+                      <div
+                        key={idx}
+                        className="p-4 rounded-xl border border-slate-200 bg-white space-y-2 shadow-2xs"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-9 h-9 rounded-full bg-[#0056D2] text-white font-bold text-xs flex items-center justify-center">
+                              {rev.initials}
+                            </div>
+                            <div>
+                              <div className="text-xs font-bold text-slate-900">{rev.name}</div>
+                              <div className="text-[10px] text-slate-400">{rev.date}</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center text-amber-400">
+                            {[...Array(rev.rating)].map((_, i) => (
+                              <Star key={i} size={13} weight="fill" />
+                            ))}
+                          </div>
                         </div>
-                        <div>
-                          <div className="text-xs font-bold text-slate-900">{rev.name}</div>
-                          <div className="text-[10px] text-slate-500">{rev.date}</div>
-                        </div>
+                        <p className="text-xs text-slate-700 leading-relaxed">{rev.text}</p>
                       </div>
-                      <div className="flex items-center text-amber-400">
-                        {[...Array(rev.rating)].map((_, i) => (
-                          <Star key={i} size={13} weight="fill" />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-xs text-slate-700 leading-relaxed">{rev.text}</p>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
-          </section>
+                </div>
+              </section>
 
-          {/* ─── SECTION 8: SHAREABLE CERTIFICATE ───────────────────────── */}
-          <section className="bg-gradient-to-r from-[#101B3C] to-[#1E293B] text-white rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md">
-            <div className="space-y-2 max-w-xl text-center md:text-left">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold border border-blue-400/30">
-                <Certificate size={15} weight="fill" />
-                <span>Verified Career Credential</span>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold font-['Plus_Jakarta_Sans']">
-                Earn a career certificate upon completion
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Add your verified certificate directly to LinkedIn and your resume. Showcase verifiable capstone project work to tech recruiters.
-              </p>
+              {/* ─────────────────────────────────────────────────────────────
+                  SECTION 11: "FREQUENTLY ASKED QUESTIONS"
+                 ───────────────────────────────────────────────────────────── */}
+              <section id="faqs" className="scroll-mt-36 space-y-4">
+                <h2 className="text-xl sm:text-2xl font-bold font-['Plus_Jakarta_Sans'] text-slate-900">
+                  Frequently asked questions
+                </h2>
+
+                <div className="border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-200 bg-white">
+                  {COURSE_FAQS.map((faq, idx) => {
+                    const isOpen = openFaqIndex === idx
+                    return (
+                      <div key={idx}>
+                        <button
+                          type="button"
+                          onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                          className="w-full flex items-center justify-between p-4 bg-white hover:bg-slate-50 text-left transition-colors cursor-pointer"
+                        >
+                          <span className="text-xs sm:text-sm font-bold text-slate-900 pr-3">
+                            {faq.q}
+                          </span>
+                          {isOpen ? (
+                            <CaretUp size={16} className="text-slate-500 shrink-0" />
+                          ) : (
+                            <CaretDown size={16} className="text-slate-500 shrink-0" />
+                          )}
+                        </button>
+                        {isOpen && (
+                          <div className="p-4 bg-slate-50/50 border-t border-slate-100 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                            {faq.a}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+
             </div>
 
-            <div className="shrink-0">
-              <button
-                type="button"
-                onClick={handleEnrollClick}
-                disabled={enrolling}
-                className="px-6 py-3 rounded-xl bg-white text-[#101B3C] font-bold text-xs sm:text-sm hover:bg-slate-100 transition-colors shadow-sm cursor-pointer"
-              >
-                Enroll Now to Start Learning →
-              </button>
-            </div>
-          </section>
+            {/* ─── RIGHT COLUMN: FLOATING STICKY VIDEO & ENROLL CARD (DESKTOP) ─── */}
+            <div className="hidden lg:block lg:col-span-4 relative">
+              <div className="sticky top-24 -mt-52 lg:-mt-64 z-30">
+                <div className="bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
+                  
+                  {/* Video Preview Box with Play Overlay */}
+                  <div
+                    onClick={() => handleOpenPreview()}
+                    className="relative aspect-video w-full overflow-hidden bg-slate-900 cursor-pointer group"
+                  >
+                    <img
+                      src={course.thumbnail || '/images/courses/fullstack-web.jpg'}
+                      alt={course.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/30 group-hover:from-black/70 transition-all flex flex-col items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-white/95 text-slate-900 shadow-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Play size={28} weight="fill" className="ml-1 text-[#0056D2]" />
+                      </div>
+                      <span className="text-white font-bold text-xs mt-3 tracking-wide drop-shadow">
+                        Preview this course
+                      </span>
+                    </div>
+                  </div>
 
-          {/* ─── SECTION 9: FREQUENTLY ASKED QUESTIONS ──────────────────── */}
-          <section className="bg-white rounded-2xl p-6 md:p-8 border border-slate-200/90 shadow-2xs">
-            <div className="mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold font-['Plus_Jakarta_Sans'] text-slate-900">
-                Frequently asked questions
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                Everything you need to know about enrollment, course schedules, and certificates.
-              </p>
-            </div>
+                  {/* Card Content & Action Area */}
+                  <div className="p-6 space-y-4">
+                    
+                    {/* Price Row */}
+                    <div>
+                      <div className="flex items-baseline gap-3">
+                        <span className="text-3xl font-extrabold text-slate-900 font-['Plus_Jakarta_Sans']">
+                          ₹{course.price.toLocaleString('en-IN')}
+                        </span>
+                        <span className="text-sm font-semibold text-slate-400 line-through">
+                          ₹{originalPrice.toLocaleString('en-IN')}
+                        </span>
+                        <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
+                          {discountPercent}% off
+                        </span>
+                      </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-              {/* FAQ Accordion */}
-              <div className="lg:col-span-2 space-y-3">
-                {COURSE_FAQS.map((faq, idx) => {
-                  const isOpen = openFaqIndex === idx
-                  return (
-                    <div key={idx} className="border border-slate-200 rounded-xl overflow-hidden bg-white">
+                      <div className="text-xs font-semibold text-rose-600 flex items-center gap-1.5 mt-1.5">
+                        <Clock size={14} weight="bold" />
+                        <span>1 day left at this price!</span>
+                      </div>
+                    </div>
+
+                    {/* Primary & Secondary Action CTAs */}
+                    <div className="space-y-2 pt-1">
                       <button
                         type="button"
-                        onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                        className="w-full flex items-center justify-between p-4 bg-white hover:bg-slate-50 text-left transition-colors cursor-pointer"
+                        onClick={handleEnrollClick}
+                        disabled={enrolling}
+                        className="w-full py-3.5 px-4 rounded-lg bg-[#0056D2] hover:bg-[#00419e] text-white font-bold text-sm shadow-md transition-all cursor-pointer text-center block"
                       >
-                        <span className="text-xs sm:text-sm font-bold text-slate-900 pr-3">{faq.q}</span>
-                        {isOpen ? <CaretUp size={16} className="text-slate-500 shrink-0" /> : <CaretDown size={16} className="text-slate-500 shrink-0" />}
+                        {enrolling ? 'Enrolling...' : 'Enroll for Free'}
                       </button>
-                      {isOpen && (
-                        <div className="p-4 bg-slate-50/50 border-t border-slate-200 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                          {faq.a}
-                        </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setDemoModalOpen(true)}
+                        className="w-full py-2.5 px-4 rounded-lg border border-slate-900 hover:bg-slate-50 text-slate-900 font-bold text-xs transition-colors cursor-pointer text-center block"
+                      >
+                        Schedule Free 1-on-1 Consultation
+                      </button>
+                    </div>
+
+                    <div className="text-[11px] text-center text-slate-500 font-medium">
+                      30-Day Money-Back Guarantee
+                    </div>
+
+                    {/* "This course includes:" List (Udemy Reference) */}
+                    <div className="pt-3 border-t border-slate-100 space-y-2.5">
+                      <h4 className="text-xs font-bold text-slate-900">This course includes:</h4>
+                      <ul className="space-y-2 text-xs text-slate-700">
+                        <li className="flex items-center gap-2.5">
+                          <Play size={14} weight="bold" className="text-slate-600 shrink-0" />
+                          <span>{course.duration || '48 Hours'} on-demand video</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <FileText size={14} weight="bold" className="text-slate-600 shrink-0" />
+                          <span>24 practical assignments &amp; labs</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <DownloadSimple size={14} weight="bold" className="text-slate-600 shrink-0" />
+                          <span>Downloadable starter code &amp; PRDs</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <DeviceMobile size={14} weight="bold" className="text-slate-600 shrink-0" />
+                          <span>Access on mobile and desktop</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <InfinityIcon size={14} weight="bold" className="text-slate-600 shrink-0" />
+                          <span>Full lifetime access</span>
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Certificate size={14} weight="bold" className="text-slate-600 shrink-0" />
+                          <span>Certificate of completion</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* Share / Gift / Coupon Links */}
+                    <div className="pt-3 border-t border-slate-100 space-y-3">
+                      <div className="flex items-center justify-around text-xs font-bold text-[#0056D2]">
+                        <button
+                          type="button"
+                          onClick={handleShare}
+                          className="hover:underline flex items-center gap-1 cursor-pointer"
+                        >
+                          <ShareNetwork size={14} />
+                          <span>Share</span>
+                        </button>
+                        <span>•</span>
+                        <button
+                          type="button"
+                          onClick={() => setDemoModalOpen(true)}
+                          className="hover:underline flex items-center gap-1 cursor-pointer"
+                        >
+                          <Gift size={14} />
+                          <span>Gift this course</span>
+                        </button>
+                        <span>•</span>
+                        <button
+                          type="button"
+                          onClick={() => setCouponApplied(false)}
+                          className="hover:underline flex items-center gap-1 cursor-pointer"
+                        >
+                          <Tag size={14} />
+                          <span>Apply Coupon</span>
+                        </button>
+                      </div>
+
+                      {/* Coupon Code Input */}
+                      <form onSubmit={handleApplyCoupon} className="flex gap-2 pt-1">
+                        <input
+                          type="text"
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value)}
+                          placeholder="Enter Coupon Code"
+                          className="flex-1 px-3 py-1.5 border border-slate-300 rounded text-xs uppercase font-medium focus:outline-none focus:border-[#0056D2]"
+                        />
+                        <button
+                          type="submit"
+                          className="px-4 py-1.5 bg-slate-900 text-white rounded text-xs font-bold hover:bg-slate-800 transition-colors cursor-pointer"
+                        >
+                          Apply
+                        </button>
+                      </form>
+                      {couponApplied && (
+                        <p className="text-[11px] font-bold text-emerald-600">
+                          Coupon applied successfully!
+                        </p>
                       )}
                     </div>
-                  )
-                })}
-              </div>
 
-              {/* Need Help / Talk to Advisor Card */}
-              <div className="lg:col-span-1 bg-blue-50/70 rounded-2xl p-5 border border-blue-100 space-y-3 text-center sm:text-left">
-                <span className="text-xs font-bold text-blue-900 block">
-                  Have more questions?
-                </span>
-                <p className="text-xs text-blue-800 leading-relaxed">
-                  Speak directly with an academic counselor to choose the right track for your career background.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setDemoModalOpen(true)}
-                  className="w-full py-2.5 px-4 rounded-xl bg-[#0056D2] hover:bg-[#00419e] text-white font-bold text-xs transition-colors cursor-pointer"
-                >
-                  Book Free Demo &amp; Counseling
-                </button>
+                  </div>
+                </div>
               </div>
             </div>
-          </section>
 
+          </div>
         </div>
       </main>
 
       <Footer />
+
+      {/* ════════════════════════════════════════════════════════════════
+          VIDEO PREVIEW MODAL
+         ════════════════════════════════════════════════════════════════ */}
+      {previewModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
+          <div className="bg-[#1C1D1F] text-white w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl border border-white/10 flex flex-col max-h-[90vh]">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/10">
+              <div className="min-w-0 pr-4">
+                <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider block">
+                  Course Preview
+                </span>
+                <h3 className="text-sm sm:text-base font-bold text-white truncate">
+                  {previewLectureTitle}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPreviewModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                title="Close"
+              >
+                <X size={18} weight="bold" />
+              </button>
+            </div>
+
+            {/* Video Player Area */}
+            <div className="relative aspect-video w-full bg-black flex items-center justify-center overflow-hidden">
+              <video
+                controls
+                autoPlay
+                playsInline
+                className="w-full h-full object-contain"
+                poster={course.thumbnail || '/images/courses/fullstack-web.jpg'}
+                src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+              >
+                Your browser does not support HTML5 video preview.
+              </video>
+            </div>
+
+            {/* Modal Footer / Sample Lecture Switcher & Enroll CTA */}
+            <div className="p-4 sm:p-5 bg-[#141517] border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-xs text-slate-300">
+                <span className="font-bold text-white block">Ready to unlock all {totalLectures} lectures?</span>
+                <span>Get hands-on mentorship, code reviews, and career certificates.</span>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPreviewModalOpen(false)
+                    handleEnrollClick()
+                  }}
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-[#0056D2] hover:bg-[#00419e] text-white font-bold text-xs sm:text-sm transition-all shadow-sm cursor-pointer whitespace-nowrap"
+                >
+                  Enroll Now — ₹{course.price.toLocaleString('en-IN')}
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
 
       {/* Demo Booking Modal */}
       <DemoBookingModal
@@ -1727,7 +1805,7 @@ export default function CourseDetailClient({
         initialCourse={course.title}
       />
 
-      {/* Coursera-style 2-Step Auth Modal */}
+      {/* Auth Modal */}
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
