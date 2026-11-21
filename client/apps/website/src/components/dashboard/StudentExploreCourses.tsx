@@ -79,9 +79,19 @@ function computePersonalizedRecommendations(
 
     if (matchedCourses.length > 0) {
       const criteria: string[] = []
-      if (profile?.interestedCourse) criteria.push(`"${profile.interestedCourse}"`)
-      if (profile?.desiredRoles?.length) criteria.push(profile.desiredRoles.slice(0, 2).join(', '))
-      if (profile?.skills?.length) criteria.push(profile.skills.slice(0, 3).join(', '))
+      const uniqueRoles = Array.from(
+        new Set(
+          [profile?.interestedCourse, ...(profile?.desiredRoles || [])]
+            .map((r) => (r || '').trim())
+            .filter(Boolean)
+        )
+      )
+      if (uniqueRoles.length > 0) {
+        criteria.push(`"${uniqueRoles.slice(0, 2).join(', ')}"`)
+      }
+      if (profile?.skills?.length) {
+        criteria.push(profile.skills.slice(0, 3).join(', '))
+      }
 
       return {
         type: 'goals',
