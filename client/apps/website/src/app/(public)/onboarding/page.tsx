@@ -228,26 +228,23 @@ export default function OnboardingScreen() {
 
     try {
       const cleanSkills = selectedSkills.filter((s) => s !== "I don't know")
+      const roleVal = selectedRole ? selectedRole.trim() : null
+
       const payload: Partial<StudentProfile> = {
-        currentRole: selectedRole || existingProfile?.currentRole || null,
-        interestedCourse: selectedRole || existingProfile?.interestedCourse || null,
-        desiredRoles: selectedRole ? [selectedRole] : existingProfile?.desiredRoles || [],
-        skills: cleanSkills.length > 0 ? cleanSkills : existingProfile?.skills || [],
-        education: selectedEducation || existingProfile?.education || null,
+        currentRole: roleVal,
+        interestedCourse: roleVal,
+        desiredRoles: roleVal ? [roleVal] : [],
+        skills: cleanSkills,
+        education: selectedEducation ? selectedEducation.trim() : null,
       }
 
-      const hasAnyInput = Boolean(
-        selectedRole || cleanSkills.length > 0 || selectedEducation
-      )
-
-      if (hasAnyInput) {
-        await apiService.updateStudentProfile(payload)
-      }
+      await apiService.updateStudentProfile(payload)
     } catch (err) {
       console.warn('Could not save onboarding profile:', err)
     } finally {
       setSaving(false)
       router.push('/')
+      router.refresh()
     }
   }
 
